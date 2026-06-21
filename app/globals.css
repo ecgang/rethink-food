@@ -9,15 +9,20 @@
   --background: #f7f7f5;
   --surface: #ffffff;
   --foreground: #1c1c1a;
-  --muted: #6b6b66;
+  --muted: #595954; /* ~4.6:1 on --background — WCAG AA for normal text */
   --border: #e6e5e0;
   --brand: #1f7a52;
   --brand-soft: #e7f3ec;
 
   --sev-critical: #b42318;
-  --sev-high: #dc6803;
-  --sev-medium: #b58a00;
+  --sev-high: #b45309; /* darkened for AA contrast on light bg */
+  --sev-medium: #8a6d00; /* darkened for AA contrast */
   --sev-low: #475467;
+
+  --sev-critical-bg: #fef3f2;
+  --sev-high-bg: #fef6ee;
+  --sev-medium-bg: #fefbe8;
+  --sev-low-bg: #f2f4f7;
 
   --pos: #1f7a52;
   --neg: #b42318;
@@ -46,4 +51,28 @@ body {
 .tnum {
   font-variant-numeric: tabular-nums;
   font-feature-settings: "tnum";
+}
+
+/* gentle reveal for async content (e.g. the AI intake result panel) */
+@keyframes reveal {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+.reveal {
+  animation: reveal 0.28s ease-out;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .reveal {
+    animation: none;
+  }
+  * {
+    scroll-behavior: auto !important;
+  }
 }

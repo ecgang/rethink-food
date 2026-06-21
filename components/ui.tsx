@@ -32,7 +32,7 @@ export function CardHeader({
   return (
     <div className="flex items-start justify-between gap-3 px-5 pt-4 pb-3">
       <div>
-        <h2 className="text-sm font-semibold">{title}</h2>
+        <h2 className="text-base font-semibold">{title}</h2>
         {subtitle && <p className="text-xs text-muted mt-0.5">{subtitle}</p>}
       </div>
       {action}
@@ -51,10 +51,10 @@ export function CardBody({
 }
 
 const SEVERITY_STYLES: Record<Severity, { bg: string; text: string; label: string }> = {
-  CRITICAL: { bg: "bg-[#fef3f2]", text: "text-[var(--sev-critical)]", label: "Critical" },
-  HIGH: { bg: "bg-[#fef6ee]", text: "text-[var(--sev-high)]", label: "High" },
-  MEDIUM: { bg: "bg-[#fefbe8]", text: "text-[var(--sev-medium)]", label: "Medium" },
-  LOW: { bg: "bg-[#f2f4f7]", text: "text-[var(--sev-low)]", label: "Low" },
+  CRITICAL: { bg: "bg-[var(--sev-critical-bg)]", text: "text-[var(--sev-critical)]", label: "Critical" },
+  HIGH: { bg: "bg-[var(--sev-high-bg)]", text: "text-[var(--sev-high)]", label: "High" },
+  MEDIUM: { bg: "bg-[var(--sev-medium-bg)]", text: "text-[var(--sev-medium)]", label: "Medium" },
+  LOW: { bg: "bg-[var(--sev-low-bg)]", text: "text-[var(--sev-low)]", label: "Low" },
 };
 
 export function SeverityBadge({ severity }: { severity: Severity }) {
@@ -84,7 +84,7 @@ export function PageHeader({
   return (
     <div className="flex flex-wrap items-end justify-between gap-4 mb-6">
       <div>
-        <h1 className="text-xl font-semibold tracking-tight">{title}</h1>
+        <h1 className="text-2xl font-semibold tracking-tight">{title}</h1>
         {subtitle && <p className="text-sm text-muted mt-1 max-w-2xl">{subtitle}</p>}
       </div>
       {children}

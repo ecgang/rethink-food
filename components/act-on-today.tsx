@@ -9,6 +9,12 @@ const SUMMARY_COLOR: Record<Severity, string> = {
   MEDIUM: "text-[var(--sev-medium)]",
   LOW: "text-[var(--sev-low)]",
 };
+const BORDER_COLOR: Record<Severity, string> = {
+  CRITICAL: "border-l-[color:var(--sev-critical)]",
+  HIGH: "border-l-[color:var(--sev-high)]",
+  MEDIUM: "border-l-[color:var(--sev-medium)]",
+  LOW: "border-l-[color:var(--sev-low)]",
+};
 
 export function ActOnToday({
   items,
@@ -46,7 +52,10 @@ export function ActOnToday({
       </div>
       <ul className="divide-y divide-border border-t border-border">
         {shown.map((it, i) => (
-          <li key={`${it.reasonCode}-${it.entityId}-${i}`} className="px-5 py-3">
+          <li
+            key={`${it.reasonCode}-${it.entityId}-${i}`}
+            className={`border-l-[3px] ${BORDER_COLOR[it.severity]} px-5 py-3`}
+          >
             <div className="flex items-start gap-3">
               <SeverityBadge severity={it.severity} />
               <div className="min-w-0 flex-1">

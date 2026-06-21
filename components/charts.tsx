@@ -38,8 +38,12 @@ export function LifecycleFunnel({
 }: {
   data: { stage: string; count: number }[];
 }) {
+  const label = `Meal lifecycle funnel: ${data
+    .map((d) => `${d.stage} ${d.count.toLocaleString()}`)
+    .join(", ")}`;
   return (
-    <ResponsiveContainer width="100%" height={200}>
+    <div role="img" aria-label={label}>
+      <ResponsiveContainer width="100%" height={200}>
       <BarChart layout="vertical" data={data} margin={{ left: 8, right: 32 }}>
         <XAxis type="number" hide />
         <YAxis
@@ -63,7 +67,8 @@ export function LifecycleFunnel({
           />
         </Bar>
       </BarChart>
-    </ResponsiveContainer>
+      </ResponsiveContainer>
+    </div>
   );
 }
 
@@ -73,8 +78,12 @@ export function CostDonut({
 }: {
   data: { type: string; value: number }[];
 }) {
+  const label = `Cost composition by type: ${data
+    .map((d) => `${d.type} ${usd(d.value)}`)
+    .join(", ")}`;
   return (
-    <ResponsiveContainer width="100%" height={200}>
+    <div role="img" aria-label={label}>
+      <ResponsiveContainer width="100%" height={200}>
       <PieChart>
         <Pie
           data={data}
@@ -90,7 +99,8 @@ export function CostDonut({
         </Pie>
         <Tooltip formatter={(v: unknown, n) => [usd(num(v)), n as string]} />
       </PieChart>
-    </ResponsiveContainer>
+      </ResponsiveContainer>
+    </div>
   );
 }
 
@@ -101,8 +111,12 @@ export function MarginBars({
   data: { key: string; marginPerMealCents: number; mealCount: number }[];
 }) {
   const height = Math.max(160, data.length * 38);
+  const label = `Contribution margin per meal: ${data
+    .map((d) => `${d.key} ${usd(d.marginPerMealCents)}`)
+    .join(", ")}`;
   return (
-    <ResponsiveContainer width="100%" height={height}>
+    <div role="img" aria-label={label}>
+      <ResponsiveContainer width="100%" height={height}>
       <BarChart layout="vertical" data={data} margin={{ left: 8, right: 40 }}>
         <XAxis type="number" hide />
         <YAxis
@@ -132,6 +146,7 @@ export function MarginBars({
           />
         </Bar>
       </BarChart>
-    </ResponsiveContainer>
+      </ResponsiveContainer>
+    </div>
   );
 }

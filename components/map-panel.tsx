@@ -20,7 +20,11 @@ export function MapPanel({ points }: { points: DemandMapPoint[] }) {
   return (
     <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
       <Card className="lg:col-span-2 overflow-hidden">
-        <div className="h-[560px]">
+        <div
+          className="h-[560px]"
+          role="application"
+          aria-label="Map of NYC neighborhood meal demand versus fulfilled capacity. A keyboard-accessible list of the same data is shown alongside."
+        >
           <DemandMap points={points} />
         </div>
       </Card>
@@ -32,7 +36,10 @@ export function MapPanel({ points }: { points: DemandMapPoint[] }) {
             Neighborhoods where weekly demand most outpaces fulfilled meals.
           </p>
         </div>
-        <ul className="divide-y divide-border">
+        <ul
+          className="divide-y divide-border"
+          aria-label="Neighborhoods ranked by unmet weekly meal demand (text equivalent of the map)"
+        >
           {ranked.map((p) => {
             const ratio = p.weeklyDemand ? p.fulfilledLast7 / p.weeklyDemand : 0;
             return (
