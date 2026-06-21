@@ -1,0 +1,93 @@
+[
+  {
+    "borough": "Bronx",
+    "neighborhood": "Mott Haven-Port Morris",
+    "ntacode": "BX0101",
+    "lat": 40.80547,
+    "lng": -73.91403
+  },
+  {
+    "borough": "Bronx",
+    "neighborhood": "Fordham Heights",
+    "ntacode": "BX0503",
+    "lat": 40.85874,
+    "lng": -73.89915
+  },
+  {
+    "borough": "Bronx",
+    "neighborhood": "Belmont",
+    "ntacode": "BX0603",
+    "lat": 40.85788,
+    "lng": -73.88614
+  },
+  {
+    "borough": "Brooklyn",
+    "neighborhood": "Brownsville",
+    "ntacode": "BK1602",
+    "lat": 40.66415,
+    "lng": -73.91043
+  },
+  {
+    "borough": "Brooklyn",
+    "neighborhood": "Bedford-Stuyvesant (West)",
+    "ntacode": "BK0301",
+    "lat": 40.6897,
+    "lng": -73.95057
+  },
+  {
+    "borough": "Brooklyn",
+    "neighborhood": "Sunset Park (West)",
+    "ntacode": "BK0702",
+    "lat": 40.65568,
+    "lng": -74.01208
+  },
+  {
+    "borough": "Queens",
+    "neighborhood": "North Corona",
+    "ntacode": "QN0303",
+    "lat": 40.75535,
+    "lng": -73.86098
+  },
+  {
+    "borough": "Queens",
+    "neighborhood": "Jamaica Estates-Holliswood",
+    "ntacode": "QN0804",
+    "lat": 40.7208,
+    "lng": -73.77734
+  },
+  {
+    "borough": "Queens",
+    "neighborhood": "East Elmhurst",
+    "ntacode": "QN0302",
+    "lat": 40.7642,
+    "lng": -73.87136
+  },
+  {
+    "borough": "Manhattan",
+    "neighborhood": "East Harlem (South)",
+    "ntacode": "MN1101",
+    "lat": 40.78816,
+    "lng": -73.94238
+  },
+  {
+    "borough": "Manhattan",
+    "neighborhood": "Washington Heights (South)",
+    "ntacode": "MN1201",
+    "lat": 40.84236,
+    "lng": -73.94331
+  },
+  {
+    "borough": "Staten Island",
+    "neighborhood": "Tompkinsville-Stapleton-Clifton-Fox Hills",
+    "ntacode": "SI0102",
+    "lat": 40.62581,
+    "lng": -74.07803
+  },
+  {
+    "borough": "Staten Island",
+    "neighborhood": "Port Richmond",
+    "ntacode": "SI0106",
+    "lat": 40.63679,
+    "lng": -74.12967
+  }
+]

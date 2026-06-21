@@ -1,0 +1,11 @@
+{
+  "_source": "Feeding America — Map the Meal Gap 2024 (2022 data). https://map.feedingamerica.org/",
+  "_note": "County-level food-insecurity rates for NYC's five counties, used to weight per-neighborhood weekly meal demand (see lib/demand.ts). Rates are approximate MMG estimates; the Bronx is consistently the most food-insecure county in NY State.",
+  "counties": {
+    "Bronx": { "foodInsecurityRate": 0.24, "costPerMealCents": 412 },
+    "Brooklyn": { "foodInsecurityRate": 0.14, "costPerMealCents": 412 },
+    "Queens": { "foodInsecurityRate": 0.12, "costPerMealCents": 412 },
+    "Manhattan": { "foodInsecurityRate": 0.13, "costPerMealCents": 412 },
+    "Staten Island": { "foodInsecurityRate": 0.1, "costPerMealCents": 412 }
+  }
+}

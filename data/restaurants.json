@@ -1,0 +1,353 @@
+[
+  {
+    "name": "Merry Land Buffet",
+    "borough": "Bronx",
+    "cuisine": "Chinese",
+    "lat": 40.81683,
+    "lng": -73.92061,
+    "neighborhood": "Mott Haven-Port Morris",
+    "minorityOwned": true
+  },
+  {
+    "name": "Rinconcito Tepeyac",
+    "borough": "Bronx",
+    "cuisine": "Mexican",
+    "lat": 40.80933,
+    "lng": -73.92341,
+    "neighborhood": "Mott Haven-Port Morris",
+    "minorityOwned": true
+  },
+  {
+    "name": "La Patrona Restobar",
+    "borough": "Bronx",
+    "cuisine": "Mexican",
+    "lat": 40.80767,
+    "lng": -73.91952,
+    "neighborhood": "Mott Haven-Port Morris",
+    "minorityOwned": true
+  },
+  {
+    "name": "Running Cool Restaurant",
+    "borough": "Bronx",
+    "cuisine": "Caribbean",
+    "lat": 40.85808,
+    "lng": -73.90408,
+    "neighborhood": "Fordham Heights",
+    "minorityOwned": true
+  },
+  {
+    "name": "Angela Bakery Corp",
+    "borough": "Bronx",
+    "cuisine": "American",
+    "lat": 40.86025,
+    "lng": -73.89834,
+    "neighborhood": "Fordham Heights",
+    "minorityOwned": true
+  },
+  {
+    "name": "Seafood Soul And Tingz",
+    "borough": "Bronx",
+    "cuisine": "American",
+    "lat": 40.8465,
+    "lng": -73.89481,
+    "neighborhood": "Fordham Heights",
+    "minorityOwned": false
+  },
+  {
+    "name": "Yopcity",
+    "borough": "Bronx",
+    "cuisine": "African",
+    "lat": 40.85393,
+    "lng": -73.88895,
+    "neighborhood": "Belmont",
+    "minorityOwned": false
+  },
+  {
+    "name": "San Gennaro",
+    "borough": "Bronx",
+    "cuisine": "Italian",
+    "lat": 40.85409,
+    "lng": -73.88883,
+    "neighborhood": "Belmont",
+    "minorityOwned": true
+  },
+  {
+    "name": "Pete'S Cafe",
+    "borough": "Bronx",
+    "cuisine": "American",
+    "lat": 40.85877,
+    "lng": -73.88584,
+    "neighborhood": "Belmont",
+    "minorityOwned": true
+  },
+  {
+    "name": "Lucys Coffee",
+    "borough": "Brooklyn",
+    "cuisine": "Mexican",
+    "lat": 40.67628,
+    "lng": -73.90978,
+    "neighborhood": "Brownsville",
+    "minorityOwned": false
+  },
+  {
+    "name": "Gayle'S Thrill & Grill",
+    "borough": "Brooklyn",
+    "cuisine": "Other",
+    "lat": 40.65782,
+    "lng": -73.90847,
+    "neighborhood": "Brownsville",
+    "minorityOwned": true
+  },
+  {
+    "name": "Napoli Pizza",
+    "borough": "Brooklyn",
+    "cuisine": "Pizza",
+    "lat": 40.6626,
+    "lng": -73.90849,
+    "neighborhood": "Brownsville",
+    "minorityOwned": false
+  },
+  {
+    "name": "Gaddy Lane",
+    "borough": "Brooklyn",
+    "cuisine": "New American",
+    "lat": 40.69996,
+    "lng": -73.94845,
+    "neighborhood": "Bedford-Stuyvesant (West)",
+    "minorityOwned": false
+  },
+  {
+    "name": "Izzy Rose",
+    "borough": "Brooklyn",
+    "cuisine": "American",
+    "lat": 40.68705,
+    "lng": -73.96278,
+    "neighborhood": "Bedford-Stuyvesant (West)",
+    "minorityOwned": true
+  },
+  {
+    "name": "Green Chilli",
+    "borough": "Brooklyn",
+    "cuisine": "Indian",
+    "lat": 40.68083,
+    "lng": -73.94967,
+    "neighborhood": "Bedford-Stuyvesant (West)",
+    "minorityOwned": true
+  },
+  {
+    "name": "Constantine Restaurant & Bar",
+    "borough": "Brooklyn",
+    "cuisine": "American",
+    "lat": 40.65186,
+    "lng": -74.00489,
+    "neighborhood": "Sunset Park (West)",
+    "minorityOwned": true
+  },
+  {
+    "name": "Avocaderia",
+    "borough": "Brooklyn",
+    "cuisine": "Salads",
+    "lat": 40.65594,
+    "lng": -74.00716,
+    "neighborhood": "Sunset Park (West)",
+    "minorityOwned": true
+  },
+  {
+    "name": "Twist",
+    "borough": "Brooklyn",
+    "cuisine": "Seafood",
+    "lat": 40.65207,
+    "lng": -74.01003,
+    "neighborhood": "Sunset Park (West)",
+    "minorityOwned": false
+  },
+  {
+    "name": "El Trio Grill",
+    "borough": "Queens",
+    "cuisine": "Mexican",
+    "lat": 40.74663,
+    "lng": -73.8622,
+    "neighborhood": "North Corona",
+    "minorityOwned": false
+  },
+  {
+    "name": "Tacos Al Suadero",
+    "borough": "Queens",
+    "cuisine": "Mexican",
+    "lat": 40.75052,
+    "lng": -73.86304,
+    "neighborhood": "North Corona",
+    "minorityOwned": true
+  },
+  {
+    "name": "Aqui En Bella Puebla",
+    "borough": "Queens",
+    "cuisine": "Mexican",
+    "lat": 40.74885,
+    "lng": -73.87243,
+    "neighborhood": "North Corona",
+    "minorityOwned": true
+  },
+  {
+    "name": "Hong Kong Restaurant",
+    "borough": "Queens",
+    "cuisine": "Chinese",
+    "lat": 40.71574,
+    "lng": -73.77172,
+    "neighborhood": "Jamaica Estates-Holliswood",
+    "minorityOwned": true
+  },
+  {
+    "name": "The Hot Spot Bbq & Grill",
+    "borough": "Queens",
+    "cuisine": "Barbecue",
+    "lat": 40.7267,
+    "lng": -73.78877,
+    "neighborhood": "Jamaica Estates-Holliswood",
+    "minorityOwned": true
+  },
+  {
+    "name": "Golden Chicken",
+    "borough": "Queens",
+    "cuisine": "Chicken",
+    "lat": 40.71277,
+    "lng": -73.78325,
+    "neighborhood": "Jamaica Estates-Holliswood",
+    "minorityOwned": true
+  },
+  {
+    "name": "Little Pizza",
+    "borough": "Queens",
+    "cuisine": "Pizza",
+    "lat": 40.75637,
+    "lng": -73.87341,
+    "neighborhood": "East Elmhurst",
+    "minorityOwned": true
+  },
+  {
+    "name": "Pizza Sam",
+    "borough": "Queens",
+    "cuisine": "Pizza",
+    "lat": 40.75625,
+    "lng": -73.87868,
+    "neighborhood": "East Elmhurst",
+    "minorityOwned": true
+  },
+  {
+    "name": "Que Rico Taco",
+    "borough": "Queens",
+    "cuisine": "Tex-Mex",
+    "lat": 40.75597,
+    "lng": -73.8788,
+    "neighborhood": "East Elmhurst",
+    "minorityOwned": true
+  },
+  {
+    "name": "Domino'S Pizza #3692",
+    "borough": "Manhattan",
+    "cuisine": "Pizza",
+    "lat": 40.7938,
+    "lng": -73.94303,
+    "neighborhood": "East Harlem (South)",
+    "minorityOwned": true
+  },
+  {
+    "name": "City Swiggers",
+    "borough": "Manhattan",
+    "cuisine": "American",
+    "lat": 40.77757,
+    "lng": -73.95105,
+    "neighborhood": "East Harlem (South)",
+    "minorityOwned": true
+  },
+  {
+    "name": "Jade Dragon",
+    "borough": "Manhattan",
+    "cuisine": "Chinese",
+    "lat": 40.78901,
+    "lng": -73.94052,
+    "neighborhood": "East Harlem (South)",
+    "minorityOwned": false
+  },
+  {
+    "name": "Floridita Restaurant Uptown",
+    "borough": "Manhattan",
+    "cuisine": "Latin American",
+    "lat": 40.84706,
+    "lng": -73.93817,
+    "neighborhood": "Washington Heights (South)",
+    "minorityOwned": true
+  },
+  {
+    "name": "Little Caesars",
+    "borough": "Manhattan",
+    "cuisine": "Pizza",
+    "lat": 40.84648,
+    "lng": -73.93579,
+    "neighborhood": "Washington Heights (South)",
+    "minorityOwned": true
+  },
+  {
+    "name": "Benvenuto Pizza #2 Corp",
+    "borough": "Manhattan",
+    "cuisine": "Pizza",
+    "lat": 40.8441,
+    "lng": -73.93573,
+    "neighborhood": "Washington Heights (South)",
+    "minorityOwned": true
+  },
+  {
+    "name": "Curry Leaf",
+    "borough": "Staten Island",
+    "cuisine": "Asian/Asian Fusion",
+    "lat": 40.63821,
+    "lng": -74.07937,
+    "neighborhood": "Tompkinsville-Stapleton-Clifton-Fox Hills",
+    "minorityOwned": false
+  },
+  {
+    "name": "Good Wok Restaurant",
+    "borough": "Staten Island",
+    "cuisine": "Chinese",
+    "lat": 40.61626,
+    "lng": -74.07408,
+    "neighborhood": "Tompkinsville-Stapleton-Clifton-Fox Hills",
+    "minorityOwned": true
+  },
+  {
+    "name": "La Cabana Restaurant",
+    "borough": "Staten Island",
+    "cuisine": "Spanish",
+    "lat": 40.63789,
+    "lng": -74.07955,
+    "neighborhood": "Tompkinsville-Stapleton-Clifton-Fox Hills",
+    "minorityOwned": false
+  },
+  {
+    "name": "Yolpaqui Taqueria",
+    "borough": "Staten Island",
+    "cuisine": "Mexican",
+    "lat": 40.62474,
+    "lng": -74.13634,
+    "neighborhood": "Port Richmond",
+    "minorityOwned": true
+  },
+  {
+    "name": "Reyes Deli Mexicana",
+    "borough": "Staten Island",
+    "cuisine": "Mexican",
+    "lat": 40.63645,
+    "lng": -74.13449,
+    "neighborhood": "Port Richmond",
+    "minorityOwned": false
+  },
+  {
+    "name": "Papa Johns Pizza",
+    "borough": "Staten Island",
+    "cuisine": "Pizza",
+    "lat": 40.62646,
+    "lng": -74.12966,
+    "neighborhood": "Port Richmond",
+    "minorityOwned": false
+  }
+]

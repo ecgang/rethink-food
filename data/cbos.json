@@ -1,0 +1,17 @@
+{
+  "_source": "Real NYC community-based food organizations (public addresses, geocoded). Associations with Rethink Food in this demo are illustrative.",
+  "cbos": [
+    { "name": "Part of the Solution (POTS)", "borough": "Bronx", "lat": 40.8662, "lng": -73.8972 },
+    { "name": "BronxWorks", "borough": "Bronx", "lat": 40.823, "lng": -73.918 },
+    { "name": "Bed-Stuy Campaign Against Hunger", "borough": "Brooklyn", "lat": 40.679, "lng": -73.91 },
+    { "name": "St. John's Bread & Life", "borough": "Brooklyn", "lat": 40.694, "lng": -73.927 },
+    { "name": "City Harvest", "borough": "Brooklyn", "lat": 40.655, "lng": -74.01 },
+    { "name": "La Jornada", "borough": "Queens", "lat": 40.745, "lng": -73.878 },
+    { "name": "Masbia of Queens", "borough": "Queens", "lat": 40.726, "lng": -73.862 },
+    { "name": "River Fund New York", "borough": "Queens", "lat": 40.696, "lng": -73.83 },
+    { "name": "Union Settlement", "borough": "Manhattan", "lat": 40.793, "lng": -73.94 },
+    { "name": "NY Common Pantry", "borough": "Manhattan", "lat": 40.795, "lng": -73.938 },
+    { "name": "Project Hospitality", "borough": "Staten Island", "lat": 40.631, "lng": -74.077 },
+    { "name": "Catholic Charities Staten Island", "borough": "Staten Island", "lat": 40.637, "lng": -74.13 }
+  ]
+}

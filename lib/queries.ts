@@ -276,6 +276,34 @@ export async function getKpiDeltas(now: Date = new Date()): Promise<KpiDeltas> {
   };
 }
 
+export interface MarqueeStats {
+  deliveredThisWeek: number;
+  contributionMonthCents: number;
+  pendingIntake: number;
+}
+
+/** Small live figures for the editorial marquee bar. */
+export async function getMarqueeStats(now: Date = new Date()): Promise<MarqueeStats> {
+  const [meals, pendingIntake] = await Promise.all([
+    loadEconMeals(),
+    prisma.intakeRequest.count({ where: { status: "PENDING" } }),
+  ]);
+  const weekAgo = now.getTime() - 7 * DAY;
+  const monthAgo = now.getTime() - 30 * DAY;
+  const realized = meals.filter((m) => isRealized(m.status));
+  const deliveredThisWeek = realized.filter(
+    (m) => m.deliveredAt && m.deliveredAt.getTime() >= weekAgo,
+  ).length;
+  const monthMeals = realized.filter(
+    (m) => m.deliveredAt && m.deliveredAt.getTime() >= monthAgo,
+  );
+  return {
+    deliveredThisWeek,
+    contributionMonthCents: rollupMargin(monthMeals).marginCents,
+    pendingIntake,
+  };
+}
+
 export interface MtmReporting {
   activeMembers: number;
   withdrawnMembers: number;
@@ -311,7 +339,7 @@ export async function getMtmReporting(now: Date = new Date()): Promise<MtmReport
     (m) => isRealized(m.status) && m.deliveredAt && m.deliveredAt.getTime() >= weekAgo,
   ).length;
 
-  const scns = ["PHS", "HEALI", "SOMOS"];
+  const scns = ["PHS", "SOMOS", "SIPPS"];
   const byScn = scns.map((scn) => {
     const scnMembers = active.filter((m) => m.scnPartner === scn).length;
     const scnMeals = mtmMeals.filter((m) => m.scnPartner === scn && isRealized(m.status));

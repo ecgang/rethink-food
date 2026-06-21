@@ -38,11 +38,12 @@ enum CostType {
   OVERHEAD
 }
 
-// Social Care Network referral partners for MTM (NY 1115 waiver).
+// Social Care Network lead entities for MTM under NY's 1115 waiver, by NYC region.
+// (HEALI serves Long Island — Nassau/Suffolk — so it's intentionally excluded here.)
 enum ScnPartner {
-  PHS // Public Health Solutions / WholeYouNYC
-  HEALI
-  SOMOS
+  PHS // Public Health Solutions / WholeYouNYC — Manhattan, Brooklyn, Queens
+  SOMOS // SOMOS Community Care — Bronx
+  SIPPS // Staten Island Performing Provider System — Staten Island
 }
 
 enum MemberStatus {
@@ -146,6 +147,7 @@ model Kitchen {
 model RestaurantPartner {
   id             String  @id @default(cuid())
   name           String
+  cuisine        String? // real cuisine from DOHMH data
   market         Market  @relation(fields: [marketId], references: [id])
   marketId       String
   weeklyCapacity Int

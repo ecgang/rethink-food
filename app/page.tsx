@@ -1,5 +1,7 @@
-import { Card, CardHeader, CardBody, PageHeader } from "@/components/ui";
+import { Card, CardHeader, CardBody } from "@/components/ui";
 import { StatCard } from "@/components/stat-card";
+import { KpiStrip } from "@/components/kpi-strip";
+import { HeroBand } from "@/components/hero-band";
 import { DimensionTabs } from "@/components/dimension-tabs";
 import { DefinitionsPanel } from "@/components/definitions-panel";
 import { LifecycleFunnel, CostDonut, MarginBars } from "@/components/charts";
@@ -12,6 +14,7 @@ import {
   type DimensionKey,
 } from "@/lib/queries";
 import { formatUsd, formatUsdCompact, formatPct, formatCount } from "@/lib/money";
+import { FACTS } from "@/lib/facts";
 
 // always render against live data
 export const dynamic = "force-dynamic";
@@ -63,52 +66,67 @@ export default async function DashboardPage({
     : 0;
 
   return (
-    <div className="px-8 py-7 max-w-[1400px]">
-      <PageHeader
+    <>
+      <HeroBand
+        eyebrow="Real-time operating system"
         title="Command Center"
-        subtitle="Meal volumes, unit economics, delivery performance, and what to act on today — across every program, kitchen, and contract."
-      >
-        <div className="rounded-lg border border-border bg-surface px-3 py-1.5 text-xs text-muted">
-          Data as of{" "}
-          <span className="font-medium text-foreground">
-            {new Date().toLocaleString("en-US", {
-              month: "short",
-              day: "numeric",
-              hour: "numeric",
-              minute: "2-digit",
-            })}
+        stats={[
+          { value: FACTS.lifetimeMeals, label: "Meals served since 2017", suffix: "+", compact: true },
+          { value: FACTS.weeklyMeals, label: "Meals / week", suffix: "+", compact: true },
+          { value: FACTS.activeCbos, label: "Active partners" },
+        ]}
+      />
+      <div className="px-8 py-7 max-w-[1400px]">
+        <div className="mb-3 flex items-center justify-between">
+          <p className="text-sm text-muted max-w-2xl">
+            Meal volumes, unit economics, delivery performance, and what to act on today — across
+            every program, kitchen, and contract.
+          </p>
+          <span className="shrink-0 text-xs text-muted">
+            Data as of{" "}
+            <span className="font-medium text-foreground tnum">
+              {new Date().toLocaleString("en-US", {
+                month: "short",
+                day: "numeric",
+                hour: "numeric",
+                minute: "2-digit",
+              })}
+            </span>
           </span>
         </div>
-      </PageHeader>
 
-      {/* headline KPIs */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-        <StatCard
-          label="Billable meals (realized)"
-          value={formatCount(data.totals.mealCount)}
-          sub={`${formatPct(verifyRate)} of planned verified`}
-          delta={{ pct: deltas.mealsPct, label: "vs prior 7d" }}
-        />
-        <StatCard
-          label="Reimbursement revenue"
-          value={formatUsdCompact(data.totals.revenueCents)}
-          tone="brand"
-        />
-        <StatCard
-          label="Contribution margin"
-          value={formatUsdCompact(data.totals.marginCents)}
-          sub={`${formatPct(data.totals.marginPct)} blended, all programs`}
-          tone={data.totals.marginCents >= 0 ? "pos" : "neg"}
-          delta={{ pct: deltas.marginPct, label: "vs prior 7d" }}
-        />
-        <StatCard
-          label="Margin / meal"
-          value={formatUsd(marginPerMeal)}
-          sub={`${formatUsd(Math.round(data.totals.costCents / Math.max(1, data.totals.mealCount)))} cost / meal`}
-          tone={marginPerMeal >= 0 ? "pos" : "neg"}
-          delta={{ pct: deltas.marginPerMealPct, label: "vs prior 7d" }}
-        />
-      </div>
+        {/* headline KPIs — editorial number blocks */}
+        <div className="mb-6">
+          <KpiStrip
+            items={[
+              {
+                label: "Billable meals (realized)",
+                value: formatCount(data.totals.mealCount),
+                sub: `${formatPct(verifyRate)} of planned verified`,
+                delta: { pct: deltas.mealsPct, label: "vs prior 7d" },
+              },
+              {
+                label: "Reimbursement revenue",
+                value: formatUsdCompact(data.totals.revenueCents),
+                tone: "brand",
+              },
+              {
+                label: "Contribution margin",
+                value: formatUsdCompact(data.totals.marginCents),
+                sub: `${formatPct(data.totals.marginPct)} blended, all programs`,
+                tone: data.totals.marginCents >= 0 ? "pos" : "neg",
+                delta: { pct: deltas.marginPct, label: "vs prior 7d" },
+              },
+              {
+                label: "Margin / meal",
+                value: formatUsd(marginPerMeal),
+                sub: `${formatUsd(Math.round(data.totals.costCents / Math.max(1, data.totals.mealCount)))} cost / meal`,
+                tone: marginPerMeal >= 0 ? "pos" : "neg",
+                delta: { pct: deltas.marginPerMealPct, label: "vs prior 7d" },
+              },
+            ]}
+          />
+        </div>
 
       <div className="mb-6">
         <DefinitionsPanel />
@@ -233,7 +251,8 @@ export default async function DashboardPage({
           </div>
         </CardBody>
       </Card>
-    </div>
+      </div>
+    </>
   );
 }
 
@@ -241,10 +260,10 @@ function scnLabel(scn: string): string {
   switch (scn) {
     case "PHS":
       return "Public Health Solutions";
-    case "HEALI":
-      return "HEALI";
     case "SOMOS":
       return "SOMOS Community Care";
+    case "SIPPS":
+      return "Staten Island PPS";
     default:
       return scn;
   }

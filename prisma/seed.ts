@@ -1,19 +1,22 @@
 /**
- * Seed realistic, believable demo data for the Rethink Command Center.
+ * Seed the Rethink Command Center from REAL NYC open-data snapshots (committed
+ * under data/, produced by `npm run ingest`):
+ *   - data/neighborhoods.json  → Markets (real NTA names + centroids)
+ *   - data/restaurants.json    → RestaurantPartners (real DOHMH establishments)
+ *   - data/cbos.json           → real community-based food orgs
+ *   - data/food-insecurity.json→ drives Market.weeklyDemand (lib/demand.ts)
  *
- * Design goals:
- *  - Real NYC neighborhoods, plausible program/funder/partner names.
- *  - A credible unit-economics story: MTM healthy, surplus thin, ONE kitchen underwater.
- *  - Intentional operational anomalies that trip the exception engine:
- *      * meals produced but not delivered (>24h)
- *      * meals delivered but unverified (>48h)
- *      * a kitchen running ~30% over food budget
- *      * a contract billing deadline due in 2 days and another overdue
- *  - Deterministic (seeded RNG) so the demo looks the same every run.
+ * Meals, members, costs, and the lifecycle are synthetic but generated against
+ * the real geography, with a deterministic RNG and intentionally planted
+ * anomalies that drive the exception engine. Social Care Networks are assigned by
+ * borough to match the real NY 1115 waiver coverage (PHS / SOMOS / SIPPS).
  *
- * Run: npm run db:seed   (resets then reseeds: npm run db:reset)
+ * Run: npm run db:seed   (reset + reseed: npm run db:reset)
  */
-import { PrismaClient, Prisma } from "@prisma/client";
+import { PrismaClient, Prisma, type ScnPartner } from "@prisma/client";
+import { readFileSync } from "node:fs";
+import path from "node:path";
+import { weeklyDemandFor } from "../lib/demand";
 
 const prisma = new PrismaClient();
 
@@ -37,10 +40,40 @@ const HOUR = 3600 * 1000;
 const DAY = 24 * HOUR;
 const addMs = (base: Date, ms: number) => new Date(base.getTime() + ms);
 
-// ----------------------------------------------------------------------------
+const dataFile = <T>(name: string): T =>
+  JSON.parse(readFileSync(path.join(process.cwd(), "data", name), "utf8")) as T;
+
+// PHS → Manhattan/Brooklyn/Queens · SOMOS → Bronx · SIPPS → Staten Island
+function scnForBorough(borough: string): ScnPartner {
+  if (borough === "Bronx") return "SOMOS";
+  if (borough === "Staten Island") return "SIPPS";
+  return "PHS";
+}
+
+interface NeighborhoodRow {
+  borough: string;
+  neighborhood: string;
+  lat: number;
+  lng: number;
+}
+interface RestaurantRow {
+  name: string;
+  borough: string;
+  cuisine: string;
+  lat: number;
+  lng: number;
+  neighborhood: string;
+  minorityOwned: boolean;
+}
+interface CboRow {
+  name: string;
+  borough: string;
+  lat: number;
+  lng: number;
+}
+
 async function main() {
   console.log("Clearing existing data…");
-  // delete in FK-dependency order
   await prisma.mealCostLineItem.deleteMany();
   await prisma.meal.deleteMany();
   await prisma.intakeRequest.deleteMany();
@@ -55,22 +88,33 @@ async function main() {
   await prisma.market.deleteMany();
 
   // --- Markets (real NYC neighborhoods) ------------------------------------
-  const marketsSpec = [
-    { borough: "Bronx", neighborhood: "Mott Haven", lat: 40.809, lng: -73.9229, weeklyDemand: 1800 },
-    { borough: "Bronx", neighborhood: "Fordham", lat: 40.8610, lng: -73.8990, weeklyDemand: 1500 },
-    { borough: "Brooklyn", neighborhood: "Brownsville", lat: 40.6628, lng: -73.9097, weeklyDemand: 1600 },
-    { borough: "Brooklyn", neighborhood: "Bedford-Stuyvesant", lat: 40.6872, lng: -73.9418, weeklyDemand: 1400 },
-    { borough: "Brooklyn", neighborhood: "Sunset Park", lat: 40.6453, lng: -74.0119, weeklyDemand: 1100 },
-    { borough: "Queens", neighborhood: "Corona", lat: 40.7449, lng: -73.8648, weeklyDemand: 1700 },
-    { borough: "Queens", neighborhood: "Jamaica", lat: 40.702, lng: -73.789, weeklyDemand: 1300 },
-    { borough: "Manhattan", neighborhood: "East Harlem", lat: 40.7957, lng: -73.9389, weeklyDemand: 1200 },
-    { borough: "Manhattan", neighborhood: "Washington Heights", lat: 40.8417, lng: -73.9394, weeklyDemand: 1000 },
-  ];
+  const hoods = dataFile<NeighborhoodRow[]>("neighborhoods.json");
   const markets: Awaited<ReturnType<typeof prisma.market.create>>[] = [];
-  for (const m of marketsSpec) {
-    markets.push(await prisma.market.create({ data: m }));
+  for (const h of hoods) {
+    markets.push(
+      await prisma.market.create({
+        data: {
+          borough: h.borough,
+          neighborhood: h.neighborhood,
+          lat: h.lat,
+          lng: h.lng,
+          weeklyDemand: weeklyDemandFor(h.borough, h.neighborhood),
+        },
+      }),
+    );
   }
   const marketByHood = Object.fromEntries(markets.map((m) => [m.neighborhood, m]));
+  const marketsInBorough = (b: string) => markets.filter((m) => m.borough === b);
+  const nearestMarket = (lat: number, lng: number, borough?: string) => {
+    const pool = borough ? marketsInBorough(borough) : markets;
+    const list = pool.length ? pool : markets;
+    return list.reduce((best, m) =>
+      (m.lat - lat) ** 2 + (m.lng - lng) ** 2 <
+      (best.lat - lat) ** 2 + (best.lng - lng) ** 2
+        ? m
+        : best,
+    );
+  };
 
   // --- Funders -------------------------------------------------------------
   const medicaid = await prisma.funder.create({
@@ -83,7 +127,7 @@ async function main() {
     data: { name: "Robin Hood Foundation", kind: "Philanthropy" },
   });
 
-  // --- Programs (reimbursement = revenue per delivered meal) ----------------
+  // --- Programs ------------------------------------------------------------
   const mtm = await prisma.program.create({
     data: { name: "Medically Tailored Meals", type: "MTM", reimbursementRateCents: 950 },
   });
@@ -94,129 +138,120 @@ async function main() {
     data: { name: "Emergency Relief", type: "EMERGENCY_RELIEF", reimbursementRateCents: 600 },
   });
 
-  // --- Contracts (billing deadlines drive "act on today") -------------------
-  const cMtmPhs = await prisma.contract.create({
-    data: {
-      name: "MTM — Public Health Solutions SCN",
-      funderId: medicaid.id, programId: mtm.id, scnPartner: "PHS",
-      budgetCents: BigInt(4_200_000_00),
-      startDate: addMs(NOW, -120 * DAY), endDate: addMs(NOW, 245 * DAY),
-      billingDeadline: addMs(NOW, 2 * DAY), // DUE SOON -> exception
-    },
-  });
-  const cMtmHeali = await prisma.contract.create({
-    data: {
-      name: "MTM — HEALI SCN",
-      funderId: medicaid.id, programId: mtm.id, scnPartner: "HEALI",
-      budgetCents: BigInt(2_800_000_00),
-      startDate: addMs(NOW, -120 * DAY), endDate: addMs(NOW, 245 * DAY),
-      billingDeadline: addMs(NOW, 17 * DAY),
-    },
-  });
-  const cMtmSomos = await prisma.contract.create({
-    data: {
-      name: "MTM — SOMOS Community Care SCN",
-      funderId: medicaid.id, programId: mtm.id, scnPartner: "SOMOS",
-      budgetCents: BigInt(3_100_000_00),
-      startDate: addMs(NOW, -120 * DAY), endDate: addMs(NOW, 245 * DAY),
-      billingDeadline: addMs(NOW, -1 * DAY), // OVERDUE -> critical exception
-    },
-  });
+  // --- Contracts (one MTM contract per real NYC Social Care Network) --------
+  const mtmBudgets: Record<ScnPartner, number> = {
+    PHS: 4_200_000_00,
+    SOMOS: 3_100_000_00,
+    SIPPS: 1_400_000_00,
+  };
+  // billing deadlines drive "act on today": one overdue, one due soon, one future
+  const mtmDeadlines: Record<ScnPartner, number> = {
+    SOMOS: -1 * DAY, // overdue → CRITICAL
+    PHS: 2 * DAY, // due soon → HIGH
+    SIPPS: 18 * DAY,
+  };
+  const mtmContract: Record<ScnPartner, Awaited<ReturnType<typeof prisma.contract.create>>> =
+    {} as never;
+  for (const scn of ["PHS", "SOMOS", "SIPPS"] as ScnPartner[]) {
+    mtmContract[scn] = await prisma.contract.create({
+      data: {
+        name: `MTM — ${scn} Social Care Network`,
+        funderId: medicaid.id,
+        programId: mtm.id,
+        scnPartner: scn,
+        budgetCents: BigInt(mtmBudgets[scn]),
+        startDate: addMs(NOW, -120 * DAY),
+        endDate: addMs(NOW, 245 * DAY),
+        billingDeadline: addMs(NOW, mtmDeadlines[scn]),
+      },
+    });
+  }
   const cRestaurant = await prisma.contract.create({
     data: {
       name: "Restaurant Response Grant 2026",
-      funderId: robinHood.id, programId: restaurantResponse.id,
+      funderId: robinHood.id,
+      programId: restaurantResponse.id,
       budgetCents: BigInt(1_500_000_00),
-      startDate: addMs(NOW, -90 * DAY), endDate: addMs(NOW, 180 * DAY),
+      startDate: addMs(NOW, -90 * DAY),
+      endDate: addMs(NOW, 180 * DAY),
       billingDeadline: addMs(NOW, 40 * DAY),
     },
   });
   const cEmergency = await prisma.contract.create({
     data: {
       name: "HRA Emergency Food FY26",
-      funderId: cityHra.id, programId: emergency.id,
+      funderId: cityHra.id,
+      programId: emergency.id,
       budgetCents: BigInt(900_000_00),
-      startDate: addMs(NOW, -90 * DAY), endDate: addMs(NOW, 120 * DAY),
+      startDate: addMs(NOW, -90 * DAY),
+      endDate: addMs(NOW, 120 * DAY),
       billingDeadline: addMs(NOW, 25 * DAY),
     },
   });
-  const mtmContracts = [
-    { contract: cMtmPhs, scn: "PHS" as const },
-    { contract: cMtmHeali, scn: "HEALI" as const },
-    { contract: cMtmSomos, scn: "SOMOS" as const },
-  ];
 
-  // --- Kitchens (one runs over food budget) --------------------------------
+  // --- Kitchens (Brooklyn runs over food budget) ---------------------------
+  const manhattanMarket = marketsInBorough("Manhattan")[0] ?? markets[0];
+  const brooklynMarket = marketsInBorough("Brooklyn")[0] ?? markets[0];
   const kGv = await prisma.kitchen.create({
-    data: { name: "Sustainable Community Kitchen — Greenwich Village", marketId: marketByHood["East Harlem"].id, weeklyCapacity: 16000 },
+    data: {
+      name: "Sustainable Community Kitchen — Greenwich Village",
+      marketId: manhattanMarket.id,
+      weeklyCapacity: 18000,
+    },
   });
   const kBk = await prisma.kitchen.create({
-    data: { name: "SCK — Brooklyn Navy Yard", marketId: marketByHood["Bedford-Stuyvesant"].id, weeklyCapacity: 9000 },
+    data: { name: "SCK — Brooklyn Navy Yard", marketId: brooklynMarket.id, weeklyCapacity: 9000 },
   });
-  // kBk will be intentionally over food budget (see cost generation below)
   const OVER_BUDGET_KITCHEN_ID = kBk.id;
-  const kitchens = [kGv, kBk];
 
-  // --- Restaurant partners --------------------------------------------------
-  const restaurantNames = [
-    ["Sol de Quito", "Corona", true],
-    ["Casa Adela", "East Harlem", true],
-    ["Teranga Bites", "Bedford-Stuyvesant", true],
-    ["Sugar Hill Kitchen", "Washington Heights", true],
-    ["Brownsville BBQ Co.", "Brownsville", true],
-    ["Jamaica Jerk House", "Jamaica", true],
-    ["Sunset Dumpling Bar", "Sunset Park", true],
-    ["Fordham Pizzeria", "Fordham", false],
-  ] as const;
+  // --- Restaurant partners (real DOHMH establishments) ----------------------
+  const restaurantRows = dataFile<RestaurantRow[]>("restaurants.json");
   const restaurants: Awaited<ReturnType<typeof prisma.restaurantPartner.create>>[] = [];
-  for (const [name, hood, minority] of restaurantNames) {
+  for (const r of restaurantRows) {
+    const market = marketByHood[r.neighborhood] ?? nearestMarket(r.lat, r.lng, r.borough);
     restaurants.push(
       await prisma.restaurantPartner.create({
-        data: { name, marketId: marketByHood[hood].id, weeklyCapacity: between(300, 700), minorityOwned: minority },
+        data: {
+          name: r.name,
+          cuisine: r.cuisine,
+          marketId: market.id,
+          weeklyCapacity: between(300, 700),
+          minorityOwned: r.minorityOwned,
+        },
       }),
     );
   }
 
-  // --- CBOs -----------------------------------------------------------------
-  const cboNames = [
-    ["Part of the Solution (POTS)", "Fordham"],
-    ["BronxWorks", "Mott Haven"],
-    ["Bed-Stuy Campaign Against Hunger", "Bedford-Stuyvesant"],
-    ["Brownsville Community Justice Center", "Brownsville"],
-    ["La Jornada", "Corona"],
-    ["Queens Together", "Jamaica"],
-    ["Union Settlement", "East Harlem"],
-    ["Northern Manhattan Improvement Corp.", "Washington Heights"],
-    ["Sunset Park Health Council", "Sunset Park"],
-  ] as const;
+  // --- CBOs (real orgs) ----------------------------------------------------
+  const cboRows = dataFile<{ cbos: CboRow[] }>("cbos.json").cbos;
   const cbos: Awaited<ReturnType<typeof prisma.cbo.create>>[] = [];
-  for (const [name, hood] of cboNames) {
+  for (const c of cboRows) {
+    const market = nearestMarket(c.lat, c.lng, c.borough);
     cbos.push(
       await prisma.cbo.create({
         data: {
-          name,
-          marketId: marketByHood[hood].id,
-          contactEmail: `programs@${name.toLowerCase().replace(/[^a-z]+/g, "").slice(0, 14)}.org`,
+          name: c.name,
+          marketId: market.id,
+          contactEmail: `programs@${c.name.toLowerCase().replace(/[^a-z]+/g, "").slice(0, 16)}.org`,
         },
       }),
     );
   }
   const cbosByMarket = (marketId: string) => cbos.filter((c) => c.marketId === marketId);
 
-  // --- Members (MTM beneficiaries) -----------------------------------------
+  // --- Members (MTM beneficiaries; SCN by borough) -------------------------
   const members: Awaited<ReturnType<typeof prisma.member.create>>[] = [];
   const MEMBER_COUNT = 60;
   for (let i = 0; i < MEMBER_COUNT; i++) {
     const market = pick(markets);
-    const scn = pick(["PHS", "HEALI", "SOMOS"] as const);
     const referralDate = addMs(NOW, -between(30, 150) * DAY);
-    const withdrawn = rand() < 0.15; // ~15% churn -> retention story
+    const withdrawn = rand() < 0.15;
     members.push(
       await prisma.member.create({
         data: {
           externalRef: `MBR-${(1000 + i).toString()}`,
           marketId: market.id,
-          scnPartner: scn,
+          scnPartner: scnForBorough(market.borough),
           referralDate,
           enrollmentDate: addMs(referralDate, between(3, 14) * DAY),
           status: withdrawn ? "WITHDRAWN" : "ACTIVE",
@@ -232,11 +267,8 @@ async function main() {
   const mealRows: Prisma.MealCreateManyInput[] = [];
   const lineRows: Prisma.MealCostLineItemCreateManyInput[] = [];
   let mealSeq = 0;
-
-  // counters to inject a bounded number of anomalies
-  let stuckProduced = 0; // target ~10
-  let unverified = 0; // target ~12
-
+  let stuckProduced = 0;
+  let unverified = 0;
   const WEEKS = 6;
 
   function emitMeal(args: {
@@ -249,12 +281,10 @@ async function main() {
     cboId: string;
     memberId?: string;
     mealDate: Date;
-    reimbursementCents: number;
   }) {
     const id = `meal_${(mealSeq++).toString().padStart(6, "0")}`;
     const ageDays = (NOW.getTime() - args.mealDate.getTime()) / DAY;
 
-    // Decide lifecycle from recency, with bounded anomalies.
     let status: "PLANNED" | "PRODUCED" | "DELIVERED" | "VERIFIED";
     let producedAt: Date | null = null;
     let deliveredAt: Date | null = null;
@@ -264,10 +294,8 @@ async function main() {
     if (ageDays < 0) {
       status = "PLANNED";
     } else if (ageDays < 1) {
-      // recent: mostly produced; inject a few stuck-produced anomalies
       producedAt = addMs(args.mealDate, -6 * HOUR);
       if (stuckProduced < 10 && rand() < 0.25) {
-        // force "produced but not delivered" >24h by backdating producedAt
         producedAt = addMs(NOW, -between(26, 60) * HOUR);
         status = "PRODUCED";
         stuckProduced++;
@@ -279,7 +307,6 @@ async function main() {
       producedAt = addMs(args.mealDate, -6 * HOUR);
       deliveredAt = addMs(args.mealDate, 3 * HOUR);
       if (unverified < 12 && rand() < 0.2) {
-        // delivered but unverified >48h
         deliveredAt = addMs(NOW, -between(50, 80) * HOUR);
         status = "DELIVERED";
         unverified++;
@@ -312,7 +339,6 @@ async function main() {
       verifiedAt,
     });
 
-    // cost line items — vary by program; inflate FOOD for the over-budget kitchen
     const overBudget = args.kitchenId === OVER_BUDGET_KITCHEN_ID;
     let food: number, labor: number, transport: number, overhead: number;
     if (args.programId === mtm.id) {
@@ -338,39 +364,41 @@ async function main() {
     }
   }
 
-  // MTM meals: each active member, prescribed meals/week, over WEEKS weeks.
+  // MTM meals: active members, prescribed cadence, over WEEKS, via their SCN contract.
   for (const member of members) {
     if (member.status === "WITHDRAWN") continue;
-    const scnContract = mtmContracts.find((c) => c.scn === member.scnPartner)!.contract;
-    const memberCbos = cbosByMarket(member.marketId);
-    const cbo = memberCbos.length ? pick(memberCbos) : pick(cbos);
+    const scn = scnForBorough(
+      markets.find((m) => m.id === member.marketId)!.borough,
+    );
+    const contract = mtmContract[scn];
+    const localCbos = cbosByMarket(member.marketId);
+    const cbo = localCbos.length ? pick(localCbos) : pick(cbos);
     for (let w = 0; w < WEEKS; w++) {
-      const mealsThisWeek = member.prescribedMealsPerWeek;
-      for (let d = 0; d < mealsThisWeek; d++) {
-        // spread across the week; week 0 = most recent
-        const dayOffset = w * 7 + Math.floor((d / mealsThisWeek) * 7);
-        const mealDate = addMs(NOW, (-dayOffset + 1) * DAY); // +1 so some land in future -> PLANNED
+      for (let d = 0; d < member.prescribedMealsPerWeek; d++) {
+        const dayOffset = w * 7 + Math.floor((d / member.prescribedMealsPerWeek) * 7);
+        const mealDate = addMs(NOW, (-dayOffset + 1) * DAY);
         const kitchen = rand() < 0.65 ? kGv : kBk;
         emitMeal({
           programId: mtm.id,
-          contractId: scnContract.id,
+          contractId: contract.id,
           marketId: member.marketId,
           producerType: "KITCHEN",
           kitchenId: kitchen.id,
           cboId: cbo.id,
           memberId: member.id,
           mealDate,
-          reimbursementCents: mtm.reimbursementRateCents,
         });
       }
     }
   }
 
-  // Restaurant Response: weekly batches per restaurant -> a nearby CBO.
+  // Restaurant Response: weekly batches per real restaurant → a nearby CBO.
+  // (Kept modest so the dashboard stays snappy with 39 partners over 6 weeks.)
   for (const r of restaurants) {
     for (let w = 0; w < WEEKS; w++) {
-      const batch = between(40, 90);
-      const cbo = pick(cbosByMarket(r.marketId).length ? cbosByMarket(r.marketId) : cbos);
+      const batch = between(12, 26);
+      const local = cbosByMarket(r.marketId);
+      const cbo = pick(local.length ? local : cbos);
       for (let i = 0; i < batch; i++) {
         const dayOffset = w * 7 + between(0, 6);
         const mealDate = addMs(NOW, (-dayOffset + 1) * DAY);
@@ -382,18 +410,18 @@ async function main() {
           restaurantPartnerId: r.id,
           cboId: cbo.id,
           mealDate,
-          reimbursementCents: restaurantResponse.reimbursementRateCents,
         });
       }
     }
   }
 
-  // Emergency relief: smaller, kitchen-produced, recent weeks.
+  // Emergency relief: smaller, kitchen-produced, recent.
   for (let w = 0; w < 3; w++) {
     const batch = between(120, 200);
     for (let i = 0; i < batch; i++) {
       const market = pick(markets);
-      const cbo = pick(cbosByMarket(market.id).length ? cbosByMarket(market.id) : cbos);
+      const local = cbosByMarket(market.id);
+      const cbo = pick(local.length ? local : cbos);
       const dayOffset = w * 7 + between(0, 6);
       const mealDate = addMs(NOW, (-dayOffset + 1) * DAY);
       emitMeal({
@@ -404,13 +432,11 @@ async function main() {
         kitchenId: kGv.id,
         cboId: cbo.id,
         mealDate,
-        reimbursementCents: emergency.reimbursementRateCents,
       });
     }
   }
 
   console.log(`Inserting ${mealRows.length} meals and ${lineRows.length} cost line items…`);
-  // chunked inserts to stay within parameter limits
   for (let i = 0; i < mealRows.length; i += 1000) {
     await prisma.meal.createMany({ data: mealRows.slice(i, i + 1000) });
   }
@@ -418,7 +444,7 @@ async function main() {
     await prisma.mealCostLineItem.createMany({ data: lineRows.slice(i, i + 2000) });
   }
 
-  // --- A couple of seeded intake-request audit rows (history) ---------------
+  // --- A seeded intake-request audit row (history) -------------------------
   await prisma.intakeRequest.create({
     data: {
       rawInput:
@@ -440,14 +466,13 @@ async function main() {
     },
   });
 
-  const counts = {
+  console.log("Seed complete:", {
     markets: markets.length,
+    restaurants: restaurants.length,
+    cbos: cbos.length,
     members: members.length,
     meals: mealRows.length,
-    lineItems: lineRows.length,
-    contracts: 5,
-  };
-  console.log("Seed complete:", counts);
+  });
 }
 
 main()
