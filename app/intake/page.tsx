@@ -1,4 +1,5 @@
-import { PageHeader, Card, CardHeader } from "@/components/ui";
+import { Card, CardHeader } from "@/components/ui";
+import { HeroBand } from "@/components/hero-band";
 import { IntakeForm } from "@/components/intake-form";
 import { prisma } from "@/lib/db";
 import { cn } from "@/lib/cn";
@@ -30,11 +31,14 @@ export default async function IntakePage() {
   });
 
   return (
-    <div className="px-8 py-7 max-w-[1400px]">
-      <PageHeader
-        title="AI Intake"
-        subtitle="Turn a free-text partner email into a structured, reviewable meal request. The model extracts fields with per-field confidence; a human approves before anything is written — and every decision is logged."
-      />
+    <>
+      <HeroBand eyebrow="AI operating layer" title="AI Intake" />
+      <div className="px-8 py-7 max-w-[1400px]">
+        <p className="text-sm text-muted max-w-2xl mb-6">
+          Turn a free-text partner email into a structured, reviewable meal request. The model
+          extracts fields with per-field confidence; a human approves before anything is written —
+          and every decision is logged.
+        </p>
 
       <div className="mb-6">
         <IntakeForm />
@@ -88,6 +92,7 @@ export default async function IntakePage() {
           </table>
         </div>
       </Card>
-    </div>
+      </div>
+    </>
   );
 }

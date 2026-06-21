@@ -30,10 +30,19 @@ export function CardHeader({
   action?: React.ReactNode;
 }) {
   return (
-    <div className="flex items-start justify-between gap-3 px-5 pt-4 pb-3">
+    <div className="flex items-start justify-between gap-3 px-5 pt-4 pb-3 border-b border-border">
       <div>
-        <h2 className="text-base font-semibold">{title}</h2>
-        {subtitle && <p className="text-xs text-muted mt-0.5">{subtitle}</p>}
+        <h2 className="flex items-center gap-2 text-xs font-bold uppercase tracking-[0.16em]">
+          <span className="text-brand-deep" aria-hidden>
+            →
+          </span>
+          {title}
+        </h2>
+        {subtitle && (
+          <p className="text-xs text-muted mt-1.5 normal-case font-normal tracking-normal">
+            {subtitle}
+          </p>
+        )}
       </div>
       {action}
     </div>
@@ -47,7 +56,7 @@ export function CardBody({
   className?: string;
   children: React.ReactNode;
 }) {
-  return <div className={cn("px-5 pb-5", className)}>{children}</div>;
+  return <div className={cn("px-5 pt-4 pb-5", className)}>{children}</div>;
 }
 
 const SEVERITY_STYLES: Record<Severity, { bg: string; text: string; label: string }> = {

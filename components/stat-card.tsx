@@ -45,7 +45,7 @@ export function StatCard({
   );
 }
 
-function DeltaPill({ delta }: { delta: StatDelta }) {
+export function DeltaPill({ delta }: { delta: StatDelta }) {
   const flat = Math.abs(delta.pct) < 0.005;
   const up = delta.pct > 0;
   const good = flat ? false : delta.invert ? !up : up;
