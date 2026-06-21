@@ -12,6 +12,12 @@ import {
   type KitchenSnapshot,
   type ContractSnapshot,
 } from "@/lib/exceptions";
+import {
+  buildFieldQueue,
+  verificationRate,
+  type FieldItem,
+  type FieldMeal,
+} from "@/lib/field";
 
 const DAY = 24 * 3600 * 1000;
 // Target food cost per meal used to evaluate kitchens (cents). Kept here as the
@@ -301,6 +307,69 @@ export async function getMarqueeStats(now: Date = new Date()): Promise<MarqueeSt
     deliveredThisWeek,
     contributionMonthCents: rollupMargin(monthMeals).marginCents,
     pendingIntake,
+  };
+}
+
+/**
+ * The frontline operator queue for the /field PWA: every meal awaiting a
+ * delivery or verification, ordered by urgency. Advancing one of these (via the
+ * field server actions) clears the matching "act on today" exception, because
+ * getActOnToday recomputes from live meal state.
+ */
+export async function getFieldQueue(now: Date = new Date()): Promise<FieldItem[]> {
+  const meals = await prisma.meal.findMany({
+    where: { status: { in: ["PRODUCED", "DELIVERED"] } },
+    select: {
+      id: true,
+      status: true,
+      producedAt: true,
+      deliveredAt: true,
+      deliveryPhotoUrl: true,
+      program: { select: { name: true } },
+      cbo: { select: { name: true } },
+      market: { select: { borough: true, neighborhood: true } },
+    },
+  });
+
+  const fieldMeals: FieldMeal[] = meals.map((m) => ({
+    id: m.id,
+    status: m.status,
+    programName: m.program.name,
+    cboName: m.cbo.name,
+    marketLabel: `${m.market.neighborhood}, ${m.market.borough}`,
+    producedAt: m.producedAt,
+    deliveredAt: m.deliveredAt,
+    deliveryPhotoUrl: m.deliveryPhotoUrl,
+  }));
+
+  return buildFieldQueue(fieldMeals, now);
+}
+
+export interface HeroStats {
+  /** every meal the operating system is tracking */
+  mealsTracked: number;
+  /** meals delivered in the trailing 7 days */
+  deliveredThisWeek: number;
+  /** share of delivered meals that have been verified (0..1) */
+  verifiedRate: number;
+}
+
+/**
+ * Live operational figures for the hero band — replaces static marketing
+ * numbers with real signal computed from the meal lifecycle. The verification
+ * rate is the closure of the produced→delivered→verified loop, so it rises in
+ * real time as field operators verify meals.
+ */
+export async function getHeroStats(now: Date = new Date()): Promise<HeroStats> {
+  const weekAgo = new Date(now.getTime() - 7 * DAY);
+  const [statuses, deliveredThisWeek] = await Promise.all([
+    prisma.meal.findMany({ select: { status: true } }),
+    prisma.meal.count({ where: { deliveredAt: { gte: weekAgo } } }),
+  ]);
+  return {
+    mealsTracked: statuses.length,
+    deliveredThisWeek,
+    verifiedRate: verificationRate(statuses.map((s) => s.status)),
   };
 }
 

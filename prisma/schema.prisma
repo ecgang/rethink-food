@@ -219,6 +219,12 @@ model Meal {
   deliveredAt DateTime?
   verifiedAt  DateTime?
 
+  // field-ops audit trail: who advanced each transition (operator identity) and
+  // the delivery proof photo captured in the field (Vercel Blob URL).
+  deliveredBy      String?
+  verifiedBy       String?
+  deliveryPhotoUrl String?
+
   costLineItems MealCostLineItem[]
 
   @@index([status])
