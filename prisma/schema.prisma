@@ -147,7 +147,8 @@ model Kitchen {
 model RestaurantPartner {
   id             String  @id @default(cuid())
   name           String
-  cuisine        String? // real cuisine from DOHMH data
+  address        String?
+  certified      Boolean @default(false) // "Rethink Certified" partner
   market         Market  @relation(fields: [marketId], references: [id])
   marketId       String
   weeklyCapacity Int
@@ -160,6 +161,7 @@ model RestaurantPartner {
 model Cbo {
   id           String  @id @default(cuid())
   name         String
+  address      String?
   market       Market  @relation(fields: [marketId], references: [id])
   marketId     String
   contactEmail String?

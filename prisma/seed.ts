@@ -59,18 +59,25 @@ interface NeighborhoodRow {
 interface RestaurantRow {
   name: string;
   borough: string;
-  cuisine: string;
+  address: string;
   lat: number;
   lng: number;
-  neighborhood: string;
-  minorityOwned: boolean;
+  certified: boolean;
 }
 interface CboRow {
   name: string;
   borough: string;
+  address: string;
   lat: number;
   lng: number;
 }
+
+// deterministic ~80% true (impact report: ~80% minority/women-owned partners)
+const synthMinorityOwned = (name: string) => {
+  let h = 0;
+  for (const ch of name) h = (h * 31 + ch.charCodeAt(0)) >>> 0;
+  return h % 10 < 8;
+};
 
 async function main() {
   console.log("Clearing existing data…");
@@ -208,15 +215,16 @@ async function main() {
   const restaurantRows = dataFile<RestaurantRow[]>("restaurants.json");
   const restaurants: Awaited<ReturnType<typeof prisma.restaurantPartner.create>>[] = [];
   for (const r of restaurantRows) {
-    const market = marketByHood[r.neighborhood] ?? nearestMarket(r.lat, r.lng, r.borough);
+    const market = nearestMarket(r.lat, r.lng, r.borough);
     restaurants.push(
       await prisma.restaurantPartner.create({
         data: {
           name: r.name,
-          cuisine: r.cuisine,
+          address: r.address,
+          certified: r.certified,
           marketId: market.id,
           weeklyCapacity: between(300, 700),
-          minorityOwned: r.minorityOwned,
+          minorityOwned: synthMinorityOwned(r.name),
         },
       }),
     );
@@ -231,6 +239,7 @@ async function main() {
       await prisma.cbo.create({
         data: {
           name: c.name,
+          address: c.address,
           marketId: market.id,
           contactEmail: `programs@${c.name.toLowerCase().replace(/[^a-z]+/g, "").slice(0, 16)}.org`,
         },

@@ -1,353 +1,282 @@
 [
   {
-    "name": "Merry Land Buffet",
-    "borough": "Bronx",
-    "cuisine": "Chinese",
-    "lat": 40.81683,
-    "lng": -73.92061,
-    "neighborhood": "Mott Haven-Port Morris",
-    "minorityOwned": true
-  },
-  {
-    "name": "Rinconcito Tepeyac",
-    "borough": "Bronx",
-    "cuisine": "Mexican",
-    "lat": 40.80933,
-    "lng": -73.92341,
-    "neighborhood": "Mott Haven-Port Morris",
-    "minorityOwned": true
-  },
-  {
-    "name": "La Patrona Restobar",
-    "borough": "Bronx",
-    "cuisine": "Mexican",
-    "lat": 40.80767,
-    "lng": -73.91952,
-    "neighborhood": "Mott Haven-Port Morris",
-    "minorityOwned": true
-  },
-  {
-    "name": "Running Cool Restaurant",
-    "borough": "Bronx",
-    "cuisine": "Caribbean",
-    "lat": 40.85808,
-    "lng": -73.90408,
-    "neighborhood": "Fordham Heights",
-    "minorityOwned": true
-  },
-  {
-    "name": "Angela Bakery Corp",
-    "borough": "Bronx",
-    "cuisine": "American",
-    "lat": 40.86025,
-    "lng": -73.89834,
-    "neighborhood": "Fordham Heights",
-    "minorityOwned": true
-  },
-  {
-    "name": "Seafood Soul And Tingz",
-    "borough": "Bronx",
-    "cuisine": "American",
-    "lat": 40.8465,
-    "lng": -73.89481,
-    "neighborhood": "Fordham Heights",
-    "minorityOwned": false
-  },
-  {
-    "name": "Yopcity",
-    "borough": "Bronx",
-    "cuisine": "African",
-    "lat": 40.85393,
-    "lng": -73.88895,
-    "neighborhood": "Belmont",
-    "minorityOwned": false
-  },
-  {
-    "name": "San Gennaro",
-    "borough": "Bronx",
-    "cuisine": "Italian",
-    "lat": 40.85409,
-    "lng": -73.88883,
-    "neighborhood": "Belmont",
-    "minorityOwned": true
-  },
-  {
-    "name": "Pete'S Cafe",
-    "borough": "Bronx",
-    "cuisine": "American",
-    "lat": 40.85877,
-    "lng": -73.88584,
-    "neighborhood": "Belmont",
-    "minorityOwned": true
-  },
-  {
-    "name": "Lucys Coffee",
+    "name": "8 Bit Bites — Bed-Stuy",
     "borough": "Brooklyn",
-    "cuisine": "Mexican",
-    "lat": 40.67628,
-    "lng": -73.90978,
-    "neighborhood": "Brownsville",
-    "minorityOwned": false
+    "address": "967 Bedford Avenue, Brooklyn, NY 11205",
+    "lat": 40.69109,
+    "lng": -73.95537,
+    "certified": false
   },
   {
-    "name": "Gayle'S Thrill & Grill",
+    "name": "8 Bit Bites — Bushwick",
     "borough": "Brooklyn",
-    "cuisine": "Other",
-    "lat": 40.65782,
-    "lng": -73.90847,
-    "neighborhood": "Brownsville",
-    "minorityOwned": true
+    "address": "881 Lexington Avenue, Brooklyn, NY 11221",
+    "lat": 40.69055,
+    "lng": -73.92645,
+    "certified": false
   },
   {
-    "name": "Napoli Pizza",
-    "borough": "Brooklyn",
-    "cuisine": "Pizza",
-    "lat": 40.6626,
-    "lng": -73.90849,
-    "neighborhood": "Brownsville",
-    "minorityOwned": false
-  },
-  {
-    "name": "Gaddy Lane",
-    "borough": "Brooklyn",
-    "cuisine": "New American",
-    "lat": 40.69996,
-    "lng": -73.94845,
-    "neighborhood": "Bedford-Stuyvesant (West)",
-    "minorityOwned": false
-  },
-  {
-    "name": "Izzy Rose",
-    "borough": "Brooklyn",
-    "cuisine": "American",
-    "lat": 40.68705,
-    "lng": -73.96278,
-    "neighborhood": "Bedford-Stuyvesant (West)",
-    "minorityOwned": true
-  },
-  {
-    "name": "Green Chilli",
-    "borough": "Brooklyn",
-    "cuisine": "Indian",
-    "lat": 40.68083,
-    "lng": -73.94967,
-    "neighborhood": "Bedford-Stuyvesant (West)",
-    "minorityOwned": true
-  },
-  {
-    "name": "Constantine Restaurant & Bar",
-    "borough": "Brooklyn",
-    "cuisine": "American",
-    "lat": 40.65186,
-    "lng": -74.00489,
-    "neighborhood": "Sunset Park (West)",
-    "minorityOwned": true
-  },
-  {
-    "name": "Avocaderia",
-    "borough": "Brooklyn",
-    "cuisine": "Salads",
-    "lat": 40.65594,
-    "lng": -74.00716,
-    "neighborhood": "Sunset Park (West)",
-    "minorityOwned": true
-  },
-  {
-    "name": "Twist",
-    "borough": "Brooklyn",
-    "cuisine": "Seafood",
-    "lat": 40.65207,
-    "lng": -74.01003,
-    "neighborhood": "Sunset Park (West)",
-    "minorityOwned": false
-  },
-  {
-    "name": "El Trio Grill",
-    "borough": "Queens",
-    "cuisine": "Mexican",
-    "lat": 40.74663,
-    "lng": -73.8622,
-    "neighborhood": "North Corona",
-    "minorityOwned": false
-  },
-  {
-    "name": "Tacos Al Suadero",
-    "borough": "Queens",
-    "cuisine": "Mexican",
-    "lat": 40.75052,
-    "lng": -73.86304,
-    "neighborhood": "North Corona",
-    "minorityOwned": true
-  },
-  {
-    "name": "Aqui En Bella Puebla",
-    "borough": "Queens",
-    "cuisine": "Mexican",
-    "lat": 40.74885,
-    "lng": -73.87243,
-    "neighborhood": "North Corona",
-    "minorityOwned": true
-  },
-  {
-    "name": "Hong Kong Restaurant",
-    "borough": "Queens",
-    "cuisine": "Chinese",
-    "lat": 40.71574,
-    "lng": -73.77172,
-    "neighborhood": "Jamaica Estates-Holliswood",
-    "minorityOwned": true
-  },
-  {
-    "name": "The Hot Spot Bbq & Grill",
-    "borough": "Queens",
-    "cuisine": "Barbecue",
-    "lat": 40.7267,
-    "lng": -73.78877,
-    "neighborhood": "Jamaica Estates-Holliswood",
-    "minorityOwned": true
-  },
-  {
-    "name": "Golden Chicken",
-    "borough": "Queens",
-    "cuisine": "Chicken",
-    "lat": 40.71277,
-    "lng": -73.78325,
-    "neighborhood": "Jamaica Estates-Holliswood",
-    "minorityOwned": true
-  },
-  {
-    "name": "Little Pizza",
-    "borough": "Queens",
-    "cuisine": "Pizza",
-    "lat": 40.75637,
-    "lng": -73.87341,
-    "neighborhood": "East Elmhurst",
-    "minorityOwned": true
-  },
-  {
-    "name": "Pizza Sam",
-    "borough": "Queens",
-    "cuisine": "Pizza",
-    "lat": 40.75625,
-    "lng": -73.87868,
-    "neighborhood": "East Elmhurst",
-    "minorityOwned": true
-  },
-  {
-    "name": "Que Rico Taco",
-    "borough": "Queens",
-    "cuisine": "Tex-Mex",
-    "lat": 40.75597,
-    "lng": -73.8788,
-    "neighborhood": "East Elmhurst",
-    "minorityOwned": true
-  },
-  {
-    "name": "Domino'S Pizza #3692",
+    "name": "8 Bit Bites — Chelsea",
     "borough": "Manhattan",
-    "cuisine": "Pizza",
-    "lat": 40.7938,
-    "lng": -73.94303,
-    "neighborhood": "East Harlem (South)",
-    "minorityOwned": true
+    "address": "197 7th Avenue, New York, NY 10011",
+    "lat": 40.74307,
+    "lng": -73.99631,
+    "certified": false
   },
   {
-    "name": "City Swiggers",
+    "name": "8 Bit Bites — Court Street",
+    "borough": "Brooklyn",
+    "address": "113 Court Street, Brooklyn, NY 11201",
+    "lat": 40.69056,
+    "lng": -73.99187,
+    "certified": false
+  },
+  {
+    "name": "8 Bit Bites — East Village",
     "borough": "Manhattan",
-    "cuisine": "American",
-    "lat": 40.77757,
-    "lng": -73.95105,
-    "neighborhood": "East Harlem (South)",
-    "minorityOwned": true
+    "address": "77 2nd Avenue, New York, NY 10003",
+    "lat": 40.72652,
+    "lng": -73.98927,
+    "certified": false
   },
   {
-    "name": "Jade Dragon",
+    "name": "Atomic Wings",
+    "borough": "Queens",
+    "address": "159-23 Hillside Avenue, Jamaica, NY 11432",
+    "lat": 40.70784,
+    "lng": -73.80257,
+    "certified": false
+  },
+  {
+    "name": "Bahar Masala",
+    "borough": "Brooklyn",
+    "address": "984 Coney Island Avenue, Brooklyn, NY 11230",
+    "lat": 40.63354,
+    "lng": -73.96722,
+    "certified": true
+  },
+  {
+    "name": "Benny's Cuban Cafe",
+    "borough": "Queens",
+    "address": "71-28 Fresh Pond Road, Ridgewood, NY 11385",
+    "lat": 40.70154,
+    "lng": -73.89485,
+    "certified": false
+  },
+  {
+    "name": "Brain Food",
+    "borough": "Brooklyn",
+    "address": "111 Court Street, Brooklyn, NY 11201",
+    "lat": 40.69062,
+    "lng": -73.99184,
+    "certified": true
+  },
+  {
+    "name": "Chefscape",
     "borough": "Manhattan",
-    "cuisine": "Chinese",
-    "lat": 40.78901,
-    "lng": -73.94052,
-    "neighborhood": "East Harlem (South)",
-    "minorityOwned": false
+    "address": "10 Desbrosses Street, New York, NY 10013",
+    "lat": 40.72339,
+    "lng": -74.00852,
+    "certified": false
   },
   {
-    "name": "Floridita Restaurant Uptown",
+    "name": "Collective Fare",
+    "borough": "Brooklyn",
+    "address": "345A Nostrand Avenue, Brooklyn, NY 11216",
+    "lat": 40.68642,
+    "lng": -73.9507,
+    "certified": false
+  },
+  {
+    "name": "Curry House",
     "borough": "Manhattan",
-    "cuisine": "Latin American",
-    "lat": 40.84706,
-    "lng": -73.93817,
-    "neighborhood": "Washington Heights (South)",
-    "minorityOwned": true
+    "address": "9 Pell Street, New York, NY 10013",
+    "lat": 40.71466,
+    "lng": -73.99759,
+    "certified": false
   },
   {
-    "name": "Little Caesars",
+    "name": "Eleven Madison Park",
     "borough": "Manhattan",
-    "cuisine": "Pizza",
-    "lat": 40.84648,
-    "lng": -73.93579,
-    "neighborhood": "Washington Heights (South)",
-    "minorityOwned": true
+    "address": "11 Madison Avenue, New York, NY 10010",
+    "lat": 40.74155,
+    "lng": -73.98742,
+    "certified": false
   },
   {
-    "name": "Benvenuto Pizza #2 Corp",
+    "name": "Estrella Latina",
+    "borough": "Queens",
+    "address": "39-07 104th Street, Corona, NY 11368",
+    "lat": 40.75058,
+    "lng": -73.86199,
+    "certified": false
+  },
+  {
+    "name": "Fiddler's Glatt",
     "borough": "Manhattan",
-    "cuisine": "Pizza",
-    "lat": 40.8441,
-    "lng": -73.93573,
-    "neighborhood": "Washington Heights (South)",
-    "minorityOwned": true
+    "address": "500 Grand Street, New York, NY 10002",
+    "lat": 40.81526,
+    "lng": -73.94285,
+    "certified": false
   },
   {
-    "name": "Curry Leaf",
-    "borough": "Staten Island",
-    "cuisine": "Asian/Asian Fusion",
-    "lat": 40.63821,
-    "lng": -74.07937,
-    "neighborhood": "Tompkinsville-Stapleton-Clifton-Fox Hills",
-    "minorityOwned": false
+    "name": "Flavors Corner",
+    "borough": "Queens",
+    "address": "10-18 41st Avenue, Long Island City, NY 11101",
+    "lat": 40.75543,
+    "lng": -73.94538,
+    "certified": false
   },
   {
-    "name": "Good Wok Restaurant",
-    "borough": "Staten Island",
-    "cuisine": "Chinese",
-    "lat": 40.61626,
-    "lng": -74.07408,
-    "neighborhood": "Tompkinsville-Stapleton-Clifton-Fox Hills",
-    "minorityOwned": true
+    "name": "Fraiche",
+    "borough": "Brooklyn",
+    "address": "56 Marcy Avenue, Brooklyn, NY 11211",
+    "lat": 40.7124,
+    "lng": -73.95547,
+    "certified": false
   },
   {
-    "name": "La Cabana Restaurant",
-    "borough": "Staten Island",
-    "cuisine": "Spanish",
-    "lat": 40.63789,
-    "lng": -74.07955,
-    "neighborhood": "Tompkinsville-Stapleton-Clifton-Fox Hills",
-    "minorityOwned": false
+    "name": "Good Eats Bistro",
+    "borough": "Queens",
+    "address": "100-15 Ditmars Boulevard, East Elmhurst, NY 11369",
+    "lat": 40.76985,
+    "lng": -73.86992,
+    "certified": false
   },
   {
-    "name": "Yolpaqui Taqueria",
-    "borough": "Staten Island",
-    "cuisine": "Mexican",
-    "lat": 40.62474,
-    "lng": -74.13634,
-    "neighborhood": "Port Richmond",
-    "minorityOwned": true
+    "name": "Havana Cafe",
+    "borough": "Bronx",
+    "address": "3151 East Tremont Avenue, Bronx, NY 10461",
+    "lat": 40.83769,
+    "lng": -73.8345,
+    "certified": false
   },
   {
-    "name": "Reyes Deli Mexicana",
-    "borough": "Staten Island",
-    "cuisine": "Mexican",
-    "lat": 40.63645,
-    "lng": -74.13449,
-    "neighborhood": "Port Richmond",
-    "minorityOwned": false
+    "name": "Katie O's",
+    "borough": "Brooklyn",
+    "address": "452 East New York Avenue, Brooklyn, NY 11225",
+    "lat": 40.66175,
+    "lng": -73.94683,
+    "certified": false
   },
   {
-    "name": "Papa Johns Pizza",
+    "name": "Lebanese Eatery",
     "borough": "Staten Island",
-    "cuisine": "Pizza",
-    "lat": 40.62646,
-    "lng": -74.12966,
-    "neighborhood": "Port Richmond",
-    "minorityOwned": false
+    "address": "1686 Forest Avenue, Staten Island, NY 10302",
+    "lat": 40.62491,
+    "lng": -74.14513,
+    "certified": false
+  },
+  {
+    "name": "Lore",
+    "borough": "Brooklyn",
+    "address": "441 7th Avenue, Brooklyn, NY 11215",
+    "lat": 40.66321,
+    "lng": -73.98457,
+    "certified": false
+  },
+  {
+    "name": "Manna's Soul Food & Salad Bar",
+    "borough": "Manhattan",
+    "address": "320 Saint Nicholas Avenue, New York, NY 10027",
+    "lat": 40.81127,
+    "lng": -73.95214,
+    "certified": true
+  },
+  {
+    "name": "Marina Del Rey",
+    "borough": "Bronx",
+    "address": "1 Marina Drive, Bronx, NY 10465",
+    "lat": 40.81454,
+    "lng": -73.81479,
+    "certified": false
+  },
+  {
+    "name": "Marlow Bistro",
+    "borough": "Manhattan",
+    "address": "1018 Amsterdam Avenue, New York, NY 10025",
+    "lat": 40.80295,
+    "lng": -73.96396,
+    "certified": true
+  },
+  {
+    "name": "New Wing Wong",
+    "borough": "Manhattan",
+    "address": "42 Bowery, New York, NY 10013",
+    "lat": 40.71544,
+    "lng": -73.99663,
+    "certified": false
+  },
+  {
+    "name": "Radish",
+    "borough": "Brooklyn",
+    "address": "58 Dobbin Street, Brooklyn, NY 11222",
+    "lat": 40.72419,
+    "lng": -73.95395,
+    "certified": false
+  },
+  {
+    "name": "Ras Plant Based",
+    "borough": "Brooklyn",
+    "address": "739 Franklin Avenue, Brooklyn, NY 11238",
+    "lat": 40.67344,
+    "lng": -73.95689,
+    "certified": false
+  },
+  {
+    "name": "Rob's Kitchen",
+    "borough": "Bronx",
+    "address": "172 Lafayette Avenue, Bronx, NY 10473",
+    "lat": 40.8407,
+    "lng": -73.89977,
+    "certified": true
+  },
+  {
+    "name": "Sophie's Cuban — Flushing Ave",
+    "borough": "Brooklyn",
+    "address": "630 Flushing Avenue, Brooklyn, NY 11206",
+    "lat": 40.69994,
+    "lng": -73.9482,
+    "certified": true
+  },
+  {
+    "name": "Sophie's Cuban Cuisine — Flatiron",
+    "borough": "Manhattan",
+    "address": "664 6th Avenue, New York, NY 10010",
+    "lat": 40.7413,
+    "lng": -73.99388,
+    "certified": false
+  },
+  {
+    "name": "Sophie's Cuban Cuisine — Hell's Kitchen",
+    "borough": "Manhattan",
+    "address": "947 8th Avenue, New York, NY 10019",
+    "lat": 40.76582,
+    "lng": -73.98362,
+    "certified": false
+  },
+  {
+    "name": "Sophie's Cuban Cuisine — Midtown East",
+    "borough": "Manhattan",
+    "address": "369 Lexington Avenue, New York, NY 10017",
+    "lat": 40.75058,
+    "lng": -73.97659,
+    "certified": false
+  },
+  {
+    "name": "Sophie's Cuban Cuisine — Union Square",
+    "borough": "Manhattan",
+    "address": "28 East 12th Street, New York, NY 10003",
+    "lat": 40.73399,
+    "lng": -73.99312,
+    "certified": false
+  },
+  {
+    "name": "Zaab Zaab Talay",
+    "borough": "Brooklyn",
+    "address": "208 Grand Street, Brooklyn, NY 11211",
+    "lat": 40.71398,
+    "lng": -73.9602,
+    "certified": true
   }
 ]

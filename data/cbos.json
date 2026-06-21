@@ -1,17 +1,369 @@
 {
-  "_source": "Real NYC community-based food organizations (public addresses, geocoded). Associations with Rethink Food in this demo are illustrative.",
+  "_source": "Rethink Food partner directory (rethinkfood.org). Coordinates geocoded via US Census.",
   "cbos": [
-    { "name": "Part of the Solution (POTS)", "borough": "Bronx", "lat": 40.8662, "lng": -73.8972 },
-    { "name": "BronxWorks", "borough": "Bronx", "lat": 40.823, "lng": -73.918 },
-    { "name": "Bed-Stuy Campaign Against Hunger", "borough": "Brooklyn", "lat": 40.679, "lng": -73.91 },
-    { "name": "St. John's Bread & Life", "borough": "Brooklyn", "lat": 40.694, "lng": -73.927 },
-    { "name": "City Harvest", "borough": "Brooklyn", "lat": 40.655, "lng": -74.01 },
-    { "name": "La Jornada", "borough": "Queens", "lat": 40.745, "lng": -73.878 },
-    { "name": "Masbia of Queens", "borough": "Queens", "lat": 40.726, "lng": -73.862 },
-    { "name": "River Fund New York", "borough": "Queens", "lat": 40.696, "lng": -73.83 },
-    { "name": "Union Settlement", "borough": "Manhattan", "lat": 40.793, "lng": -73.94 },
-    { "name": "NY Common Pantry", "borough": "Manhattan", "lat": 40.795, "lng": -73.938 },
-    { "name": "Project Hospitality", "borough": "Staten Island", "lat": 40.631, "lng": -74.077 },
-    { "name": "Catholic Charities Staten Island", "borough": "Staten Island", "lat": 40.637, "lng": -74.13 }
+    {
+      "name": "A House on Beekman",
+      "borough": "Bronx",
+      "address": "452 East 149th Street, Bronx, NY 10455",
+      "lat": 40.81533,
+      "lng": -73.91604
+    },
+    {
+      "name": "Agape Food Rescue",
+      "borough": "Brooklyn",
+      "address": "276 Chestnut Street, Brooklyn, NY 11208",
+      "lat": 40.68193,
+      "lng": -73.87523
+    },
+    {
+      "name": "Alliance for Positive Change",
+      "borough": "Manhattan",
+      "address": "64 West 35th Street, New York, NY 10001",
+      "lat": 40.74991,
+      "lng": -73.98617
+    },
+    {
+      "name": "Alliance for Positive Change — Keith Haring Harlem Center",
+      "borough": "Manhattan",
+      "address": "315 East 104th Street, New York, NY 10029",
+      "lat": 40.78919,
+      "lng": -73.94297
+    },
+    {
+      "name": "Andromeda Community Initiative",
+      "borough": "Queens",
+      "address": "49-12 31st Place, Long Island City, NY 11101",
+      "lat": 40.73977,
+      "lng": -73.93558
+    },
+    {
+      "name": "Apex for Youth",
+      "borough": "Manhattan",
+      "address": "195 Chrystie Street, New York, NY 10002",
+      "lat": 40.72188,
+      "lng": -73.992
+    },
+    {
+      "name": "Apex for Youth — Sunset Park High School",
+      "borough": "Brooklyn",
+      "address": "153 35th Street, Brooklyn, NY 11232",
+      "lat": 40.65582,
+      "lng": -74.0053
+    },
+    {
+      "name": "APNA Brooklyn Community Center",
+      "borough": "Brooklyn",
+      "address": "2033 Bath Avenue, Brooklyn, NY 11214",
+      "lat": 40.60087,
+      "lng": -74.0006
+    },
+    {
+      "name": "Bronx Community College",
+      "borough": "Bronx",
+      "address": "2155 University Avenue, Bronx, NY 10453",
+      "lat": 40.85701,
+      "lng": -73.90994
+    },
+    {
+      "name": "Bushwick-Hylan Cornerstone Community Center",
+      "borough": "Brooklyn",
+      "address": "50 Humboldt Street, Brooklyn, NY 11206",
+      "lat": 40.70235,
+      "lng": -73.94056
+    },
+    {
+      "name": "CHiPS",
+      "borough": "Brooklyn",
+      "address": "200 4th Avenue, Brooklyn, NY 11217",
+      "lat": 40.67818,
+      "lng": -73.98261
+    },
+    {
+      "name": "Chung Pak Community Fridge",
+      "borough": "Manhattan",
+      "address": "96 Baxter Street, New York, NY 10013",
+      "lat": 40.71728,
+      "lng": -73.99956
+    },
+    {
+      "name": "Citymeals on Wheels",
+      "borough": "Manhattan",
+      "address": "355 Lexington Avenue, New York, NY 10017",
+      "lat": 40.75018,
+      "lng": -73.97689
+    },
+    {
+      "name": "Code For Life",
+      "borough": "Bronx",
+      "address": "256 East 138th Street, Bronx, NY 10451",
+      "lat": 40.81157,
+      "lng": -73.92804
+    },
+    {
+      "name": "Collective Food Works",
+      "borough": "Brooklyn",
+      "address": "345A Nostrand Avenue, Brooklyn, NY 11216",
+      "lat": 40.68642,
+      "lng": -73.9507
+    },
+    {
+      "name": "Community Counseling & Mediation — Georgia's Place",
+      "borough": "Brooklyn",
+      "address": "691 Prospect Place, Brooklyn, NY 11216",
+      "lat": 40.67462,
+      "lng": -73.95397
+    },
+    {
+      "name": "Congregation Sons of Israel",
+      "borough": "Bronx",
+      "address": "2521 Cruger Avenue, Bronx, NY 10467",
+      "lat": 40.86347,
+      "lng": -73.86648
+    },
+    {
+      "name": "Covenant House New York",
+      "borough": "Manhattan",
+      "address": "460 West 41st Street, New York, NY 10018",
+      "lat": 40.75867,
+      "lng": -73.99531
+    },
+    {
+      "name": "Crossroads Community Services",
+      "borough": "Manhattan",
+      "address": "108 East 51st Street, New York, NY 10022",
+      "lat": 40.75768,
+      "lng": -73.97337
+    },
+    {
+      "name": "Faith United Methodist Church",
+      "borough": "Staten Island",
+      "address": "221 Heberton Avenue, Staten Island, NY 10302",
+      "lat": 40.63509,
+      "lng": -74.13248
+    },
+    {
+      "name": "First Spanish United Methodist Church",
+      "borough": "Manhattan",
+      "address": "163 East 111th Street, New York, NY 10029",
+      "lat": 40.79524,
+      "lng": -73.94332
+    },
+    {
+      "name": "Garden of Hope",
+      "borough": "Queens",
+      "address": "135-20 35th Avenue, Flushing, NY 11354",
+      "lat": 40.76446,
+      "lng": -73.83149
+    },
+    {
+      "name": "Graffiti 2 Community Ministries",
+      "borough": "Bronx",
+      "address": "606 East 141st Street, Bronx, NY 10454",
+      "lat": 40.80799,
+      "lng": -73.91443
+    },
+    {
+      "name": "Hebrew Institute of Riverdale",
+      "borough": "Bronx",
+      "address": "3700 Henry Hudson Parkway, Bronx, NY 10463",
+      "lat": 40.88804,
+      "lng": -73.91065
+    },
+    {
+      "name": "Henry Street Settlement",
+      "borough": "Manhattan",
+      "address": "301 Henry Street, New York, NY 10002",
+      "lat": 40.71397,
+      "lng": -73.98394
+    },
+    {
+      "name": "ICNA Relief USA",
+      "borough": "Queens",
+      "address": "87-91 144th Street, Jamaica, NY 11435",
+      "lat": 40.70461,
+      "lng": -73.81176
+    },
+    {
+      "name": "Kingsbridge Center of Israel Kosher Food Pantry",
+      "borough": "Bronx",
+      "address": "5905 Riverdale Avenue, Bronx, NY 10471",
+      "lat": 40.90699,
+      "lng": -73.90414
+    },
+    {
+      "name": "LaGuardia CARES",
+      "borough": "Queens",
+      "address": "31-10 Thomson Avenue, Long Island City, NY 11101",
+      "lat": 40.74489,
+      "lng": -73.93527
+    },
+    {
+      "name": "Los Sures Social Services",
+      "borough": "Brooklyn",
+      "address": "145 South 3rd Street, Brooklyn, NY 11211",
+      "lat": 40.71234,
+      "lng": -73.96187
+    },
+    {
+      "name": "Mary Mitchell Family & Youth Center",
+      "borough": "Bronx",
+      "address": "2007 Mapes Avenue, Bronx, NY 10460",
+      "lat": 40.84477,
+      "lng": -73.88721
+    },
+    {
+      "name": "Masjid Rahmatillah",
+      "borough": "Staten Island",
+      "address": "141 Park Hill Avenue, Staten Island, NY 10304",
+      "lat": 40.61637,
+      "lng": -74.08126
+    },
+    {
+      "name": "NeON Nutrition Kitchen — Brooklyn",
+      "borough": "Brooklyn",
+      "address": "345 Adams Street, Brooklyn, NY 11201",
+      "lat": 40.69236,
+      "lng": -73.98882
+    },
+    {
+      "name": "NeON Nutrition Kitchen — Staten Island",
+      "borough": "Staten Island",
+      "address": "340 Bay Street, Staten Island, NY 10301",
+      "lat": 40.63357,
+      "lng": -74.07535
+    },
+    {
+      "name": "New Life NYC",
+      "borough": "Manhattan",
+      "address": "145 Ludlow Street, New York, NY 10002",
+      "lat": 40.72063,
+      "lng": -73.98815
+    },
+    {
+      "name": "North Brooklyn Angels",
+      "borough": "Brooklyn",
+      "address": "1 Havemeyer Street, Brooklyn, NY 11211",
+      "lat": 40.7159,
+      "lng": -73.95326
+    },
+    {
+      "name": "One Love Community Fridge",
+      "borough": "Brooklyn",
+      "address": "432 Myrtle Avenue, Brooklyn, NY 11205",
+      "lat": 40.69309,
+      "lng": -73.96856
+    },
+    {
+      "name": "Plaza Del Sol Family Health Center",
+      "borough": "Queens",
+      "address": "37-16 108th Street, Corona, NY 11368",
+      "lat": 40.75354,
+      "lng": -73.86029
+    },
+    {
+      "name": "Queens Community House — Pomonok",
+      "borough": "Queens",
+      "address": "67-09 Kissena Boulevard, Flushing, NY 11367",
+      "lat": 40.73634,
+      "lng": -73.81464
+    },
+    {
+      "name": "RAP4Bronx — BronxWorks Betances Community Center",
+      "borough": "Bronx",
+      "address": "547 East 146th Street, Bronx, NY 10455",
+      "lat": 40.81271,
+      "lng": -73.91512
+    },
+    {
+      "name": "RAP4Bronx — BronxWorks Melrose Community Center",
+      "borough": "Bronx",
+      "address": "286 East 156th Street, Bronx, NY 10451",
+      "lat": 40.82318,
+      "lng": -73.92186
+    },
+    {
+      "name": "RAP4Bronx — Love Gospel Assembly",
+      "borough": "Bronx",
+      "address": "2323 Grand Concourse, Bronx, NY 10468",
+      "lat": 40.85823,
+      "lng": -73.89978
+    },
+    {
+      "name": "Ravenswood Community Center",
+      "borough": "Queens",
+      "address": "35-40 21st Street, Long Island City, NY 11106",
+      "lat": 40.76078,
+      "lng": -73.93603
+    },
+    {
+      "name": "REACH Family & Education Center",
+      "borough": "Brooklyn",
+      "address": "98 5th Avenue, Brooklyn, NY 11217",
+      "lat": 40.68005,
+      "lng": -73.97809
+    },
+    {
+      "name": "Redemption Church Red Hook",
+      "borough": "Brooklyn",
+      "address": "27 Huntington Street, Brooklyn, NY 11231",
+      "lat": 40.67759,
+      "lng": -74.0051
+    },
+    {
+      "name": "Ronald McDonald House New York",
+      "borough": "Manhattan",
+      "address": "405 East 73rd Street, New York, NY 10021",
+      "lat": 40.76842,
+      "lng": -73.9552
+    },
+    {
+      "name": "Salem United Methodist Church",
+      "borough": "Manhattan",
+      "address": "2190 Adam Clayton Powell Jr Boulevard, New York, NY 10027",
+      "lat": 40.81159,
+      "lng": -73.9465
+    },
+    {
+      "name": "St. John's Bread & Life",
+      "borough": "Brooklyn",
+      "address": "795 Lexington Avenue, Brooklyn, NY 11221",
+      "lat": 40.69029,
+      "lng": -73.92874
+    },
+    {
+      "name": "St. Mark's United Methodist Church",
+      "borough": "Brooklyn",
+      "address": "2017 Beverley Road, Brooklyn, NY 11226",
+      "lat": 40.64494,
+      "lng": -73.9598
+    },
+    {
+      "name": "The Bowery Mission",
+      "borough": "Manhattan",
+      "address": "227 Bowery, New York, NY 10002",
+      "lat": 40.72213,
+      "lng": -73.99326
+    },
+    {
+      "name": "The Open Door — East Harlem",
+      "borough": "Manhattan",
+      "address": "2017 1st Avenue, New York, NY 10029",
+      "lat": 40.78829,
+      "lng": -73.94112
+    },
+    {
+      "name": "Union Pool Food Pantry",
+      "borough": "Brooklyn",
+      "address": "484 Union Avenue, Brooklyn, NY 11211",
+      "lat": 40.71477,
+      "lng": -73.95166
+    },
+    {
+      "name": "United Jewish Council of the East Side",
+      "borough": "Manhattan",
+      "address": "1517 Willett Street, New York, NY 10002",
+      "lat": 40.81526,
+      "lng": -73.94285
+    }
   ]
 }

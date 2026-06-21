@@ -13,7 +13,7 @@
     "db:reset": "prisma migrate reset --force",
     "postinstall": "prisma generate",
     "typecheck": "tsc --noEmit",
-    "ingest": "tsx scripts/ingest/neighborhoods.ts && tsx scripts/ingest/restaurants.ts"
+    "ingest": "tsx scripts/ingest/neighborhoods.ts && tsx scripts/ingest/partners.ts"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.105.0",
