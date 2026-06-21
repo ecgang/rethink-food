@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import { Sparkles, Check, X, Loader2 } from "lucide-react";
+import { Sparkles, Check, X, Loader2, Lock } from "lucide-react";
 import { cn } from "@/lib/cn";
 import { Card, CardHeader, CardBody } from "@/components/ui";
 import { parseAction, approveAction, rejectAction } from "@/app/intake/actions";
@@ -53,7 +53,7 @@ function renderValue(v: unknown): string {
   return String(v);
 }
 
-export function IntakeForm() {
+export function IntakeForm({ canApprove }: { canApprove: boolean }) {
   const [raw, setRaw] = useState("");
   const [result, setResult] = useState<IntakeParseResult | null>(null);
   const [status, setStatus] = useState<null | "approved" | "rejected">(null);
@@ -169,22 +169,29 @@ export function IntakeForm() {
                   ))}
                 </tbody>
               </table>
-              <div className="mt-4 flex gap-2">
-                <button
-                  onClick={() => decide("approve")}
-                  disabled={isDeciding}
-                  className="inline-flex items-center gap-1.5 rounded-full bg-brand px-5 py-2 text-sm font-semibold text-brand-ink disabled:opacity-50 outline-none focus-visible:ring-2 focus-visible:ring-brand-deep focus-visible:ring-offset-2"
-                >
-                  <Check className="h-4 w-4" /> Approve & create
-                </button>
-                <button
-                  onClick={() => decide("reject")}
-                  disabled={isDeciding}
-                  className="inline-flex items-center gap-1.5 rounded-full border border-foreground/30 px-5 py-2 text-sm font-semibold disabled:opacity-50 outline-none focus-visible:ring-2 focus-visible:ring-brand-deep focus-visible:ring-offset-1"
-                >
-                  <X className="h-4 w-4" /> Reject
-                </button>
-              </div>
+              {canApprove ? (
+                <div className="mt-4 flex gap-2">
+                  <button
+                    onClick={() => decide("approve")}
+                    disabled={isDeciding}
+                    className="inline-flex items-center gap-1.5 rounded-full bg-brand px-5 py-2 text-sm font-semibold text-brand-ink disabled:opacity-50 outline-none focus-visible:ring-2 focus-visible:ring-brand-deep focus-visible:ring-offset-2"
+                  >
+                    <Check className="h-4 w-4" /> Approve & create
+                  </button>
+                  <button
+                    onClick={() => decide("reject")}
+                    disabled={isDeciding}
+                    className="inline-flex items-center gap-1.5 rounded-full border border-foreground/30 px-5 py-2 text-sm font-semibold disabled:opacity-50 outline-none focus-visible:ring-2 focus-visible:ring-brand-deep focus-visible:ring-offset-1"
+                  >
+                    <X className="h-4 w-4" /> Reject
+                  </button>
+                </div>
+              ) : (
+                <div className="mt-4 flex items-center gap-2 rounded-lg bg-black/[0.03] px-3 py-2 text-xs text-muted">
+                  <Lock className="h-3.5 w-3.5" />
+                  Operations approval required — you&apos;re viewing as Finance (read-only).
+                </div>
+              )}
               <p className="mt-3 text-xs text-muted">
                 Human-in-the-loop: the AI never writes to the database. An operator
                 approves or rejects, and the decision is recorded with attribution.

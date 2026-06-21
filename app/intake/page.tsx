@@ -3,6 +3,8 @@ import { HeroBand } from "@/components/hero-band";
 import { IntakeForm } from "@/components/intake-form";
 import { prisma } from "@/lib/db";
 import { cn } from "@/lib/cn";
+import { getCurrentRole } from "@/lib/current-role";
+import { can } from "@/lib/roles";
 
 export const dynamic = "force-dynamic";
 
@@ -25,10 +27,11 @@ function summarize(fields: unknown): string {
 }
 
 export default async function IntakePage() {
-  const history = await prisma.intakeRequest.findMany({
-    orderBy: { createdAt: "desc" },
-    take: 25,
-  });
+  const [history, role] = await Promise.all([
+    prisma.intakeRequest.findMany({ orderBy: { createdAt: "desc" }, take: 25 }),
+    getCurrentRole(),
+  ]);
+  const canApprove = can(role, "approve:intake");
 
   return (
     <>
@@ -41,7 +44,7 @@ export default async function IntakePage() {
         </p>
 
       <div className="mb-6">
-        <IntakeForm />
+        <IntakeForm canApprove={canApprove} />
       </div>
 
       <Card>

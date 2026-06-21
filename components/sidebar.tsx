@@ -4,6 +4,8 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { LayoutDashboard, Inbox, Map } from "lucide-react";
 import { cn } from "@/lib/cn";
+import { RoleSwitcher } from "@/components/role-switcher";
+import type { RoleKey } from "@/lib/roles";
 
 const NAV = [
   { href: "/", label: "Command Center", icon: LayoutDashboard },
@@ -11,7 +13,7 @@ const NAV = [
   { href: "/map", label: "Demand Map", icon: Map },
 ] as const;
 
-export function Sidebar() {
+export function Sidebar({ role }: { role: RoleKey }) {
   const pathname = usePathname();
   return (
     <aside className="w-16 lg:w-60 shrink-0 border-r border-border bg-surface flex flex-col">
@@ -48,10 +50,13 @@ export function Sidebar() {
           );
         })}
       </nav>
-      <div className="mt-auto p-4 text-[11px] text-muted leading-relaxed hidden lg:block">
-        Demo build · seeded data
-        <br />
-        Lead Full-Stack Engineer application
+      <div className="mt-auto">
+        <RoleSwitcher current={role} />
+        <div className="p-4 text-[11px] text-muted leading-relaxed hidden lg:block">
+          Demo build · real NYC data
+          <br />
+          Lead Full-Stack Engineer application
+        </div>
       </div>
     </aside>
   );

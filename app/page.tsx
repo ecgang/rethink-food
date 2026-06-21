@@ -1,4 +1,4 @@
-import { Card, CardHeader, CardBody } from "@/components/ui";
+import { Card, CardHeader, CardBody, Restricted } from "@/components/ui";
 import { StatCard } from "@/components/stat-card";
 import { KpiStrip } from "@/components/kpi-strip";
 import { HeroBand } from "@/components/hero-band";
@@ -15,6 +15,8 @@ import {
 } from "@/lib/queries";
 import { formatUsd, formatUsdCompact, formatPct, formatCount } from "@/lib/money";
 import { FACTS } from "@/lib/facts";
+import { getCurrentRole } from "@/lib/current-role";
+import { can } from "@/lib/roles";
 
 // always render against live data
 export const dynamic = "force-dynamic";
@@ -37,12 +39,14 @@ export default async function DashboardPage({
     ? (sp.by as DimensionKey)
     : "program";
 
-  const [data, exceptions, mtm, deltas] = await Promise.all([
+  const [data, exceptions, mtm, deltas, role] = await Promise.all([
     getDashboardData(dim),
     getActOnToday(),
     getMtmReporting(),
     getKpiDeltas(),
+    getCurrentRole(),
   ]);
+  const showFin = can(role, "view:financials");
 
   const funnelData = [
     { stage: "Planned", count: data.funnel.planned },
@@ -109,6 +113,7 @@ export default async function DashboardPage({
                 label: "Reimbursement revenue",
                 value: formatUsdCompact(data.totals.revenueCents),
                 tone: "brand",
+                locked: !showFin,
               },
               {
                 label: "Contribution margin",
@@ -116,6 +121,7 @@ export default async function DashboardPage({
                 sub: `${formatPct(data.totals.marginPct)} blended, all programs`,
                 tone: data.totals.marginCents >= 0 ? "pos" : "neg",
                 delta: { pct: deltas.marginPct, label: "vs prior 7d" },
+                locked: !showFin,
               },
               {
                 label: "Margin / meal",
@@ -123,6 +129,7 @@ export default async function DashboardPage({
                 sub: `${formatUsd(Math.round(data.totals.costCents / Math.max(1, data.totals.mealCount)))} cost / meal`,
                 tone: marginPerMeal >= 0 ? "pos" : "neg",
                 delta: { pct: deltas.marginPerMealPct, label: "vs prior 7d" },
+                locked: !showFin,
               },
             ]}
           />
@@ -164,17 +171,21 @@ export default async function DashboardPage({
             title="Cost composition"
             subtitle="Where each dollar of meal cost goes"
           />
-          <CardBody>
-            <CostDonut data={costDonut} />
-            <div className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-xs text-muted">
-              {costDonut.map((c) => (
-                <span key={c.type} className="tnum">
-                  {c.type[0] + c.type.slice(1).toLowerCase()}:{" "}
-                  {formatUsdCompact(c.value)}
-                </span>
-              ))}
-            </div>
-          </CardBody>
+          {showFin ? (
+            <CardBody>
+              <CostDonut data={costDonut} />
+              <div className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-xs text-muted">
+                {costDonut.map((c) => (
+                  <span key={c.type} className="tnum">
+                    {c.type[0] + c.type.slice(1).toLowerCase()}:{" "}
+                    {formatUsdCompact(c.value)}
+                  </span>
+                ))}
+              </div>
+            </CardBody>
+          ) : (
+            <Restricted note="Cost data requires Finance access." />
+          )}
         </Card>
       </div>
 
@@ -183,11 +194,15 @@ export default async function DashboardPage({
         <CardHeader
           title="Contribution margin per meal"
           subtitle={`Sliced by ${data.dimensionLabel.toLowerCase()} · realized meals only`}
-          action={<DimensionTabs current={dim} />}
+          action={showFin ? <DimensionTabs current={dim} /> : undefined}
         />
-        <CardBody>
-          <MarginBars data={marginBars} />
-        </CardBody>
+        {showFin ? (
+          <CardBody>
+            <MarginBars data={marginBars} />
+          </CardBody>
+        ) : (
+          <Restricted note="Contribution margin requires Finance access." />
+        )}
       </Card>
 
       {/* MTM reporting strip */}
@@ -224,8 +239,8 @@ export default async function DashboardPage({
                   </th>
                   <th className="text-right font-medium px-4 py-2">Members</th>
                   <th className="text-right font-medium px-4 py-2">Delivered (7d)</th>
-                  <th className="text-right font-medium px-4 py-2">Margin</th>
-                  <th className="text-right font-medium px-4 py-2">Margin %</th>
+                  {showFin && <th className="text-right font-medium px-4 py-2">Margin</th>}
+                  {showFin && <th className="text-right font-medium px-4 py-2">Margin %</th>}
                 </tr>
               </thead>
               <tbody className="divide-y divide-border">
@@ -238,12 +253,16 @@ export default async function DashboardPage({
                     <td className="px-4 py-2 text-right tnum">
                       {formatCount(s.deliveredLast7)}
                     </td>
-                    <td className="px-4 py-2 text-right tnum">
-                      {formatUsdCompact(s.marginCents)}
-                    </td>
-                    <td className="px-4 py-2 text-right tnum">
-                      {formatPct(s.marginPct)}
-                    </td>
+                    {showFin && (
+                      <td className="px-4 py-2 text-right tnum">
+                        {formatUsdCompact(s.marginCents)}
+                      </td>
+                    )}
+                    {showFin && (
+                      <td className="px-4 py-2 text-right tnum">
+                        {formatPct(s.marginPct)}
+                      </td>
+                    )}
                   </tr>
                 ))}
               </tbody>

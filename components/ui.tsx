@@ -59,6 +59,16 @@ export function CardBody({
   return <div className={cn("px-5 pt-4 pb-5", className)}>{children}</div>;
 }
 
+/** Placeholder shown when the active role lacks a capability. */
+export function Restricted({ note }: { note?: string }) {
+  return (
+    <div className="px-5 py-10 text-center text-sm text-muted">
+      <div className="font-medium">Restricted</div>
+      <p className="mt-1 text-xs">{note ?? "Your role doesn't have access to this view."}</p>
+    </div>
+  );
+}
+
 const SEVERITY_STYLES: Record<Severity, { bg: string; text: string; label: string }> = {
   CRITICAL: { bg: "bg-[var(--sev-critical-bg)]", text: "text-[var(--sev-critical)]", label: "Critical" },
   HIGH: { bg: "bg-[var(--sev-high-bg)]", text: "text-[var(--sev-high)]", label: "High" },

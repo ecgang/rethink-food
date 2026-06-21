@@ -2,6 +2,8 @@
 
 import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/db";
+import { getCurrentRole, getOperatorIdentity } from "@/lib/current-role";
+import { can } from "@/lib/roles";
 import {
   parseIntakeEmail,
   type IntakeParseResult,
@@ -32,8 +34,18 @@ interface DecisionPayload {
   modelUsed: string;
 }
 
+/** Enforce the approve:intake capability server-side (not just in the UI). */
+async function assertCanApprove(): Promise<string> {
+  const role = await getCurrentRole();
+  if (!can(role, "approve:intake")) {
+    throw new Error("Your role does not have permission to decide intake requests.");
+  }
+  return getOperatorIdentity();
+}
+
 /** Step 2a: operator approves — writes the audit row and links the CBO. */
 export async function approveAction(payload: DecisionPayload): Promise<void> {
+  const approvedBy = await assertCanApprove();
   const cbo = payload.fields.cbo
     ? await prisma.cbo.findFirst({
         where: { name: { contains: payload.fields.cbo, mode: "insensitive" } },
@@ -48,7 +60,7 @@ export async function approveAction(payload: DecisionPayload): Promise<void> {
       confidenceFlags: payload.confidence,
       modelUsed: payload.modelUsed,
       status: "APPROVED",
-      approvedBy: process.env.OPERATOR_NAME ?? "Demo Operator",
+      approvedBy,
       approvedAt: new Date(),
       cboId: cbo?.id ?? null,
     },
@@ -58,6 +70,7 @@ export async function approveAction(payload: DecisionPayload): Promise<void> {
 
 /** Step 2b: operator rejects — still recorded for the audit trail. */
 export async function rejectAction(payload: DecisionPayload): Promise<void> {
+  const approvedBy = await assertCanApprove();
   await prisma.intakeRequest.create({
     data: {
       rawInput: payload.raw,
@@ -65,7 +78,7 @@ export async function rejectAction(payload: DecisionPayload): Promise<void> {
       confidenceFlags: payload.confidence,
       modelUsed: payload.modelUsed,
       status: "REJECTED",
-      approvedBy: process.env.OPERATOR_NAME ?? "Demo Operator",
+      approvedBy,
       approvedAt: new Date(),
     },
   });

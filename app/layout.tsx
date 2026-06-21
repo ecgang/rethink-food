@@ -3,6 +3,7 @@ import { Geist, Geist_Mono, Archivo } from "next/font/google";
 import "./globals.css";
 import { Sidebar } from "@/components/sidebar";
 import { MarqueeBar } from "@/components/marquee-bar";
+import { getCurrentRole } from "@/lib/current-role";
 
 // The root layout renders the live marquee (a DB query), so render dynamically
 // rather than prerendering at build time.
@@ -23,9 +24,10 @@ export const metadata: Metadata = {
     "Real-time operating system for Rethink Food: meal volumes, unit economics, delivery performance, and what to act on today.",
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
+  const role = await getCurrentRole();
   return (
     <html
       lang="en"
@@ -35,7 +37,7 @@ export default function RootLayout({
         {/* Editorial marquee carrying live ops data */}
         <MarqueeBar />
         <div className="flex min-h-screen">
-          <Sidebar />
+          <Sidebar role={role} />
           <main className="flex-1 min-w-0">{children}</main>
         </div>
       </body>

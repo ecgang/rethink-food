@@ -1,3 +1,4 @@
+import { Lock } from "lucide-react";
 import { cn } from "@/lib/cn";
 import { DeltaPill, type StatDelta } from "@/components/stat-card";
 
@@ -7,6 +8,8 @@ export interface KpiBlock {
   sub?: string;
   tone?: "neutral" | "pos" | "neg" | "brand";
   delta?: StatDelta;
+  /** redact the value behind a role gate */
+  locked?: boolean;
 }
 
 /**
@@ -25,6 +28,21 @@ export function KpiStrip({ items }: { items: KpiBlock[] }) {
               : it.tone === "brand"
                 ? "text-brand-deep"
                 : "text-foreground";
+        if (it.locked) {
+          return (
+            <div key={it.label} className="px-5 py-6">
+              <div className="text-[0.625rem] uppercase tracking-[0.2em] text-muted">
+                {it.label}
+              </div>
+              <div className="mt-2 font-display font-black tracking-tight text-[clamp(2rem,3.2vw,3rem)] leading-none text-muted/50">
+                •••
+              </div>
+              <div className="mt-2 flex items-center gap-1 text-xs text-muted">
+                <Lock className="h-3 w-3" /> Finance access
+              </div>
+            </div>
+          );
+        }
         return (
           <div key={it.label} className="px-5 py-6">
             <div className="text-[0.625rem] uppercase tracking-[0.2em] text-muted">
