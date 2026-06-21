@@ -39,3 +39,13 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+/app/generated/prisma
+
+# allow the example env to be committed
+!.env.example
+
+# local verification artifacts
+.playwright-mcp/
+*-check.png
+*-parsed.png
