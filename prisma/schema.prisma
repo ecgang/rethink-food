@@ -1,0 +1,273 @@
+// Rethink Command Center — data model
+// Design principle: normalized. Costs are line-itemed (no flat `totalCost`).
+// A Meal moves through an explicit lifecycle. A Contract (from a Funder) funds a
+// Program which produces Meals. This is the "data definitions" foundation the
+// Command Center reports against.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ----------------------------------------------------------------------------
+// Enums
+// ----------------------------------------------------------------------------
+
+enum ProgramType {
+  MTM // Medically Tailored Meals (Medicaid 1115 waiver)
+  RESTAURANT_RESPONSE // surplus / restaurant-cooked community meals
+  EMERGENCY_RELIEF
+}
+
+// State of a single meal through its lifecycle. Order is meaningful.
+enum MealStatus {
+  PLANNED
+  PRODUCED
+  DELIVERED
+  VERIFIED
+}
+
+enum CostType {
+  FOOD
+  LABOR
+  TRANSPORT
+  OVERHEAD
+}
+
+// Social Care Network referral partners for MTM (NY 1115 waiver).
+enum ScnPartner {
+  PHS // Public Health Solutions / WholeYouNYC
+  HEALI
+  SOMOS
+}
+
+enum MemberStatus {
+  ACTIVE
+  WITHDRAWN
+}
+
+enum ProducerType {
+  KITCHEN
+  RESTAURANT
+}
+
+enum IntakeStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+enum Severity {
+  LOW
+  MEDIUM
+  HIGH
+  CRITICAL
+}
+
+// ----------------------------------------------------------------------------
+// Geography
+// ----------------------------------------------------------------------------
+
+model Market {
+  id           String @id @default(cuid())
+  borough      String
+  neighborhood String
+  lat          Float
+  lng          Float
+  // estimated weekly meal demand for this neighborhood (for the demand map)
+  weeklyDemand Int    @default(0)
+
+  kitchens    Kitchen[]
+  restaurants RestaurantPartner[]
+  cbos        Cbo[]
+  members     Member[]
+  meals       Meal[]
+
+  @@unique([borough, neighborhood])
+}
+
+// ----------------------------------------------------------------------------
+// Funding
+// ----------------------------------------------------------------------------
+
+model Funder {
+  id        String     @id @default(cuid())
+  name      String     @unique
+  kind      String // e.g. "Government", "Healthcare", "Philanthropy"
+  contracts Contract[]
+}
+
+model Program {
+  id   String      @id @default(cuid())
+  name String      @unique
+  type ProgramType
+  // revenue side of unit economics: what Rethink is reimbursed per delivered meal
+  reimbursementRateCents Int
+
+  contracts Contract[]
+  meals     Meal[]
+}
+
+model Contract {
+  id              String      @id @default(cuid())
+  name            String
+  funder          Funder      @relation(fields: [funderId], references: [id])
+  funderId        String
+  program         Program     @relation(fields: [programId], references: [id])
+  programId       String
+  scnPartner      ScnPartner? // only set for MTM contracts
+  budgetCents     BigInt
+  startDate       DateTime
+  endDate         DateTime
+  // next billing/invoice deadline — drives an "act on today" exception
+  billingDeadline DateTime?
+
+  meals Meal[]
+}
+
+// ----------------------------------------------------------------------------
+// Producers & recipients
+// ----------------------------------------------------------------------------
+
+model Kitchen {
+  id             String @id @default(cuid())
+  name           String
+  market         Market @relation(fields: [marketId], references: [id])
+  marketId       String
+  weeklyCapacity Int // meals/week the kitchen can produce
+
+  meals Meal[]
+}
+
+model RestaurantPartner {
+  id             String  @id @default(cuid())
+  name           String
+  market         Market  @relation(fields: [marketId], references: [id])
+  marketId       String
+  weeklyCapacity Int
+  minorityOwned  Boolean @default(false)
+
+  meals Meal[]
+}
+
+// Community-based organization that receives & distributes meals.
+model Cbo {
+  id           String  @id @default(cuid())
+  name         String
+  market       Market  @relation(fields: [marketId], references: [id])
+  marketId     String
+  contactEmail String?
+
+  meals          Meal[]
+  intakeRequests IntakeRequest[]
+}
+
+// MTM beneficiary (synthetic). Enables delivered-vs-prescribed + retention.
+model Member {
+  id                     String       @id @default(cuid())
+  externalRef            String       @unique // synthetic Medicaid member ref
+  market                 Market       @relation(fields: [marketId], references: [id])
+  marketId               String
+  scnPartner             ScnPartner
+  referralDate           DateTime
+  enrollmentDate         DateTime?
+  status                 MemberStatus @default(ACTIVE)
+  withdrawnAt            DateTime?
+  prescribedMealsPerWeek Int          @default(7)
+
+  meals Meal[]
+}
+
+// ----------------------------------------------------------------------------
+// The meal — the atomic unit everything reports on
+// ----------------------------------------------------------------------------
+
+model Meal {
+  id         String  @id @default(cuid())
+  program    Program @relation(fields: [programId], references: [id])
+  programId  String
+  contract   Contract @relation(fields: [contractId], references: [id])
+  contractId String
+  market     Market  @relation(fields: [marketId], references: [id])
+  marketId   String
+
+  // exactly one producer is set, indicated by producerType
+  producerType        ProducerType
+  kitchen             Kitchen?           @relation(fields: [kitchenId], references: [id])
+  kitchenId           String?
+  restaurantPartner   RestaurantPartner? @relation(fields: [restaurantPartnerId], references: [id])
+  restaurantPartnerId String?
+
+  cbo      Cbo     @relation(fields: [cboId], references: [id])
+  cboId    String
+  member   Member? @relation(fields: [memberId], references: [id])
+  memberId String? // set for MTM meals
+
+  // lifecycle: a timestamp per transition, plus a denormalized current status
+  status      MealStatus @default(PLANNED)
+  mealDate    DateTime // the day this meal is for
+  plannedAt   DateTime
+  producedAt  DateTime?
+  deliveredAt DateTime?
+  verifiedAt  DateTime?
+
+  costLineItems MealCostLineItem[]
+
+  @@index([status])
+  @@index([programId])
+  @@index([mealDate])
+}
+
+model MealCostLineItem {
+  id          String   @id @default(cuid())
+  meal        Meal     @relation(fields: [mealId], references: [id], onDelete: Cascade)
+  mealId      String
+  type        CostType
+  amountCents Int
+
+  @@index([mealId])
+}
+
+// ----------------------------------------------------------------------------
+// AI intake (human-in-the-loop) — the audit trail
+// ----------------------------------------------------------------------------
+
+model IntakeRequest {
+  id              String       @id @default(cuid())
+  rawInput        String // the pasted email / message
+  extractedFields Json // structured output from the LLM
+  confidenceFlags Json // per-field confidence / warnings
+  modelUsed       String?
+  status          IntakeStatus @default(PENDING)
+  approvedBy      String? // operator identity (audit)
+  approvedAt      DateTime?
+  // link to the CBO once resolved (after approval)
+  cbo       Cbo?     @relation(fields: [cboId], references: [id])
+  cboId     String?
+  createdAt DateTime @default(now())
+
+  @@index([status])
+}
+
+// ----------------------------------------------------------------------------
+// Exceptions — generated by the rule engine; the "act on today" feed
+// ----------------------------------------------------------------------------
+
+model Exception {
+  id                String    @id @default(cuid())
+  entityType        String // "Meal" | "Contract" | "Kitchen" | "Member"
+  entityId          String
+  reasonCode        String // machine code, e.g. "PRODUCED_NOT_DELIVERED"
+  severity          Severity
+  title             String
+  recommendedAction String
+  detectedAt        DateTime  @default(now())
+  resolvedAt        DateTime?
+
+  @@index([severity])
+  @@index([resolvedAt])
+}
