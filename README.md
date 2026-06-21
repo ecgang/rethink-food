@@ -5,6 +5,8 @@ Rethink Food's *Lead Full-Stack Engineer* posting. Built as a focused demo of th
 thesis: *turn a complicated, real-world food system into software that a frontline operator can
 act on in seconds and a CEO can understand at a glance.*
 
+**▶ Live demo: https://rethink-food.vercel.app**  ·  pages: [Command Center](https://rethink-food.vercel.app/) · [AI Intake](https://rethink-food.vercel.app/intake) · [Demand Map](https://rethink-food.vercel.app/map)
+
 > Demo build with seeded, synthetic data. Not affiliated with Rethink Food. Organizational
 > facts (MTM program, 1115 Medicaid waiver, Social Care Network partners) are drawn from public
 > sources to make the demo realistic; all operational numbers are fabricated.
