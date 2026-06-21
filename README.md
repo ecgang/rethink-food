@@ -7,9 +7,11 @@ act on in seconds and a CEO can understand at a glance.*
 
 **▶ Live demo: https://rethink-food.vercel.app**  ·  pages: [Command Center](https://rethink-food.vercel.app/) · [AI Intake](https://rethink-food.vercel.app/intake) · [Demand Map](https://rethink-food.vercel.app/map)
 
-> Demo build with seeded, synthetic data. Not affiliated with Rethink Food. Organizational
-> facts (MTM program, 1115 Medicaid waiver, Social Care Network partners) are drawn from public
-> sources to make the demo realistic; all operational numbers are fabricated.
+> Demo build, not affiliated with Rethink Food. **Geography, restaurants, community partners,
+> food-insecurity rates, and Social Care Networks are real** (NYC Open Data, Feeding America,
+> NY 1115 waiver — see [Grounded in real NYC data](#grounded-in-real-nyc-data)). Meal-level
+> volumes and costs are synthetic, generated against that real geography; partner↔Rethink
+> associations are illustrative.
 
 ## What it does
 
@@ -56,6 +58,18 @@ The cutting *is* the signal. Each non-goal is documented in [`docs/ARCHITECTURE.
 | 12-mo: **demand map** MVP in one market | `/map` |
 | AI layer: emails → structured workflows, structured outputs, evals, guardrails, human review | `/intake` + `evals/intake.test.ts` |
 
+## Grounded in real NYC data
+
+The demo isn't seeded with invented places — an ingestion pipeline (`npm run ingest`, scripts in `scripts/ingest/`) pulls real NYC open data, normalizes it, and commits the snapshots to `data/` so seeding is deterministic and offline-safe:
+
+- **Neighborhoods + coordinates** — NYC Open Data *2020 Neighborhood Tabulation Areas* (`9nt8-h7nd`); centroids computed per NTA across all five boroughs.
+- **Restaurant partners** — real establishments from *DOHMH Restaurant Inspection Results* (`43nn-pn8j`), assigned to the nearest neighborhood.
+- **Demand** — weighted by *Feeding America Map the Meal Gap* county food-insecurity rates (the Bronx is the most food-insecure county in NY).
+- **Community partners** — real NYC food orgs (POTS, BronxWorks, La Jornada, Masbia, …).
+- **Social Care Networks** — the actual NY 1115-waiver leads by borough: **PHS** (Manhattan/Brooklyn/Queens), **SOMOS** (Bronx), **SIPPS** (Staten Island).
+
+Synthetic where it must be (meal-level costs, members) but always generated *against the real geography*. `minorityOwned` and partner↔Rethink associations are illustrative on real establishments — noted honestly.
+
 ## Trust, quality & accessibility
 
 The hardest part of an operating system isn't the charts — it's that everyone believes the numbers.
@@ -94,10 +108,12 @@ cp .env.example .env
 #   - add ANTHROPIC_API_KEY to use the live model on /intake
 #     (without it, /intake falls back to a deterministic parser)
 
-# 3. Install, migrate, seed
+# 3. Install, migrate, seed (real-data snapshots are committed under data/)
 npm install
 npx prisma migrate dev
 npm run db:seed
+# optional: refresh the real NYC data snapshots from NYC Open Data
+npm run ingest
 
 # 4. Dev
 npm run dev   # http://localhost:3000
@@ -126,13 +142,20 @@ in the Vercel project, then `prisma migrate deploy && npm run db:seed` against t
 ```
 app/                 routes: / (dashboard), /intake, /map
   intake/actions.ts  server actions: parse / approve / reject
-components/          UI: sidebar, cards, charts, intake form, map
+components/          UI: hero band, marquee, kpi strip, charts, intake, map
 lib/
   margin.ts          pure unit-economics core  (tested)
   exceptions.ts      pure "act on today" engine (tested)
+  definitions.ts     canonical metric definitions (surfaced in-app)
+  demand.ts          food-insecurity-weighted demand model
+  facts.ts           real Rethink headline facts
   intake.ts          Anthropic tool-use parser + deterministic fallback
   queries.ts         the only Prisma → domain-core adapter
+scripts/ingest/      NYC Open Data ingestion → data/*.json snapshots
+data/                committed real-data snapshots (neighborhoods, restaurants, …)
 prisma/schema.prisma the data model / definitions contract
-prisma/seed.ts       realistic synthetic NYC data with planted anomalies
+prisma/seed.ts       seeds from data/ snapshots, planted anomalies
 docs/ARCHITECTURE.md system shape + data dictionary
+docs/DECISIONS.md    ADR-style rationale (build-vs-buy, scope, stack)
+docs/DEMO_SCRIPT.md  90-second walkthrough script
 ```
