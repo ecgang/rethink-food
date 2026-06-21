@@ -241,6 +241,41 @@ export async function getActOnToday(now: Date = new Date()): Promise<ExceptionIt
   });
 }
 
+export interface KpiDeltas {
+  /** signed fraction change, current 7d vs prior 7d */
+  mealsPct: number;
+  marginPct: number;
+  marginPerMealPct: number;
+}
+
+/**
+ * Recent momentum: current 7-day window vs. the prior 7-day window, on realized
+ * (delivered/verified) meals. Lets a leader see direction, not just a static total.
+ */
+export async function getKpiDeltas(now: Date = new Date()): Promise<KpiDeltas> {
+  const meals = (await loadEconMeals()).filter((m) => isRealized(m.status));
+  const curStart = now.getTime() - 7 * DAY;
+  const priorStart = now.getTime() - 14 * DAY;
+
+  const inWindow = (m: (typeof meals)[number], start: number, end: number) =>
+    m.deliveredAt != null &&
+    m.deliveredAt.getTime() >= start &&
+    m.deliveredAt.getTime() < end;
+
+  const cur = rollupMargin(meals.filter((m) => inWindow(m, curStart, now.getTime())));
+  const prior = rollupMargin(meals.filter((m) => inWindow(m, priorStart, curStart)));
+
+  const pct = (c: number, p: number) => (p === 0 ? 0 : (c - p) / p);
+  const curPerMeal = cur.mealCount ? cur.marginCents / cur.mealCount : 0;
+  const priorPerMeal = prior.mealCount ? prior.marginCents / prior.mealCount : 0;
+
+  return {
+    mealsPct: pct(cur.mealCount, prior.mealCount),
+    marginPct: pct(cur.marginCents, prior.marginCents),
+    marginPerMealPct: pct(curPerMeal, priorPerMeal),
+  };
+}
+
 export interface MtmReporting {
   activeMembers: number;
   withdrawnMembers: number;

@@ -1,12 +1,14 @@
 import { Card, CardHeader, CardBody, PageHeader } from "@/components/ui";
 import { StatCard } from "@/components/stat-card";
 import { DimensionTabs } from "@/components/dimension-tabs";
+import { DefinitionsPanel } from "@/components/definitions-panel";
 import { LifecycleFunnel, CostDonut, MarginBars } from "@/components/charts";
 import { ActOnToday } from "@/components/act-on-today";
 import {
   getDashboardData,
   getActOnToday,
   getMtmReporting,
+  getKpiDeltas,
   type DimensionKey,
 } from "@/lib/queries";
 import { formatUsd, formatUsdCompact, formatPct, formatCount } from "@/lib/money";
@@ -32,10 +34,11 @@ export default async function DashboardPage({
     ? (sp.by as DimensionKey)
     : "program";
 
-  const [data, exceptions, mtm] = await Promise.all([
+  const [data, exceptions, mtm, deltas] = await Promise.all([
     getDashboardData(dim),
     getActOnToday(),
     getMtmReporting(),
+    getKpiDeltas(),
   ]);
 
   const funnelData = [
@@ -84,6 +87,7 @@ export default async function DashboardPage({
           label="Billable meals (realized)"
           value={formatCount(data.totals.mealCount)}
           sub={`${formatPct(verifyRate)} of planned verified`}
+          delta={{ pct: deltas.mealsPct, label: "vs prior 7d" }}
         />
         <StatCard
           label="Reimbursement revenue"
@@ -93,15 +97,21 @@ export default async function DashboardPage({
         <StatCard
           label="Contribution margin"
           value={formatUsdCompact(data.totals.marginCents)}
-          sub={`${formatPct(data.totals.marginPct)} blended`}
+          sub={`${formatPct(data.totals.marginPct)} blended, all programs`}
           tone={data.totals.marginCents >= 0 ? "pos" : "neg"}
+          delta={{ pct: deltas.marginPct, label: "vs prior 7d" }}
         />
         <StatCard
           label="Margin / meal"
           value={formatUsd(marginPerMeal)}
           sub={`${formatUsd(Math.round(data.totals.costCents / Math.max(1, data.totals.mealCount)))} cost / meal`}
           tone={marginPerMeal >= 0 ? "pos" : "neg"}
+          delta={{ pct: deltas.marginPerMealPct, label: "vs prior 7d" }}
         />
+      </div>
+
+      <div className="mb-6">
+        <DefinitionsPanel />
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-6">
@@ -166,7 +176,7 @@ export default async function DashboardPage({
       <Card>
         <CardHeader
           title="Medically Tailored Meals — program health"
-          subtitle="Medicaid 1115 waiver · delivered-vs-prescribed, retention, and Social Care Network attribution"
+          subtitle="Medicaid 1115 waiver · delivered-vs-prescribed, retention, and Social Care Network attribution · margins are MTM-only (higher than the all-programs blend above)"
         />
         <CardBody>
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-5">

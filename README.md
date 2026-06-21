@@ -56,6 +56,24 @@ The cutting *is* the signal. Each non-goal is documented in [`docs/ARCHITECTURE.
 | 12-mo: **demand map** MVP in one market | `/map` |
 | AI layer: emails → structured workflows, structured outputs, evals, guardrails, human review | `/intake` + `evals/intake.test.ts` |
 
+## Trust, quality & accessibility
+
+The hardest part of an operating system isn't the charts — it's that everyone believes the numbers.
+
+- **One source of truth for metrics.** `lib/definitions.ts` defines meal / realized / cost / revenue / contribution-margin / fulfillment once; every view derives from the same pure functions, and the definitions are surfaced in-app (the "How these numbers are defined" panel on the dashboard).
+- **Numbers that provably reconcile.** `tests/metrics.test.ts` is a contract test asserting that the sum of *every* slice (program, kitchen, market…) equals the headline total — so no two views can silently disagree. This is the *Reliable Data Foundation* pillar made enforceable.
+- **Live momentum, not static figures.** KPI cards show period-over-period deltas (current 7d vs prior 7d).
+- **Accessibility:** WCAG 2.2 AA pass — AA-contrast tokens, visible focus rings on every control, `role="img"` + descriptive labels on all charts, a keyboard-accessible text equivalent for the map, `aria-live` on the AI result, and `prefers-reduced-motion` support. Responsive down to mobile (sidebar collapses to icons).
+
+## Deferred — on purpose (roadmap, not gaps)
+
+Real production work, intentionally not built so the demo stays focused (the posting screens for *"essential workflow vs. impressive-but-unnecessary feature"*):
+
+- **Auth / RBAC** — a login wall would block click-to-explore; the audit trail records an operator identity, and role-gated finance vs. ops views are the natural next step.
+- **SQL `GROUP BY` aggregation** — current rollups run in app code (fine at this volume); push to the database / BigQuery at 100k+ rows.
+- **Live-model eval in CI** — the eval harness pins the deterministic parser today; add golden-fixture accuracy gating for the live model behind an API-key flag.
+- **Source reconciliation** (HubSpot/CSV ingest → canonical schema → diff) and **mobile field-ops tools**.
+
 ## Stack
 
 TypeScript · Next.js 16 (App Router, RSC + Server Actions) · PostgreSQL · Prisma · Tailwind v4 ·
