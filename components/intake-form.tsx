@@ -4,7 +4,7 @@ import { useState, useTransition } from "react";
 import { Sparkles, Check, X, Loader2, Lock } from "lucide-react";
 import { cn } from "@/lib/cn";
 import { Card, CardHeader, CardBody } from "@/components/ui";
-import { parseAction, approveAction, rejectAction } from "@/app/intake/actions";
+import { parseAction, approveAction, rejectAction } from "@/app/(app)/intake/actions";
 import type { IntakeParseResult, Confidence } from "@/lib/intake";
 
 const SAMPLES: { label: string; text: string }[] = [

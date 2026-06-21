@@ -11,10 +11,10 @@ import {
   getActOnToday,
   getMtmReporting,
   getKpiDeltas,
+  getHeroStats,
   type DimensionKey,
 } from "@/lib/queries";
 import { formatUsd, formatUsdCompact, formatPct, formatCount } from "@/lib/money";
-import { FACTS } from "@/lib/facts";
 import { getCurrentRole } from "@/lib/current-role";
 import { can } from "@/lib/roles";
 
@@ -39,12 +39,13 @@ export default async function DashboardPage({
     ? (sp.by as DimensionKey)
     : "program";
 
-  const [data, exceptions, mtm, deltas, role] = await Promise.all([
+  const [data, exceptions, mtm, deltas, role, hero] = await Promise.all([
     getDashboardData(dim),
     getActOnToday(),
     getMtmReporting(),
     getKpiDeltas(),
     getCurrentRole(),
+    getHeroStats(),
   ]);
   const showFin = can(role, "view:financials");
 
@@ -75,9 +76,9 @@ export default async function DashboardPage({
         eyebrow="Real-time operating system"
         title="Command Center"
         stats={[
-          { value: FACTS.lifetimeMeals, label: "Meals served since 2017", suffix: "+", compact: true },
-          { value: FACTS.weeklyMeals, label: "Meals / week", suffix: "+", compact: true },
-          { value: FACTS.activeCbos, label: "Active partners" },
+          { value: hero.mealsTracked, label: "Meals tracked", suffix: "+" },
+          { value: hero.deliveredThisWeek, label: "Delivered this week" },
+          { value: Math.round(hero.verifiedRate * 100), label: "Delivered meals verified", suffix: "%" },
         ]}
       />
       <div className="px-8 py-7 max-w-[1400px]">
