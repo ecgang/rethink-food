@@ -43,10 +43,10 @@ the decision, why, the tradeoff, and what would change it.
 ### 9. Money as integer cents end-to-end; line-itemed costs (no flat `totalCost`)
 **Why.** No floating-point drift in financial rollups; cost is always composable into food/labor/transport/overhead — which is exactly what the unit-economics questions require.
 
-### 10. No hard authentication wall (yet)
-**Why.** A login gate would block "click to explore" for an interview demo. The audit trail still records an operator identity, and the natural next step is a lightweight role signer (Ops vs. Finance vs. Exec) before a full RBAC/SSO system.
-**Tradeoff.** Not production-secure as-is — called out honestly.
-**Revisit if.** Real users/PII → add auth + RBAC first.
+### 10. Role-based access via a lightweight signer, not a login wall
+**Why.** A login gate would block "click to explore" for an interview demo, but the role/permission/audit concepts still need to be demonstrated. So there's a cookie-backed role switch (Operations / Finance / Executive): it **gates financial views** (Operations sees lifecycle + intake but revenue/margin redact), **enforces `approve:intake` server-side** (Finance is read-only on intake), and **signs the audit trail** with the active operator identity. Same capability checks a real SSO/RBAC system would use — minus the wall.
+**Tradeoff.** Not a real identity provider; roles are self-selected in the demo.
+**Revisit if.** Real users/PII → back it with NextAuth/SSO; the `can()` checks stay.
 
 ### 11. Accessibility as a baseline (WCAG 2.2 AA)
 **Why.** Frontline operators and executives include low-vision users; accessibility is product quality, not polish. AA-contrast tokens, visible focus rings, chart `role="img"` labels, a keyboard-accessible map equivalent, `aria-live` on AI results, reduced-motion support. The brand's bright green is used only as a *fill* with black/white text — never as text on a light surface — so the look and AA compliance coexist.

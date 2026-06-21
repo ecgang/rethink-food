@@ -63,9 +63,8 @@ The cutting *is* the signal. Each non-goal is documented in [`docs/ARCHITECTURE.
 The demo isn't seeded with invented places — an ingestion pipeline (`npm run ingest`, scripts in `scripts/ingest/`) pulls real NYC open data, normalizes it, and commits the snapshots to `data/` so seeding is deterministic and offline-safe:
 
 - **Neighborhoods + coordinates** — NYC Open Data *2020 Neighborhood Tabulation Areas* (`9nt8-h7nd`); centroids computed per NTA across all five boroughs.
-- **Restaurant partners** — real establishments from *DOHMH Restaurant Inspection Results* (`43nn-pn8j`), assigned to the nearest neighborhood.
+- **Partner network** — Rethink Food's **actual published partners** ([their "A Network of Change" directory](https://www.rethinkfood.org/)): 35 restaurant partners (incl. 7 Rethink Certified — Manna's, Rob's Kitchen, Sophie's Cuban, Zaab Zaab…) and 52 community-based orgs (Henry Street Settlement, The Bowery Mission, North Brooklyn Angels, BronxWorks/RAP4Bronx, St. John's Bread & Life…), geocoded via the US Census geocoder.
 - **Demand** — weighted by *Feeding America Map the Meal Gap* county food-insecurity rates (the Bronx is the most food-insecure county in NY).
-- **Community partners** — real NYC food orgs (POTS, BronxWorks, La Jornada, Masbia, …).
 - **Social Care Networks** — the actual NY 1115-waiver leads by borough: **PHS** (Manhattan/Brooklyn/Queens), **SOMOS** (Bronx), **SIPPS** (Staten Island).
 
 Synthetic where it must be (meal-level costs, members) but always generated *against the real geography*. `minorityOwned` and partner↔Rethink associations are illustrative on real establishments — noted honestly.
@@ -83,7 +82,7 @@ The hardest part of an operating system isn't the charts — it's that everyone 
 
 Real production work, intentionally not built so the demo stays focused (the posting screens for *"essential workflow vs. impressive-but-unnecessary feature"*):
 
-- **Auth / RBAC** — a login wall would block click-to-explore; the audit trail records an operator identity, and role-gated finance vs. ops views are the natural next step.
+- **Full auth / SSO** — there's a working **role signer** (Operations / Finance / Executive) that gates financial views, enforces intake approval server-side, and signs the audit trail; a real identity provider (NextAuth/SSO) behind the same `can()` checks is the next step.
 - **SQL `GROUP BY` aggregation** — current rollups run in app code (fine at this volume); push to the database / BigQuery at 100k+ rows.
 - **Live-model eval in CI** — the eval harness pins the deterministic parser today; add golden-fixture accuracy gating for the live model behind an API-key flag.
 - **Source reconciliation** (HubSpot/CSV ingest → canonical schema → diff) and **mobile field-ops tools**.
