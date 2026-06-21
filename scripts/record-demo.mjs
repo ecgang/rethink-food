@@ -67,6 +67,24 @@ async function main() {
   await smoothScroll(page, 2300, 1100); // MTM strip
   await sleep(2400);
 
+  // role-based access: switch to Operations (financials redact), back to Exec
+  const opsBtn = page.getByRole("button", { name: "Operations", exact: true });
+  if (await opsBtn.count()) {
+    await moveTo(page, opsBtn);
+    await opsBtn.click();
+    await sleep(800);
+    await smoothScroll(page, 1500, 900); // show "Restricted" margin card
+    await sleep(2200);
+    const execBtn = page.getByRole("button", { name: "Executive (COO)", exact: true });
+    if (await execBtn.count()) {
+      await moveTo(page, execBtn);
+      await execBtn.click();
+      await sleep(1400);
+    }
+    await smoothScroll(page, 0, 700);
+    await sleep(800);
+  }
+
   // --- 2. AI Intake --------------------------------------------------------
   const intakeNav = page.getByRole("link", { name: "AI Intake" });
   await moveTo(page, intakeNav);
