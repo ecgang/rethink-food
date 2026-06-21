@@ -1,65 +1,229 @@
-import Image from "next/image";
+import { Card, CardHeader, CardBody, PageHeader } from "@/components/ui";
+import { StatCard } from "@/components/stat-card";
+import { DimensionTabs } from "@/components/dimension-tabs";
+import { LifecycleFunnel, CostDonut, MarginBars } from "@/components/charts";
+import { ActOnToday } from "@/components/act-on-today";
+import {
+  getDashboardData,
+  getActOnToday,
+  getMtmReporting,
+  type DimensionKey,
+} from "@/lib/queries";
+import { formatUsd, formatUsdCompact, formatPct, formatCount } from "@/lib/money";
 
-export default function Home() {
+// always render against live data
+export const dynamic = "force-dynamic";
+
+const VALID_DIMS: DimensionKey[] = [
+  "program",
+  "kitchen",
+  "restaurant",
+  "contract",
+  "market",
+];
+
+export default async function DashboardPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ by?: string }>;
+}) {
+  const sp = await searchParams;
+  const dim: DimensionKey = VALID_DIMS.includes(sp.by as DimensionKey)
+    ? (sp.by as DimensionKey)
+    : "program";
+
+  const [data, exceptions, mtm] = await Promise.all([
+    getDashboardData(dim),
+    getActOnToday(),
+    getMtmReporting(),
+  ]);
+
+  const funnelData = [
+    { stage: "Planned", count: data.funnel.planned },
+    { stage: "Produced", count: data.funnel.produced },
+    { stage: "Delivered", count: data.funnel.delivered },
+    { stage: "Verified", count: data.funnel.verified },
+  ];
+  const costDonut = (["FOOD", "LABOR", "TRANSPORT", "OVERHEAD"] as const).map(
+    (t) => ({ type: t, value: data.costByType[t] }),
+  );
+  const marginBars = data.marginByDimension.map((g) => ({
+    key: g.key,
+    marginPerMealCents: g.mealCount ? Math.round(g.marginCents / g.mealCount) : 0,
+    mealCount: g.mealCount,
+  }));
+  const verifyRate = data.funnel.planned
+    ? data.funnel.verified / data.funnel.planned
+    : 0;
+  const marginPerMeal = data.totals.mealCount
+    ? Math.round(data.totals.marginCents / data.totals.mealCount)
+    : 0;
+
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
+    <div className="px-8 py-7 max-w-[1400px]">
+      <PageHeader
+        title="Command Center"
+        subtitle="Meal volumes, unit economics, delivery performance, and what to act on today — across every program, kitchen, and contract."
+      />
+
+      {/* headline KPIs */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+        <StatCard
+          label="Billable meals (realized)"
+          value={formatCount(data.totals.mealCount)}
+          sub={`${formatPct(verifyRate)} of planned verified`}
         />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
-        </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
+        <StatCard
+          label="Reimbursement revenue"
+          value={formatUsdCompact(data.totals.revenueCents)}
+          tone="brand"
+        />
+        <StatCard
+          label="Contribution margin"
+          value={formatUsdCompact(data.totals.marginCents)}
+          sub={`${formatPct(data.totals.marginPct)} blended`}
+          tone={data.totals.marginCents >= 0 ? "pos" : "neg"}
+        />
+        <StatCard
+          label="Margin / meal"
+          value={formatUsd(marginPerMeal)}
+          sub={`${formatUsd(Math.round(data.totals.costCents / Math.max(1, data.totals.mealCount)))} cost / meal`}
+          tone={marginPerMeal >= 0 ? "pos" : "neg"}
+        />
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-6">
+        {/* Act on today — spans the most attention */}
+        <Card className="lg:col-span-2 lg:row-span-2">
+          <CardHeader
+            title="Act on today"
+            subtitle="Exceptions ranked by severity, each with a recommended action."
+            action={
+              <span className="rounded-full bg-[#fef3f2] px-2 py-0.5 text-[11px] font-medium text-[var(--sev-critical)]">
+                {exceptions.length} open
+              </span>
+            }
+          />
+          <ActOnToday items={exceptions} />
+        </Card>
+
+        {/* Lifecycle funnel */}
+        <Card>
+          <CardHeader
+            title="Meal lifecycle"
+            subtitle="Planned → produced → delivered → verified"
+          />
+          <CardBody>
+            <LifecycleFunnel data={funnelData} />
+          </CardBody>
+        </Card>
+
+        {/* Cost composition */}
+        <Card>
+          <CardHeader
+            title="Cost composition"
+            subtitle="Where each dollar of meal cost goes"
+          />
+          <CardBody>
+            <CostDonut data={costDonut} />
+            <div className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-xs text-muted">
+              {costDonut.map((c) => (
+                <span key={c.type} className="tnum">
+                  {c.type[0] + c.type.slice(1).toLowerCase()}:{" "}
+                  {formatUsdCompact(c.value)}
+                </span>
+              ))}
+            </div>
+          </CardBody>
+        </Card>
+      </div>
+
+      {/* Margin by dimension */}
+      <Card className="mb-6">
+        <CardHeader
+          title="Contribution margin per meal"
+          subtitle={`Sliced by ${data.dimensionLabel.toLowerCase()} · realized meals only`}
+          action={<DimensionTabs current={dim} />}
+        />
+        <CardBody>
+          <MarginBars data={marginBars} />
+        </CardBody>
+      </Card>
+
+      {/* MTM reporting strip */}
+      <Card>
+        <CardHeader
+          title="Medically Tailored Meals — program health"
+          subtitle="Medicaid 1115 waiver · delivered-vs-prescribed, retention, and Social Care Network attribution"
+        />
+        <CardBody>
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-5">
+            <StatCard label="Active members" value={formatCount(mtm.activeMembers)} />
+            <StatCard
+              label="Member retention"
+              value={formatPct(mtm.retentionPct)}
+              sub={`${mtm.withdrawnMembers} withdrawn`}
             />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
-      </main>
+            <StatCard
+              label="Delivered (7d)"
+              value={formatCount(mtm.deliveredLast7)}
+              sub={`${formatCount(mtm.prescribedPerWeek)} prescribed / wk`}
+            />
+            <StatCard
+              label="Fulfillment rate"
+              value={formatPct(Math.min(1, mtm.fulfillmentPct))}
+              tone={mtm.fulfillmentPct >= 0.9 ? "pos" : "neg"}
+            />
+          </div>
+          <div className="overflow-hidden rounded-lg border border-border">
+            <table className="w-full text-sm">
+              <thead className="bg-black/[0.02] text-xs text-muted">
+                <tr>
+                  <th className="text-left font-medium px-4 py-2">
+                    Social Care Network
+                  </th>
+                  <th className="text-right font-medium px-4 py-2">Members</th>
+                  <th className="text-right font-medium px-4 py-2">Delivered (7d)</th>
+                  <th className="text-right font-medium px-4 py-2">Margin</th>
+                  <th className="text-right font-medium px-4 py-2">Margin %</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-border">
+                {mtm.byScn.map((s) => (
+                  <tr key={s.scn}>
+                    <td className="px-4 py-2 font-medium">{scnLabel(s.scn)}</td>
+                    <td className="px-4 py-2 text-right tnum">
+                      {formatCount(s.members)}
+                    </td>
+                    <td className="px-4 py-2 text-right tnum">
+                      {formatCount(s.deliveredLast7)}
+                    </td>
+                    <td className="px-4 py-2 text-right tnum">
+                      {formatUsdCompact(s.marginCents)}
+                    </td>
+                    <td className="px-4 py-2 text-right tnum">
+                      {formatPct(s.marginPct)}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </CardBody>
+      </Card>
     </div>
   );
+}
+
+function scnLabel(scn: string): string {
+  switch (scn) {
+    case "PHS":
+      return "Public Health Solutions";
+    case "HEALI":
+      return "HEALI";
+    case "SOMOS":
+      return "SOMOS Community Care";
+    default:
+      return scn;
+  }
 }
