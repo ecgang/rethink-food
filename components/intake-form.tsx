@@ -95,7 +95,7 @@ export function IntakeForm() {
               <button
                 key={s.label}
                 onClick={() => { setRaw(s.text); setResult(null); setStatus(null); }}
-                className="rounded-full border border-border px-3 py-1.5 text-xs text-foreground/70 hover:bg-black/[0.04] outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-1"
+                className="rounded-full border border-border px-3 py-1.5 text-xs text-foreground/70 hover:bg-black/[0.04] outline-none focus-visible:ring-2 focus-visible:ring-brand-deep focus-visible:ring-offset-1"
               >
                 {s.label}
               </button>
@@ -106,12 +106,12 @@ export function IntakeForm() {
             onChange={(e) => setRaw(e.target.value)}
             rows={9}
             placeholder="Paste the partner's message here…"
-            className="w-full resize-none rounded-lg border border-border bg-background/40 p-3 text-sm outline-none focus-visible:ring-2 focus-visible:ring-brand/40 focus:border-brand"
+            className="w-full resize-none rounded-lg border border-border bg-background/40 p-3 text-sm outline-none focus-visible:ring-2 focus-visible:ring-brand-deep/40 focus:border-brand-deep"
           />
           <button
             onClick={doParse}
             disabled={isParsing || !raw.trim()}
-            className="mt-3 inline-flex items-center gap-2 rounded-lg bg-brand px-4 py-2 text-sm font-medium text-white disabled:opacity-50 outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2"
+            className="mt-3 inline-flex items-center gap-2 rounded-full bg-brand px-5 py-2 text-sm font-semibold text-brand-ink disabled:opacity-50 outline-none focus-visible:ring-2 focus-visible:ring-brand-deep focus-visible:ring-offset-2"
           >
             {isParsing ? <Loader2 className="h-4 w-4 animate-spin" /> : <Sparkles className="h-4 w-4" />}
             {isParsing ? "Parsing…" : "Parse with AI"}
@@ -173,14 +173,14 @@ export function IntakeForm() {
                 <button
                   onClick={() => decide("approve")}
                   disabled={isDeciding}
-                  className="inline-flex items-center gap-1.5 rounded-lg bg-brand px-4 py-2 text-sm font-medium text-white disabled:opacity-50 outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2"
+                  className="inline-flex items-center gap-1.5 rounded-full bg-brand px-5 py-2 text-sm font-semibold text-brand-ink disabled:opacity-50 outline-none focus-visible:ring-2 focus-visible:ring-brand-deep focus-visible:ring-offset-2"
                 >
                   <Check className="h-4 w-4" /> Approve & create
                 </button>
                 <button
                   onClick={() => decide("reject")}
                   disabled={isDeciding}
-                  className="inline-flex items-center gap-1.5 rounded-lg border border-border px-4 py-2 text-sm font-medium disabled:opacity-50 outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-1"
+                  className="inline-flex items-center gap-1.5 rounded-full border border-foreground/30 px-5 py-2 text-sm font-semibold disabled:opacity-50 outline-none focus-visible:ring-2 focus-visible:ring-brand-deep focus-visible:ring-offset-1"
                 >
                   <X className="h-4 w-4" /> Reject
                 </button>

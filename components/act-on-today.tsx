@@ -61,7 +61,7 @@ export function ActOnToday({
               <div className="min-w-0 flex-1">
                 <div className="text-sm font-medium">{it.title}</div>
                 <div className="text-xs text-muted mt-0.5">{it.detail}</div>
-                <div className="mt-1.5 flex items-center gap-1.5 text-xs text-brand">
+                <div className="mt-1.5 flex items-center gap-1.5 text-xs text-brand-deep">
                   <ArrowRight className="h-3.5 w-3.5 shrink-0" />
                   <span>{it.recommendedAction}</span>
                 </div>

@@ -8,11 +8,16 @@
 :root {
   --background: #f7f7f5;
   --surface: #ffffff;
-  --foreground: #1c1c1a;
+  --foreground: #131312; /* near-black ink, Rethink editorial feel */
   --muted: #595954; /* ~4.6:1 on --background — WCAG AA for normal text */
   --border: #e6e5e0;
-  --brand: #1f7a52;
-  --brand-soft: #e7f3ec;
+
+  /* Rethink Food brand: bright grass-green is a FILL color, paired with BLACK
+     text (as on rethinkfood.org). Never use it as text on a light surface. */
+  --brand: #54d17e; /* bright green — fills, accents, active states, chart bars */
+  --brand-ink: #0f1311; /* text/icons on a --brand fill */
+  --brand-deep: #1f7a52; /* AA-safe green for TEXT / rings / borders on light bg */
+  --brand-soft: #e3f7ea; /* pale green tint for subtle fills (black text) */
 
   --sev-critical: #b42318;
   --sev-high: #b45309; /* darkened for AA contrast on light bg */
@@ -35,9 +40,12 @@
   --color-muted: var(--muted);
   --color-border: var(--border);
   --color-brand: var(--brand);
+  --color-brand-ink: var(--brand-ink);
+  --color-brand-deep: var(--brand-deep);
   --color-brand-soft: var(--brand-soft);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
+  --font-display: var(--font-archivo);
 }
 
 body {

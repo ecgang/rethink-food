@@ -17,7 +17,7 @@ export function DefinitionsPanel() {
       <button
         onClick={() => setOpen((o) => !o)}
         aria-expanded={open}
-        className="flex w-full items-center gap-2 px-3 py-2 text-muted hover:text-foreground focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-1 outline-none rounded-lg"
+        className="flex w-full items-center gap-2 px-3 py-2 text-muted hover:text-foreground focus-visible:ring-2 focus-visible:ring-brand-deep focus-visible:ring-offset-1 outline-none rounded-lg"
       >
         <BookOpen className="h-3.5 w-3.5" />
         <span className="font-medium">How these numbers are defined</span>

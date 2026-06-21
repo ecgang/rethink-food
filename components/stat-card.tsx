@@ -28,14 +28,16 @@ export function StatCard({
       : tone === "neg"
         ? "text-[var(--neg)]"
         : tone === "brand"
-          ? "text-brand"
+          ? "text-brand-deep"
           : "text-foreground";
 
   return (
     <div className="rounded-xl border border-border bg-surface px-5 py-4 shadow-[0_1px_2px_rgba(0,0,0,0.04)]">
       <div className="text-xs text-muted">{label}</div>
       <div className="mt-1 flex items-baseline gap-2">
-        <span className={cn("text-2xl font-semibold tnum", toneClass)}>{value}</span>
+        <span className={cn("text-2xl font-display font-extrabold tracking-tight tnum", toneClass)}>
+          {value}
+        </span>
         {delta && <DeltaPill delta={delta} />}
       </div>
       {sub && <div className="mt-1 text-xs text-muted tnum">{sub}</div>}

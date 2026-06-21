@@ -17,11 +17,11 @@ export function Sidebar() {
     <aside className="w-16 lg:w-60 shrink-0 border-r border-border bg-surface flex flex-col">
       <div className="px-3 lg:px-5 py-5 border-b border-border">
         <div className="flex items-center gap-2 justify-center lg:justify-start">
-          <span className="grid h-7 w-7 place-items-center rounded-md bg-brand text-white font-semibold text-sm shrink-0">
+          <span className="grid h-7 w-7 place-items-center rounded-md bg-brand text-brand-ink font-display font-extrabold text-sm shrink-0">
             R
           </span>
           <div className="leading-tight hidden lg:block">
-            <div className="font-semibold text-sm">Rethink</div>
+            <div className="font-display font-extrabold text-base tracking-tight">Rethink</div>
             <div className="text-[11px] text-muted">Command Center</div>
           </div>
         </div>
@@ -36,9 +36,9 @@ export function Sidebar() {
               aria-label={label}
               title={label}
               className={cn(
-                "flex items-center gap-2.5 rounded-lg px-3 py-2 text-sm transition-colors outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-1 justify-center lg:justify-start",
+                "flex items-center gap-2.5 rounded-lg px-3 py-2 text-sm transition-colors outline-none focus-visible:ring-2 focus-visible:ring-brand-deep focus-visible:ring-offset-1 justify-center lg:justify-start",
                 active
-                  ? "bg-brand-soft text-brand font-medium"
+                  ? "bg-brand text-brand-ink font-semibold"
                   : "text-foreground/70 hover:bg-black/[0.04]",
               )}
             >

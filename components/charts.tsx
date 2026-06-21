@@ -13,12 +13,13 @@ import {
   LabelList,
 } from "recharts";
 
-const BRAND = "#1f7a52";
+const BRAND = "#54d17e"; // Rethink bright green
+const NEG = "#b42318";
 const COST_COLORS: Record<string, string> = {
-  FOOD: "#1f7a52",
-  LABOR: "#3b82a0",
-  TRANSPORT: "#d9a441",
-  OVERHEAD: "#9b8579",
+  FOOD: "#54d17e", // bright green
+  LABOR: "#1f7a52", // deep green
+  TRANSPORT: "#9a9a93", // warm gray
+  OVERHEAD: "#1c1c1a", // near-black ink
 };
 
 const usd = (cents: number) =>
@@ -135,7 +136,7 @@ export function MarginBars({
           {data.map((d) => (
             <Cell
               key={d.key}
-              fill={d.marginPerMealCents >= 0 ? BRAND : "#b42318"}
+              fill={d.marginPerMealCents >= 0 ? BRAND : NEG}
             />
           ))}
           <LabelList

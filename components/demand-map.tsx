@@ -5,7 +5,7 @@ import "leaflet/dist/leaflet.css";
 import type { DemandMapPoint } from "@/lib/queries";
 
 function fulfillmentColor(ratio: number): string {
-  if (ratio >= 0.66) return "#1f7a52"; // well served
+  if (ratio >= 0.66) return "#2fae66"; // well served (slightly deeper than brand for marker legibility)
   if (ratio >= 0.33) return "#d9a441"; // partial
   return "#b42318"; // largely unmet
 }

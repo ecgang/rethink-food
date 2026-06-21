@@ -54,7 +54,7 @@ export function MapPanel({ points }: { points: DemandMapPoint[] }) {
                     style={{
                       width: `${Math.min(100, ratio * 100)}%`,
                       background:
-                        ratio >= 0.66 ? "#1f7a52" : ratio >= 0.33 ? "#d9a441" : "#b42318",
+                        ratio >= 0.66 ? "#2fae66" : ratio >= 0.33 ? "#d9a441" : "#b42318",
                     }}
                   />
                 </div>

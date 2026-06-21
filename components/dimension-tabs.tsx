@@ -28,9 +28,9 @@ export function DimensionTabs({ current }: { current: string }) {
           key={d.key}
           onClick={() => select(d.key)}
           className={cn(
-            "rounded-md px-3 py-1.5 text-xs font-medium transition-colors outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-1",
+            "rounded-md px-3 py-1.5 text-xs font-semibold transition-colors outline-none focus-visible:ring-2 focus-visible:ring-brand-deep focus-visible:ring-offset-1",
             current === d.key
-              ? "bg-brand text-white"
+              ? "bg-brand text-brand-ink"
               : "text-foreground/65 hover:text-foreground",
           )}
         >
