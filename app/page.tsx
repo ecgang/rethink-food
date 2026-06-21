@@ -64,7 +64,19 @@ export default async function DashboardPage({
       <PageHeader
         title="Command Center"
         subtitle="Meal volumes, unit economics, delivery performance, and what to act on today — across every program, kitchen, and contract."
-      />
+      >
+        <div className="rounded-lg border border-border bg-surface px-3 py-1.5 text-xs text-muted">
+          Data as of{" "}
+          <span className="font-medium text-foreground">
+            {new Date().toLocaleString("en-US", {
+              month: "short",
+              day: "numeric",
+              hour: "numeric",
+              minute: "2-digit",
+            })}
+          </span>
+        </div>
+      </PageHeader>
 
       {/* headline KPIs */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
