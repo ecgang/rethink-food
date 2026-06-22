@@ -1,6 +1,5 @@
 import { Sidebar } from "@/components/sidebar";
 import { MobileTopBar } from "@/components/mobile-topbar";
-import { ContentTopBar } from "@/components/content-topbar";
 import { getCurrentRole } from "@/lib/current-role";
 
 // Reads the role cookie, so render dynamically rather than prerendering.
@@ -20,7 +19,6 @@ export default async function AppLayout({
         <Sidebar role={role} />
         <main className="min-w-0 flex-1 overflow-y-auto pb-20 lg:pb-0">
           <MobileTopBar role={role} />
-          <ContentTopBar role={role} />
           {children}
         </main>
       </div>
