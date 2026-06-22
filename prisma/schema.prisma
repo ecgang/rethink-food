@@ -60,6 +60,7 @@ enum IntakeStatus {
   PENDING
   APPROVED
   REJECTED
+  FULFILLED
 }
 
 enum InvoiceStatus {
@@ -232,6 +233,10 @@ model Meal {
   member   Member? @relation(fields: [memberId], references: [id])
   memberId String? // set for MTM meals
 
+  // provenance: the approved intake request this meal was scheduled from (Cluster C)
+  intakeRequest   IntakeRequest? @relation(fields: [intakeRequestId], references: [id])
+  intakeRequestId String?
+
   // lifecycle: a timestamp per transition, plus a denormalized current status
   status      MealStatus @default(PLANNED)
   mealDate    DateTime // the day this meal is for
@@ -251,6 +256,7 @@ model Meal {
   @@index([status])
   @@index([programId])
   @@index([mealDate])
+  @@index([intakeRequestId])
 }
 
 model MealCostLineItem {
@@ -276,9 +282,14 @@ model IntakeRequest {
   status          IntakeStatus @default(PENDING)
   approvedBy      String? // operator identity (audit)
   approvedAt      DateTime?
+  // closed loop: scheduled into PLANNED meals (Cluster C)
+  fulfilledBy     String?
+  fulfilledAt     DateTime?
   // link to the CBO once resolved (after approval)
   cbo       Cbo?     @relation(fields: [cboId], references: [id])
   cboId     String?
+  // meals scheduled from this request (provenance / traceability)
+  meals     Meal[]
   createdAt DateTime @default(now())
 
   @@index([status])
