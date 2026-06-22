@@ -15,6 +15,8 @@ export type FieldResult =
 
 const mealIdSchema = z.string().min(1).max(64);
 
+const MAX_PHOTO_BYTES = 2_000_000; // 2 MB — downscaled photos are ~150–300 KB
+
 /** Field operators (OPS) and execs may advance the lifecycle; Finance is read-only. */
 async function requireOperator(): Promise<string | null> {
   const role = await getCurrentRole();
@@ -46,11 +48,17 @@ export async function markDelivered(formData: FormData): Promise<FieldResult> {
   let deliveryPhotoUrl: string | null = null;
   const photo = formData.get("photo");
   if (photo instanceof File && photo.size > 0) {
+    if (!photo.type.startsWith("image/")) {
+      return { ok: false, error: "Attach an image file." };
+    }
+    if (photo.size > MAX_PHOTO_BYTES) {
+      return { ok: false, error: "Photo must be under 2 MB." };
+    }
     if (process.env.BLOB_READ_WRITE_TOKEN) {
       try {
         const blob = await put(`deliveries/${mealId}.jpg`, photo, {
           access: "public",
-          contentType: "image/jpeg",
+          contentType: photo.type,
           addRandomSuffix: true,
         });
         deliveryPhotoUrl = blob.url;
