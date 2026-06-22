@@ -41,7 +41,7 @@ export function Sidebar({ role }: { role: RoleKey }) {
             </div>
           </div>
         </div>
-        <nav className="p-3 flex flex-col gap-1">
+        <nav className="p-3 flex flex-1 min-h-0 flex-col gap-1 overflow-y-auto">
           {NAV.map(({ href, label, icon: Icon }) => {
             const active = isActive(pathname, href);
             return (
@@ -63,7 +63,7 @@ export function Sidebar({ role }: { role: RoleKey }) {
             );
           })}
         </nav>
-        <div className="mt-auto">
+        <div className="shrink-0 border-t border-border">
           <RoleSwitcher current={role} />
           <div className="p-4 text-[11px] text-muted leading-relaxed">
             Demo build · real NYC data

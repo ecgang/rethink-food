@@ -14,16 +14,18 @@ export default async function AppLayout({
 }: Readonly<{ children: React.ReactNode }>) {
   const role = await getCurrentRole();
   return (
-    <>
-      {/* Editorial marquee carrying live ops data */}
+    // App shell: a fixed-height viewport where the marquee + left rail stay put
+    // and ONLY the content area scrolls — the "application", not "long webpage", feel.
+    <div className="flex h-dvh flex-col overflow-hidden">
+      {/* Editorial marquee carrying live ops data — pinned at the very top */}
       <MarqueeBar />
-      <div className="flex min-h-screen">
+      <div className="flex min-h-0 flex-1">
         <Sidebar role={role} />
-        <main className="flex-1 min-w-0 pb-20 lg:pb-0">
+        <main className="min-w-0 flex-1 overflow-y-auto pb-20 lg:pb-0">
           <MobileTopBar role={role} />
           {children}
         </main>
       </div>
-    </>
+    </div>
   );
 }
