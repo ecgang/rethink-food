@@ -77,17 +77,17 @@ export default async function DashboardPage({
         </div>
 
         {/* headline KPIs */}
-        <div className="mb-6">
+        <div className="mb-4">
           <Suspense fallback={<KpiSkeleton />}>
             <KpiSection dim={dim} showFin={showFin} />
           </Suspense>
         </div>
 
-        <div className="mb-6">
+        <div className="mb-4">
           <DefinitionsPanel />
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-6">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-4">
           <Card className="lg:col-span-2 lg:row-span-2">
             <CardHeader
               title="Act on today"
@@ -120,7 +120,7 @@ export default async function DashboardPage({
         </div>
 
         {/* Recent deliveries — where field-confirmed deliveries (and proof photos) land */}
-        <Card className="mb-6">
+        <Card className="mb-4">
           <CardHeader
             title="Recent deliveries"
             subtitle="Field-confirmed deliveries with proof photos — the loop closing in real time."
@@ -138,7 +138,7 @@ export default async function DashboardPage({
         </Card>
 
         {/* Margin by dimension */}
-        <Card className="mb-6">
+        <Card className="mb-4">
           <CardHeader
             title="Contribution margin per meal"
             subtitle={`Sliced by ${dimLabel(dim)} · realized meals only`}
@@ -231,7 +231,7 @@ async function KpiSection({ dim, showFin }: { dim: DimensionKey; showFin: boolea
 
 async function ActSection() {
   const exceptions = await getActOnToday();
-  return <ActOnToday items={exceptions} />;
+  return <ActOnToday items={exceptions} limit={7} />;
 }
 
 async function FunnelSection({ dim }: { dim: DimensionKey }) {
@@ -284,8 +284,10 @@ async function DeliveriesSection() {
               className="h-24 w-full object-cover"
             />
           ) : (
-            <div className="grid h-24 w-full place-items-center bg-black/[0.03] text-[10px] text-muted">
-              No photo
+            <div className="grid h-24 w-full place-items-center bg-brand-soft/60">
+              <span aria-hidden className="text-xl text-brand-deep/70">
+                ✓
+              </span>
             </div>
           )}
           <div className="px-2 py-1.5">
@@ -314,11 +316,13 @@ async function DeliveriesSection() {
 
 async function MarginSection({ dim }: { dim: DimensionKey }) {
   const data = await getDashboardData(dim);
-  const marginBars = data.marginByDimension.map((g) => ({
-    key: g.key,
-    marginPerMealCents: g.mealCount ? Math.round(g.marginCents / g.mealCount) : 0,
-    mealCount: g.mealCount,
-  }));
+  const marginBars = data.marginByDimension
+    .filter((g) => g.mealCount > 0) // drop empty slices (e.g. a program with no realized meals)
+    .map((g) => ({
+      key: g.key,
+      marginPerMealCents: g.mealCount ? Math.round(g.marginCents / g.mealCount) : 0,
+      mealCount: g.mealCount,
+    }));
   return (
     <CardBody>
       <MarginBars data={marginBars} />
