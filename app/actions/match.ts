@@ -2,10 +2,9 @@
 
 import { z } from "zod";
 import { revalidatePath } from "next/cache";
-import { prisma } from "@/lib/db";
 import { getCurrentRole } from "@/lib/current-role";
 import { can } from "@/lib/roles";
-import { eligibleProducers, getMatchOptions } from "@/lib/partners";
+import { createScheduledMeals } from "@/lib/scheduling";
 
 // Discriminated result — never throws to the client.
 export type MatchResult =
@@ -70,63 +69,25 @@ export async function matchSupply(formData: FormData): Promise<MatchResult> {
     mealDate = defaultMealDate(),
   } = parsed.data;
 
-  // ── 3. Validate producer exists in market and has sufficient spare ───────
-  const producers = await eligibleProducers(marketId);
-  const producer = producers.find(
-    (p) => p.id === producerId && p.type === producerType,
-  );
-
-  if (!producer) {
-    return {
-      ok: false,
-      error: "Producer not found in this market or has no spare capacity.",
-    };
-  }
-  if (quantity > producer.spare) {
-    return {
-      ok: false,
-      error: `Quantity ${quantity} exceeds spare capacity of ${producer.spare}.`,
-    };
-  }
-
-  // ── 4. Resolve programId from contract + validate CBO in market ──────────
-  const options = await getMatchOptions(marketId);
-
-  const contract = options.contracts.find((c) => c.id === contractId);
-  if (!contract) {
-    return { ok: false, error: "Contract not found for this market." };
-  }
-  const { programId } = contract;
-
-  const cboInMarket = options.cbos.find((c) => c.id === cboId);
-  if (!cboInMarket) {
-    return { ok: false, error: "CBO does not belong to this market." };
-  }
-
-  // ── 5. Create `quantity` PLANNED Meal rows ───────────────────────────────
-  const now = new Date();
-
-  const meals = Array.from({ length: quantity }, () => ({
-    programId,
-    contractId,
+  // ── 3–5. Delegate validated meal creation to the shared scheduling core ──
+  const result = await createScheduledMeals({
     marketId,
-    producerType: producerType === "kitchen" ? ("KITCHEN" as const) : ("RESTAURANT" as const),
-    kitchenId: producerType === "kitchen" ? producerId : null,
-    restaurantPartnerId: producerType === "restaurant" ? producerId : null,
+    producerType,
+    producerId,
+    contractId,
     cboId,
-    status: "PLANNED" as const,
+    quantity,
     mealDate,
-    plannedAt: now,
-    // memberId intentionally omitted (MTM-only, set at delivery)
-    // cost line items added at production time
-  }));
+  });
 
-  await prisma.meal.createMany({ data: meals });
+  if (!result.ok) {
+    return result;
+  }
 
   // ── 6. Revalidate affected pages ─────────────────────────────────────────
   revalidatePath(`/markets/${slug}`);
   revalidatePath("/");
   revalidatePath("/meals");
 
-  return { ok: true, created: quantity };
+  return result;
 }
