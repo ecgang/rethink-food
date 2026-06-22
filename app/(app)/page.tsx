@@ -46,7 +46,7 @@ export default async function DashboardPage({
   const [sp, role] = await Promise.all([searchParams, getCurrentRole()]);
   const dim: DimensionKey = VALID_DIMS.includes(sp.by as DimensionKey)
     ? (sp.by as DimensionKey)
-    : "program";
+    : "market";
   const showFin = can(role, "view:financials");
 
   return (
@@ -322,7 +322,9 @@ async function MarginSection({ dim }: { dim: DimensionKey }) {
       key: g.key,
       marginPerMealCents: g.mealCount ? Math.round(g.marginCents / g.mealCount) : 0,
       mealCount: g.mealCount,
-    }));
+    }))
+    // Rank healthiest → loss-making so the chart reads as a ranking, not a list.
+    .sort((a, b) => b.marginPerMealCents - a.marginPerMealCents);
   return (
     <CardBody>
       <MarginBars data={marginBars} />
