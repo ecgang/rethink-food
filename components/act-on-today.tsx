@@ -70,7 +70,9 @@ export function ActOnToday({
           const href = hrefFor(it);
           const inner = (
             <div className="flex items-start gap-3">
-              <SeverityBadge severity={it.severity} />
+              <span className="w-20 shrink-0">
+                <SeverityBadge severity={it.severity} />
+              </span>
               <div className="min-w-0 flex-1">
                 <div className="text-sm font-medium">{it.title}</div>
                 <div className="text-xs text-muted mt-0.5">{it.detail}</div>
