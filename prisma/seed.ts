@@ -81,6 +81,8 @@ const synthMinorityOwned = (name: string) => {
 
 async function main() {
   console.log("Clearing existing data…");
+  await prisma.incident.deleteMany();
+  await prisma.safetyCheck.deleteMany();
   await prisma.mealCostLineItem.deleteMany();
   await prisma.meal.deleteMany();
   await prisma.intakeRequest.deleteMany();
@@ -473,12 +475,83 @@ async function main() {
     },
   });
 
+  // --- Kitchen & field ops: seeded incidents + safety checks ---------------
+  // One open CRITICAL incident + one recent failed food-safety check surface as
+  // live "act on today" exceptions; the resolved/passed rows give the field log
+  // and safety feed some history to render.
+  console.log("Seeding incidents and safety checks…");
+  await prisma.incident.createMany({
+    data: [
+      {
+        kind: "EQUIPMENT",
+        severity: "CRITICAL",
+        status: "OPEN",
+        title: "Walk-in cooler temperature alarm",
+        description:
+          "Walk-in cooler at the Brooklyn Navy Yard kitchen is reading 48°F — above the 41°F cold-holding limit. Refrigeration tech called; holding affected product aside pending inspection.",
+        kitchenId: kBk.id,
+        reportedBy: "Dana Ortiz · Operations",
+        reportedAt: addMs(NOW, -3 * 60 * 60 * 1000),
+      },
+      {
+        kind: "DELIVERY",
+        severity: "MEDIUM",
+        status: "RESOLVED",
+        title: "Van breakdown delayed two Bronx routes",
+        description:
+          "Delivery van broke down mid-route; backup vehicle dispatched. Both routes delivered ~90 minutes late.",
+        kitchenId: kGv.id,
+        reportedBy: "Dana Ortiz · Operations",
+        reportedAt: addMs(NOW, -2 * DAY),
+        resolvedBy: "Dana Ortiz · Operations",
+        resolvedAt: addMs(NOW, -2 * DAY + 3 * 60 * 60 * 1000),
+        resolutionNote: "Backup van completed both routes; primary van in for repair.",
+      },
+    ],
+  });
+  await prisma.safetyCheck.createMany({
+    data: [
+      {
+        kind: "FOOD_SAFETY",
+        kitchenId: kBk.id,
+        mealDate: NOW,
+        responses: [
+          { itemId: "cold-holding-logged", ok: false, note: "Cooler over temp — see incident" },
+          { itemId: "handwashing-gloves", ok: true },
+          { itemId: "labeling-date-mark", ok: true },
+          { itemId: "allergen-separation", ok: true },
+          { itemId: "sanitizer-stocked", ok: true },
+        ],
+        passed: false,
+        temperatureF: 48,
+        checkedBy: "Dana Ortiz · Operations",
+        checkedAt: addMs(NOW, -3 * 60 * 60 * 1000),
+      },
+      {
+        kind: "QUALITY",
+        kitchenId: kGv.id,
+        mealDate: NOW,
+        responses: [
+          { itemId: "portion-correct", ok: true },
+          { itemId: "packaging-intact", ok: true },
+          { itemId: "presentation-ok", ok: true },
+          { itemId: "temp-at-pack", ok: true },
+        ],
+        passed: true,
+        checkedBy: "Dana Ortiz · Operations",
+        checkedAt: addMs(NOW, -6 * 60 * 60 * 1000),
+      },
+    ],
+  });
+
   console.log("Seed complete:", {
     markets: markets.length,
     restaurants: restaurants.length,
     cbos: cbos.length,
     members: members.length,
     meals: mealRows.length,
+    incidents: 2,
+    safetyChecks: 2,
   });
 }
 
