@@ -29,6 +29,16 @@ export interface IntakeParseResult {
 
 const MODEL = "claude-haiku-4-5";
 
+/** Hard cap on intake free-text length — bounds token cost and parse work.
+ * TODO: pair with durable per-client rate limiting (Vercel KV/Upstash) for
+ * full cost-DoS protection. */
+export const MAX_INTAKE_CHARS = 4000;
+
+/** Trim and truncate intake text to the cost cap. */
+export function capIntakeInput(raw: string): string {
+  return raw.trim().slice(0, MAX_INTAKE_CHARS);
+}
+
 const TOOL: Anthropic.Tool = {
   name: "submit_meal_request",
   description:
@@ -94,8 +104,9 @@ export async function parseIntakeEmail(
   raw: string,
   today: Date = new Date(),
 ): Promise<IntakeParseResult> {
+  const capped = capIntakeInput(raw);
   const key = process.env.ANTHROPIC_API_KEY;
-  if (!key) return deterministicParse(raw);
+  if (!key) return deterministicParse(capped);
 
   const client = new Anthropic({ apiKey: key });
   const todayStr = today.toISOString().slice(0, 10);
@@ -110,13 +121,13 @@ export async function parseIntakeEmail(
       `Always call the submit_meal_request tool.`,
     tools: [TOOL],
     tool_choice: { type: "tool", name: TOOL.name },
-    messages: [{ role: "user", content: raw }],
+    messages: [{ role: "user", content: capped }],
   });
 
   const block = res.content.find((b) => b.type === "tool_use");
   if (!block || block.type !== "tool_use") {
     // Model failed to use the tool — fall back rather than crash the demo.
-    return deterministicParse(raw);
+    return deterministicParse(capped);
   }
 
   const input = block.input as Record<string, unknown>;
