@@ -248,8 +248,8 @@ export default function ForRethinkPage() {
                 GitHub
               </a>
               {" · "}
-              <a className="hover:text-background hover:underline" href="mailto:eric@staqs.io">
-                eric@staqs.io
+              <a className="hover:text-background hover:underline" href="mailto:hello@ericgang.com">
+                hello@ericgang.com
               </a>
               {" · "}
               <a className="hover:text-background hover:underline" href="https://www.linkedin.com/in/ericgang" target="_blank" rel="noopener noreferrer">
