@@ -1,3 +1,4 @@
+import { cache } from "react";
 import { Prisma } from "@prisma/client";
 import { prisma } from "@/lib/db";
 import {
@@ -45,7 +46,11 @@ interface EconMeal extends MealEconInput {
   cboName: string;
 }
 
-async function loadEconMeals(): Promise<EconMeal[]> {
+// Request-scoped memoization: getDashboardData / getActOnToday / getKpiDeltas /
+// getMtmReporting / getMarqueeStats all need the full meal set. Without cache()
+// each call re-ran this full load (5+ per dashboard render, ~3.5s each on Neon).
+// cache() collapses them to ONE load per request, shared across layout + page.
+const loadEconMeals = cache(async (): Promise<EconMeal[]> => {
   const meals = await prisma.meal.findMany({
     select: {
       id: true,
@@ -86,7 +91,7 @@ async function loadEconMeals(): Promise<EconMeal[]> {
       amountCents: c.amountCents,
     })),
   }));
-}
+});
 
 // Revenue is only realized once a meal is delivered/verified; before that it is
 // planned/in-production. We treat DELIVERED+VERIFIED as "billable" for margin.
