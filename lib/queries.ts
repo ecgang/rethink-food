@@ -15,6 +15,7 @@ import {
   getMarqueeStatsAgg,
   getMtmReportingAgg,
 } from "@/lib/aggregates";
+import { marketSlug } from "@/lib/partners";
 
 const DAY = 24 * 3600 * 1000;
 const WEEK_MS = 7 * DAY;
@@ -163,6 +164,13 @@ export interface MtmReporting {
 /** MTM-specific reporting: retention, delivered-vs-prescribed, SCN attribution. */
 export const getMtmReporting = getMtmReportingAgg;
 
+export interface DemandMapPartnerSummary {
+  kitchens: number;
+  restaurants: number;
+  cbos: number;
+  names: string[];
+}
+
 export interface DemandMapPoint {
   borough: string;
   neighborhood: string;
@@ -172,6 +180,8 @@ export interface DemandMapPoint {
   weeklyCapacity: number;
   fulfilledLast7: number;
   unmet: number;
+  slug: string;
+  partners: DemandMapPartnerSummary;
 }
 
 /** Demand vs. capacity by neighborhood for the map tab. */
@@ -183,8 +193,9 @@ export async function getDemandMap(now: Date = new Date()): Promise<DemandMapPoi
       lat: true,
       lng: true,
       weeklyDemand: true,
-      kitchens: { select: { weeklyCapacity: true } },
-      restaurants: { select: { weeklyCapacity: true } },
+      kitchens: { select: { weeklyCapacity: true, name: true } },
+      restaurants: { select: { weeklyCapacity: true, name: true } },
+      cbos: { select: { name: true } },
       meals: {
         where: { deliveredAt: { gte: new Date(now.getTime() - WEEK_MS) } },
         select: { id: true },
@@ -197,6 +208,12 @@ export async function getDemandMap(now: Date = new Date()): Promise<DemandMapPoi
       m.kitchens.reduce((s, k) => s + k.weeklyCapacity, 0) +
       m.restaurants.reduce((s, r) => s + r.weeklyCapacity, 0);
     const fulfilledLast7 = m.meals.length;
+    const NAMES_LIMIT = 6;
+    const allNames = [
+      ...m.kitchens.slice(0, NAMES_LIMIT).map((k) => `${k.name} (kitchen)`),
+      ...m.restaurants.slice(0, NAMES_LIMIT).map((r) => `${r.name} (restaurant)`),
+      ...m.cbos.slice(0, NAMES_LIMIT).map((c) => `${c.name} (CBO)`),
+    ].slice(0, NAMES_LIMIT);
     return {
       borough: m.borough,
       neighborhood: m.neighborhood,
@@ -206,6 +223,13 @@ export async function getDemandMap(now: Date = new Date()): Promise<DemandMapPoi
       weeklyCapacity,
       fulfilledLast7,
       unmet: Math.max(0, m.weeklyDemand - fulfilledLast7),
+      slug: marketSlug(m.borough, m.neighborhood),
+      partners: {
+        kitchens: m.kitchens.length,
+        restaurants: m.restaurants.length,
+        cbos: m.cbos.length,
+        names: allNames,
+      },
     };
   });
 }
