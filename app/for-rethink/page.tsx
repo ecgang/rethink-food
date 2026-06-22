@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 import { HeroStatsRow } from "@/components/hero-band";
+import { TrackedLink } from "@/components/tracked-link";
 
 export const metadata: Metadata = {
   title: "Rethink Command Center — built for your Lead Full-Stack Engineer role",
@@ -84,20 +84,23 @@ export default function ForRethinkPage() {
           </p>
 
           <div className="mt-8 flex flex-wrap items-center gap-3">
-            <Link
+            <TrackedLink
               href="/"
+              event="enter_app"
+              data={{ from: "hero" }}
               className="inline-flex items-center gap-2 rounded-full bg-brand px-5 py-2.5 text-sm font-semibold text-brand-ink transition-colors hover:bg-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand"
             >
               Enter the live Command Center <Arrow />
-            </Link>
-            <a
+            </TrackedLink>
+            <TrackedLink
               href={REPO}
-              target="_blank"
-              rel="noopener noreferrer"
+              external
+              event="view_code"
+              data={{ from: "hero" }}
               className="inline-flex items-center gap-2 rounded-full border border-white/25 px-5 py-2.5 text-sm font-semibold text-background transition-colors hover:border-white/60"
             >
               View the code <Arrow />
-            </a>
+            </TrackedLink>
           </div>
 
           <div className="mt-12 flex flex-wrap gap-x-12 gap-y-6">
@@ -140,12 +143,14 @@ export default function ForRethinkPage() {
                 )}
               </div>
               <p className="mt-2 flex-1 text-sm leading-relaxed text-muted">{t.note}</p>
-              <Link
+              <TrackedLink
                 href={t.href}
+                event="tour"
+                data={{ page: t.href }}
                 className="mt-4 inline-flex items-center gap-1.5 text-sm font-semibold text-brand-deep hover:underline"
               >
                 {t.cta} <Arrow />
-              </Link>
+              </TrackedLink>
             </li>
           ))}
         </ol>
@@ -210,19 +215,19 @@ export default function ForRethinkPage() {
                 </h3>
                 <ul className="mt-2 space-y-1.5 text-sm">
                   <li>
-                    <a className="font-semibold text-brand-deep hover:underline" href={REPO} target="_blank" rel="noopener noreferrer">
+                    <TrackedLink external event="view_docs" data={{ doc: "source" }} className="font-semibold text-brand-deep hover:underline" href={REPO}>
                       Source on GitHub <Arrow />
-                    </a>
+                    </TrackedLink>
                   </li>
                   <li>
-                    <a className="font-semibold text-brand-deep hover:underline" href={ARCH} target="_blank" rel="noopener noreferrer">
+                    <TrackedLink external event="view_docs" data={{ doc: "architecture" }} className="font-semibold text-brand-deep hover:underline" href={ARCH}>
                       Architecture &amp; data dictionary <Arrow />
-                    </a>
+                    </TrackedLink>
                   </li>
                   <li>
-                    <a className="font-semibold text-brand-deep hover:underline" href={DECISIONS} target="_blank" rel="noopener noreferrer">
+                    <TrackedLink external event="view_docs" data={{ doc: "decisions" }} className="font-semibold text-brand-deep hover:underline" href={DECISIONS}>
                       Decision log — every tradeoff, in plain language <Arrow />
-                    </a>
+                    </TrackedLink>
                   </li>
                 </ul>
               </div>
@@ -279,12 +284,14 @@ export default function ForRethinkPage() {
               </a>
             </p>
           </div>
-          <Link
+          <TrackedLink
             href="/"
+            event="enter_app"
+            data={{ from: "footer" }}
             className="inline-flex shrink-0 items-center gap-2 self-start rounded-full bg-brand px-5 py-2.5 text-sm font-semibold text-brand-ink transition-colors hover:bg-white sm:self-auto"
           >
             Enter the live Command Center <Arrow />
-          </Link>
+          </TrackedLink>
         </div>
       </footer>
     </main>
