@@ -11,18 +11,25 @@ import {
   type ConfidenceFlags,
 } from "@/lib/intake";
 
+const EMPTY_FIELDS: IntakeFields = {
+  cbo: null, quantity: null, deliveryDate: null, recurrence: null,
+  dietaryConstraints: [], location: null, notes: null,
+};
+
 /** Step 1: parse raw text into structured fields. Does NOT touch the database. */
 export async function parseAction(raw: string): Promise<IntakeParseResult> {
+  // Cost guard: parsing invokes the live model. Require the intake capability so
+  // this isn't an open, unauthenticated LLM endpoint. NOTE: demo roles default to
+  // EXEC, so production additionally needs durable per-client rate limiting (see
+  // the TODO in lib/intake.ts) — the capability check is defense-in-depth, the
+  // MAX_INTAKE_CHARS cap bounds per-call cost.
+  if (!can(await getCurrentRole(), "approve:intake")) {
+    return { fields: EMPTY_FIELDS, confidence: {}, modelUsed: "unauthorized" };
+  }
+
   const trimmed = raw.trim();
   if (!trimmed) {
-    return {
-      fields: {
-        cbo: null, quantity: null, deliveryDate: null, recurrence: null,
-        dietaryConstraints: [], location: null, notes: null,
-      },
-      confidence: {},
-      modelUsed: "none",
-    };
+    return { fields: EMPTY_FIELDS, confidence: {}, modelUsed: "none" };
   }
   return parseIntakeEmail(trimmed);
 }
