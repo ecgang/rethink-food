@@ -32,6 +32,30 @@ function refresh() {
 }
 
 /**
+ * Mark a PLANNED meal as PRODUCED — the kitchen has cooked it and it's ready to
+ * leave. This closes the front of the lifecycle in-app (previously production was
+ * assumed upstream and PLANNED→PRODUCED had no control). No photo; production is a
+ * count, not a proof. Once produced, the meal flows into the deliver queue.
+ */
+export async function markProduced(mealId: string): Promise<FieldResult> {
+  const operator = await requireOperator();
+  if (!operator) return { ok: false, error: "Your role can't update production." };
+
+  const parsed = mealIdSchema.safeParse(mealId);
+  if (!parsed.success) return { ok: false, error: "Missing meal." };
+
+  // Guard the transition: only a PLANNED meal can be produced (idempotent).
+  const res = await prisma.meal.updateMany({
+    where: { id: parsed.data, status: "PLANNED" },
+    data: { status: "PRODUCED", producedAt: new Date(), producedBy: operator },
+  });
+  if (res.count === 0) return { ok: false, error: "Meal isn't awaiting production." };
+
+  refresh();
+  return { ok: true, photoUrl: null };
+}
+
+/**
  * Mark a PRODUCED meal as DELIVERED, optionally attaching a delivery-proof photo
  * captured in the field. The photo is uploaded to Vercel Blob when configured;
  * if Blob isn't wired up (e.g. local dev without a token) the delivery still

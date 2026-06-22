@@ -147,6 +147,27 @@ describe("getFieldQueue", () => {
     expect(q).toEqual([]);
   });
 
+  it("includes PLANNED meals as a produce stage with the kitchen name", async () => {
+    meal.findMany.mockResolvedValue([
+      {
+        id: "p1",
+        status: "PLANNED",
+        mealDate: NOW,
+        plannedAt: hoursAgo(4),
+        producedAt: null,
+        deliveredAt: null,
+        deliveryPhotoUrl: null,
+        program: { name: "MTM" },
+        cbo: { name: "POTS" },
+        market: { borough: "Bronx", neighborhood: "Mott Haven" },
+        kitchen: { name: "Bronx Community Kitchen" },
+      },
+    ]);
+    const q = await getFieldQueue(NOW);
+    expect(q[0].stage).toBe("produce");
+    expect(q[0].kitchenName).toBe("Bronx Community Kitchen");
+  });
+
   it("preserves deliveryPhotoUrl on a DELIVERED row", async () => {
     meal.findMany.mockResolvedValue([
       {

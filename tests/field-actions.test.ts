@@ -20,7 +20,7 @@ vi.mock("@/lib/current-role", () => ({
   getOperatorIdentity: vi.fn(),
 }));
 
-import { markVerified, markDelivered } from "@/app/actions/field";
+import { markVerified, markDelivered, markProduced } from "@/app/actions/field";
 import { prisma } from "@/lib/db";
 import * as blob from "@vercel/blob";
 
@@ -104,6 +104,63 @@ describe("markVerified", () => {
     it("never calls put() — markVerified has no photo upload", async () => {
       updateMany.mockResolvedValue({ count: 1 });
       await markVerified("meal_1");
+      expect(mockPut).not.toHaveBeenCalled();
+    });
+  });
+});
+
+// ---------------------------------------------------------------------------
+// markProduced guards (PLANNED -> PRODUCED, no photo)
+// ---------------------------------------------------------------------------
+
+describe("markProduced", () => {
+  describe("role guard", () => {
+    it("rejects FINANCE role (no operate:field permission)", async () => {
+      mockGetCurrentRole.mockResolvedValue("FINANCE");
+      const res = await markProduced("meal_1");
+      expect(res.ok).toBe(false);
+      if (!res.ok) expect(res.error).toMatch(/role/i);
+      expect(updateMany).not.toHaveBeenCalled();
+    });
+
+    it("permits OPS role to proceed to DB check", async () => {
+      updateMany.mockResolvedValue({ count: 1 });
+      const res = await markProduced("meal_1");
+      expect(updateMany).toHaveBeenCalled();
+      expect(res.ok).toBe(true);
+    });
+  });
+
+  describe("transition guard", () => {
+    it("returns ok:false when no PLANNED meal matches (count 0)", async () => {
+      updateMany.mockResolvedValue({ count: 0 });
+      const res = await markProduced("meal_1");
+      expect(res.ok).toBe(false);
+    });
+
+    it("passes the mealId and PLANNED status filter to updateMany", async () => {
+      updateMany.mockResolvedValue({ count: 1 });
+      await markProduced("meal_p");
+      expect(updateMany).toHaveBeenCalledWith(
+        expect.objectContaining({
+          where: expect.objectContaining({ id: "meal_p", status: "PLANNED" }),
+        }),
+      );
+    });
+  });
+
+  describe("input validation", () => {
+    it("returns ok:false for an empty mealId without touching the DB", async () => {
+      const res = await markProduced("");
+      expect(res.ok).toBe(false);
+      expect(updateMany).not.toHaveBeenCalled();
+    });
+  });
+
+  describe("blob guard", () => {
+    it("never calls put() — production has no photo upload", async () => {
+      updateMany.mockResolvedValue({ count: 1 });
+      await markProduced("meal_1");
       expect(mockPut).not.toHaveBeenCalled();
     });
   });

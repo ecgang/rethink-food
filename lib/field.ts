@@ -13,7 +13,7 @@
 export type MealStatus = "PLANNED" | "PRODUCED" | "DELIVERED" | "VERIFIED";
 
 /** The next action a field operator can take on a meal. */
-export type FieldStage = "deliver" | "verify";
+export type FieldStage = "produce" | "deliver" | "verify";
 
 const HOUR_MS = 60 * 60 * 1000;
 
@@ -29,6 +29,10 @@ export interface FieldMeal {
   programName: string;
   cboName: string;
   marketLabel: string;
+  kitchenName: string | null;
+  // the day the meal is for; a PLANNED meal due today (or earlier) is overdue to produce
+  mealDate: Date;
+  plannedAt: Date | null;
   producedAt: Date | null;
   deliveredAt: Date | null;
   deliveryPhotoUrl: string | null;
@@ -43,8 +47,9 @@ export interface FieldItem extends FieldMeal {
   overdue: boolean;
 }
 
-/** The next field action for a status, or null if nothing to do (planned/done). */
+/** The next field action for a status, or null if nothing to do (done). */
 export function fieldStageFor(status: MealStatus): FieldStage | null {
+  if (status === "PLANNED") return "produce";
   if (status === "PRODUCED") return "deliver";
   if (status === "DELIVERED") return "verify";
   return null;
@@ -52,9 +57,21 @@ export function fieldStageFor(status: MealStatus): FieldStage | null {
 
 function ageHoursFor(meal: FieldMeal, stage: FieldStage, now: Date): number {
   // age is measured from the timestamp that put the meal into its current state
-  const since = stage === "deliver" ? meal.producedAt : meal.deliveredAt;
+  const since =
+    stage === "produce" ? meal.plannedAt : stage === "deliver" ? meal.producedAt : meal.deliveredAt;
   if (!since) return 0;
   return Math.max(0, (now.getTime() - since.getTime()) / HOUR_MS);
+}
+
+/**
+ * Is the next action late? PRODUCE is judged against the meal's *date* — a meal
+ * due today or earlier that hasn't been produced is overdue — while DELIVER and
+ * VERIFY are judged against hours-in-state, mirroring the exception engine.
+ */
+function isOverdue(meal: FieldMeal, stage: FieldStage, ageHours: number, now: Date): boolean {
+  if (stage === "produce") return now.getTime() >= meal.mealDate.getTime();
+  const threshold = stage === "deliver" ? DELIVER_OVERDUE_HOURS : VERIFY_OVERDUE_HOURS;
+  return ageHours >= threshold;
 }
 
 /** Lift a meal into a FieldItem, or null if it has no actionable next step. */
@@ -62,8 +79,7 @@ export function toFieldItem(meal: FieldMeal, now: Date): FieldItem | null {
   const stage = fieldStageFor(meal.status);
   if (!stage) return null;
   const ageHours = ageHoursFor(meal, stage, now);
-  const threshold = stage === "deliver" ? DELIVER_OVERDUE_HOURS : VERIFY_OVERDUE_HOURS;
-  return { ...meal, stage, ageHours, overdue: ageHours >= threshold };
+  return { ...meal, stage, ageHours, overdue: isOverdue(meal, stage, ageHours, now) };
 }
 
 /**
@@ -100,4 +116,23 @@ export function verificationRate(statuses: MealStatus[]): number {
     if (s === "VERIFIED") verified += 1;
   }
   return realized === 0 ? 0 : verified / realized;
+}
+
+/** Today's field workload, counted by the action each item needs. */
+export interface ProductionSummary {
+  produce: number;
+  deliver: number;
+  verify: number;
+  overdue: number;
+  total: number;
+}
+
+/** Count the operator queue by stage — the field app's "meal counts" header. */
+export function productionSummary(items: FieldItem[]): ProductionSummary {
+  const s: ProductionSummary = { produce: 0, deliver: 0, verify: 0, overdue: 0, total: items.length };
+  for (const i of items) {
+    s[i.stage] += 1;
+    if (i.overdue) s.overdue += 1;
+  }
+  return s;
 }

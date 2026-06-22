@@ -75,16 +75,19 @@ export const getKpiDeltas = getKpiDeltasAgg;
  */
 export async function getFieldQueue(now: Date = new Date()): Promise<FieldItem[]> {
   const meals = await prisma.meal.findMany({
-    where: { status: { in: ["PRODUCED", "DELIVERED"] } },
+    where: { status: { in: ["PLANNED", "PRODUCED", "DELIVERED"] } },
     select: {
       id: true,
       status: true,
+      mealDate: true,
+      plannedAt: true,
       producedAt: true,
       deliveredAt: true,
       deliveryPhotoUrl: true,
       program: { select: { name: true } },
       cbo: { select: { name: true } },
       market: { select: { borough: true, neighborhood: true } },
+      kitchen: { select: { name: true } },
     },
   });
 
@@ -94,6 +97,9 @@ export async function getFieldQueue(now: Date = new Date()): Promise<FieldItem[]
     programName: m.program.name,
     cboName: m.cbo.name,
     marketLabel: `${m.market.neighborhood}, ${m.market.borough}`,
+    kitchenName: m.kitchen?.name ?? null,
+    mealDate: m.mealDate,
+    plannedAt: m.plannedAt,
     producedAt: m.producedAt,
     deliveredAt: m.deliveredAt,
     deliveryPhotoUrl: m.deliveryPhotoUrl,

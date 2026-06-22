@@ -2,14 +2,15 @@
 
 import { useEffect, useRef, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
-import { markDelivered, markVerified } from "@/app/actions/field";
+import { markDelivered, markProduced, markVerified } from "@/app/actions/field";
 
 export interface FieldCardData {
   id: string;
-  stage: "deliver" | "verify";
+  stage: "produce" | "deliver" | "verify";
   programName: string;
   cboName: string;
   marketLabel: string;
+  kitchenName: string | null;
   ageLabel: string;
   overdue: boolean;
   deliveryPhotoUrl: string | null;
@@ -99,6 +100,19 @@ export function FieldCard(props: FieldCardData) {
     });
   }
 
+  function runProduce() {
+    setError(null);
+    startTransition(async () => {
+      try {
+        const res = await markProduced(id);
+        if (!res.ok) setError(res.error);
+        else router.refresh();
+      } catch {
+        setError("Couldn't save — check your connection and retry.");
+      }
+    });
+  }
+
   return (
     <div className="rounded-xl border border-border bg-surface p-4">
       <div className="flex items-start justify-between gap-3">
@@ -106,6 +120,7 @@ export function FieldCard(props: FieldCardData) {
           <div className="font-display font-bold tracking-tight truncate">{cboName}</div>
           <div className="text-xs text-muted mt-0.5 truncate">
             {programName} · {marketLabel}
+            {stage === "produce" && props.kitchenName ? ` · ${props.kitchenName}` : ""}
           </div>
         </div>
         <span
@@ -165,6 +180,15 @@ export function FieldCard(props: FieldCardData) {
               {pending ? "Saving…" : "Mark delivered"}
             </button>
           </>
+        ) : stage === "produce" ? (
+          <button
+            type="button"
+            onClick={runProduce}
+            disabled={!props.canOperate || pending}
+            className="flex-1 rounded-lg bg-brand py-3 text-sm font-bold text-brand-ink active:scale-[0.99] disabled:opacity-40"
+          >
+            {pending ? "Saving…" : "Mark produced"}
+          </button>
         ) : (
           <button
             type="button"
