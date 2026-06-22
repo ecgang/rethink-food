@@ -1,5 +1,7 @@
 import { getFunderImpact, type FunderContractLine } from "@/lib/funders";
 import { toCsv, type CsvColumn } from "@/lib/csv";
+import { getCurrentRole } from "@/lib/current-role";
+import { can } from "@/lib/roles";
 
 type CsvRow = {
   contract: string;
@@ -22,6 +24,12 @@ export async function GET(
   { params }: { params: Promise<{ id: string }> },
 ) {
   const { id } = await params;
+
+  // Financial export — gate on the same capability that hides margins in the UI.
+  if (!can(await getCurrentRole(), "view:financials")) {
+    return new Response("Forbidden", { status: 403 });
+  }
+
   const impact = await getFunderImpact(id);
 
   if (!impact) {
