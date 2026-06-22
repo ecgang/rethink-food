@@ -82,8 +82,7 @@ The hardest part of an operating system isn't the charts — it's that everyone 
 
 Real production work, intentionally not built so the demo stays focused (the posting screens for *"essential workflow vs. impressive-but-unnecessary feature"*):
 
-- **Full auth / SSO** — there's a working **role signer** (Operations / Finance / Executive) that gates financial views, enforces intake approval server-side, and signs the audit trail; a real identity provider (NextAuth/SSO) behind the same `can()` checks is the next step.
-- **SQL `GROUP BY` aggregation** — current rollups run in app code (fine at this volume); push to the database / BigQuery at 100k+ rows.
+- **Full auth / SSO** — roles (Operations / Finance / Executive) are gated by capabilities (`can()`) enforced server-side in every write path, and the role cookie is **HMAC-signed** so it's tamper-evident (you can't hand-edit `rcc_role=EXEC` to unlock financials). What's *deliberately* open is role **selection** — there's no login wall, by demo choice, so you can click between roles. A real identity provider (NextAuth/SSO) swaps in behind the same `can()` checks; nothing else changes.
 - **Live-model eval in CI** — the eval harness pins the deterministic parser today; add golden-fixture accuracy gating for the live model behind an API-key flag.
 - **Source reconciliation** (HubSpot/CSV ingest → canonical schema → diff) and **mobile field-ops tools**.
 

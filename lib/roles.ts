@@ -1,9 +1,12 @@
 // Lightweight role-based access model. Demonstrates auth-shaped concepts —
-// permissions, role-gated views, and a signed audit identity — WITHOUT a login
-// wall that would block click-to-explore. A real build would back this with
-// SSO/NextAuth; the capability checks and audit signing stay identical.
+// capability-gated permissions, role-gated views, and a tamper-evident audit
+// identity (the role cookie is HMAC-signed; see lib/role-cookie.ts) — WITHOUT a
+// login wall that would block click-to-explore. Role *selection* is open by demo
+// choice; production swaps the signer for an SSO session lookup, leaving these
+// capability checks unchanged.
 //
-// Pure module (no next/headers) so it's safe to import from client components.
+// Pure module (no next/headers, no node:crypto) so it's safe to import from
+// client components.
 
 export type RoleKey = "EXEC" | "FINANCE" | "OPS";
 

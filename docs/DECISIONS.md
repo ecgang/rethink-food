@@ -43,10 +43,10 @@ the decision, why, the tradeoff, and what would change it.
 ### 9. Money as integer cents end-to-end; line-itemed costs (no flat `totalCost`)
 **Why.** No floating-point drift in financial rollups; cost is always composable into food/labor/transport/overhead — which is exactly what the unit-economics questions require.
 
-### 10. Role-based access via a lightweight signer, not a login wall
-**Why.** A login gate would block "click to explore" for an interview demo, but the role/permission/audit concepts still need to be demonstrated. So there's a cookie-backed role switch (Operations / Finance / Executive): it **gates financial views** (Operations sees lifecycle + intake but revenue/margin redact), **enforces `approve:intake` server-side** (Finance is read-only on intake), and **signs the audit trail** with the active operator identity. Same capability checks a real SSO/RBAC system would use — minus the wall.
-**Tradeoff.** Not a real identity provider; roles are self-selected in the demo.
-**Revisit if.** Real users/PII → back it with NextAuth/SSO; the `can()` checks stay.
+### 10. Role-based access via an HMAC-signed role cookie, not a login wall
+**Why.** A login gate would block "click to explore" for an interview demo, but the role/permission/audit concepts still need to be demonstrated. So there's a cookie-backed role switch (Operations / Finance / Executive): it **gates financial views** (Operations sees lifecycle + intake but revenue/margin redact, including the funder CSV export), **enforces capabilities server-side** in every write path (`can()` in the field, match, fulfill, invoice, and intake actions), and records the active operator identity in the audit trail. The role cookie is **HMAC-signed** (`lib/role-cookie.ts`) so it is *tamper-evident* — a client cannot hand-edit `rcc_role=EXEC` in devtools to unlock financials. `ROLE_COOKIE_SECRET` is required in production (fail-closed).
+**Tradeoff.** Not a real identity provider: role *selection* is deliberately open (no login), so the cookie proves "this role was selected through the app," not "this human is authenticated." The signing closes cookie-tampering; the open selection is the explicit demo choice.
+**Revisit if.** Real users/PII → swap `getCurrentRole()` to read an SSO/NextAuth session; the `can()` capability checks and every server-side gate stay identical.
 
 ### 11. Accessibility as a baseline (WCAG 2.2 AA)
 **Why.** Frontline operators and executives include low-vision users; accessibility is product quality, not polish. AA-contrast tokens, visible focus rings, chart `role="img"` labels, a keyboard-accessible map equivalent, `aria-live` on AI results, reduced-motion support. The brand's bright green is used only as a *fill* with black/white text — never as text on a light surface — so the look and AA compliance coexist.
