@@ -18,7 +18,7 @@ const STATUS_TABS = [
 export default async function MealsExplorerPage({
   searchParams,
 }: {
-  searchParams: Promise<{ status?: string; program?: string; q?: string; kitchenId?: string; contractId?: string }>;
+  searchParams: Promise<{ status?: string; program?: string; q?: string; kitchenId?: string; contractId?: string; intakeRequestId?: string }>;
 }) {
   const sp = await searchParams;
   const [result, role] = await Promise.all([
@@ -28,6 +28,7 @@ export default async function MealsExplorerPage({
       q: sp.q,
       kitchenId: sp.kitchenId,
       contractId: sp.contractId,
+      intakeRequestId: sp.intakeRequestId,
     }),
     getCurrentRole(),
   ]);
@@ -37,6 +38,17 @@ export default async function MealsExplorerPage({
   return (
     <div className="px-4 py-6 sm:px-6 lg:px-8 max-w-[1300px]">
       <PageHeader title="Meal records" subtitle="Every meal in the system — filter and drill into any one." />
+
+      {/* Provenance banner when filtered to a specific intake request */}
+      {sp.intakeRequestId && (
+        <div className="mb-4 rounded-lg border border-border bg-black/[0.02] px-4 py-2 text-xs text-muted">
+          Showing meals scheduled from intake request{" "}
+          <code className="text-[11px]">{sp.intakeRequestId}</code>.{" "}
+          <Link href="/meals" className="text-brand-deep hover:underline">
+            Clear filter
+          </Link>
+        </div>
+      )}
 
       {/* status filter */}
       <div className="mb-4 flex flex-wrap gap-1.5">

@@ -475,6 +475,7 @@ export async function getKitchenDetail(id: string, now: Date = new Date()): Prom
 
 export interface ExplorerFilters {
   status?: string; program?: string; contractId?: string; kitchenId?: string; q?: string;
+  intakeRequestId?: string;
 }
 export interface ExplorerRow {
   id: string; status: string; mealDate: Date; programName: string;
@@ -491,6 +492,7 @@ export async function getMealsExplorer(f: ExplorerFilters = {}): Promise<Explore
   if (f.contractId) where.contractId = f.contractId;
   if (f.kitchenId) where.kitchenId = f.kitchenId;
   if (f.q) where.cbo = { name: { contains: f.q, mode: "insensitive" } };
+  if (f.intakeRequestId) where.intakeRequestId = f.intakeRequestId;
 
   const LIMIT = 200;
   const [total, rows] = await Promise.all([
