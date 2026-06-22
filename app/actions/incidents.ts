@@ -13,6 +13,15 @@ const MAX_PHOTO_BYTES = 2_000_000; // 2 MB — downscaled photos are ~150–300 
 
 const kindSchema = z.enum(["FOOD_SAFETY", "QUALITY", "DELIVERY", "EQUIPMENT", "OTHER"]);
 const severitySchema = z.enum(["LOW", "MEDIUM", "HIGH", "CRITICAL"]);
+const idSchema = z.string().min(1).max(64);
+
+/** Validate an optional FK id from FormData: "" / missing → null; present → bounded. */
+function optionalId(raw: FormDataEntryValue | null): { ok: true; value: string | null } | { ok: false } {
+  if (raw === null || raw instanceof File) return { ok: true, value: null };
+  const trimmed = raw.trim();
+  if (trimmed === "") return { ok: true, value: null };
+  return idSchema.safeParse(trimmed).success ? { ok: true, value: trimmed } : { ok: false };
+}
 
 /** Field operators and execs may report and resolve incidents; Finance is read-only. */
 async function requireOperator(): Promise<string | null> {
@@ -48,8 +57,12 @@ export async function reportIncident(formData: FormData): Promise<IncidentResult
   const descParsed = z.string().min(1).max(2000).safeParse(descRaw);
   if (!descParsed.success) return { ok: false, error: "Description must be 1–2000 characters." };
 
-  const kitchenId = (formData.get("kitchenId") as string | null) || null;
-  const mealId = (formData.get("mealId") as string | null) || null;
+  const kitchenParsed = optionalId(formData.get("kitchenId"));
+  if (!kitchenParsed.ok) return { ok: false, error: "Invalid kitchen reference." };
+  const mealParsed = optionalId(formData.get("mealId"));
+  if (!mealParsed.ok) return { ok: false, error: "Invalid meal reference." };
+  const kitchenId = kitchenParsed.value;
+  const mealId = mealParsed.value;
 
   let photoUrl: string | null = null;
   const photo = formData.get("photo");
@@ -76,19 +89,25 @@ export async function reportIncident(formData: FormData): Promise<IncidentResult
     // else: no Blob store configured — proceed without the photo.
   }
 
-  const incident = await prisma.incident.create({
-    data: {
-      kind: kindParsed.data,
-      severity: severityParsed.data,
-      status: "OPEN",
-      title: titleParsed.data,
-      description: descParsed.data,
-      kitchenId: kitchenId || null,
-      mealId: mealId || null,
-      photoUrl,
-      reportedBy: operator,
-    },
-  });
+  let incident;
+  try {
+    incident = await prisma.incident.create({
+      data: {
+        kind: kindParsed.data,
+        severity: severityParsed.data,
+        status: "OPEN",
+        title: titleParsed.data,
+        description: descParsed.data,
+        kitchenId,
+        mealId,
+        photoUrl,
+        reportedBy: operator,
+      },
+    });
+  } catch {
+    // Most likely a foreign-key violation: the kitchen/meal id doesn't exist.
+    return { ok: false, error: "Couldn't save — the linked kitchen or meal wasn't found." };
+  }
 
   refresh();
   return { ok: true, id: incident.id };

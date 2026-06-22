@@ -6,7 +6,7 @@ import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/db";
 import { getCurrentRole, getOperatorIdentity } from "@/lib/current-role";
 import { can } from "@/lib/roles";
-import { evaluateCheck, type CheckResponse } from "@/lib/safety";
+import { evaluateCheck, CHECKLISTS, type CheckResponse } from "@/lib/safety";
 
 export type SafetyResult =
   | { ok: true; passed: boolean }
@@ -61,6 +61,13 @@ export async function submitSafetyCheck(
   }
   const responses: CheckResponse[] = responsesParsed.data;
 
+  // Reject responses for item ids that aren't in this checklist — keeps the
+  // JSONB column clean (evaluateCheck only inspects the known required items).
+  const validIds = new Set(CHECKLISTS[kind].map((i) => i.id));
+  if (responses.some((r) => !validIds.has(r.itemId))) {
+    return { ok: false, error: "Unknown checklist item." };
+  }
+
   // --- optional fields ---
   const rawTemp = formData.get("temperatureF");
   let temperatureF: number | undefined;
@@ -74,10 +81,14 @@ export async function submitSafetyCheck(
   }
 
   const rawKitchenId = formData.get("kitchenId");
-  const kitchenId =
-    typeof rawKitchenId === "string" && rawKitchenId.trim() !== ""
-      ? rawKitchenId.trim()
-      : undefined;
+  let kitchenId: string | undefined;
+  if (typeof rawKitchenId === "string" && rawKitchenId.trim() !== "") {
+    const trimmed = rawKitchenId.trim();
+    if (!z.string().max(64).safeParse(trimmed).success) {
+      return { ok: false, error: "Invalid kitchen reference." };
+    }
+    kitchenId = trimmed;
+  }
 
   const rawMealDate = formData.get("mealDate");
   let mealDate: Date | undefined;
@@ -93,17 +104,21 @@ export async function submitSafetyCheck(
   const verdict = evaluateCheck(kind, responses, temperatureF);
 
   // --- persist ---
-  await prisma.safetyCheck.create({
-    data: {
-      kind,
-      kitchenId: kitchenId ?? null,
-      mealDate: mealDate ?? null,
-      responses: responses as unknown as Prisma.InputJsonValue,
-      passed: verdict.passed,
-      temperatureF: temperatureF ?? null,
-      checkedBy: operator,
-    },
-  });
+  try {
+    await prisma.safetyCheck.create({
+      data: {
+        kind,
+        kitchenId: kitchenId ?? null,
+        mealDate: mealDate ?? null,
+        responses: responses as unknown as Prisma.InputJsonValue,
+        passed: verdict.passed,
+        temperatureF: temperatureF ?? null,
+        checkedBy: operator,
+      },
+    });
+  } catch {
+    return { ok: false, error: "Couldn't save — the linked kitchen wasn't found." };
+  }
 
   revalidatePath("/field/safety");
   revalidatePath("/");
