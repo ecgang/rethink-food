@@ -46,6 +46,16 @@
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
   --font-display: var(--font-archivo);
+
+  /* Brand: Rethink Food has sharp corners. Zero the radius scale so every
+     rounded-{sm,md,lg,xl,2xl,3xl} utility squares off. */
+  --radius-xs: 0px;
+  --radius-sm: 0px;
+  --radius-md: 0px;
+  --radius-lg: 0px;
+  --radius-xl: 0px;
+  --radius-2xl: 0px;
+  --radius-3xl: 0px;
 }
 
 body {
@@ -60,6 +70,36 @@ body {
   font-variant-numeric: tabular-nums;
   font-feature-settings: "tnum";
 }
+
+/* Brand: no rounded edges — square off pills and the default radius too
+   (these utilities don't read the radius scale, so override them directly). */
+.rounded-full,
+.rounded {
+  border-radius: 0 !important;
+}
+
+/* Rendered Markdown for Ask answers (the .md wrapper). */
+.md > :first-child { margin-top: 0; }
+.md > :last-child { margin-bottom: 0; }
+.md p { margin: 0.5rem 0; }
+.md ul, .md ol { margin: 0.5rem 0; padding-left: 1.25rem; }
+.md ul { list-style: disc; }
+.md ol { list-style: decimal; }
+.md li { margin: 0.15rem 0; }
+.md strong { font-weight: 600; }
+.md a { color: var(--brand-deep); text-decoration: underline; }
+.md code { background: rgba(0, 0, 0, 0.06); padding: 0.05rem 0.3rem; font-size: 0.85em; }
+.md h1, .md h2, .md h3 { font-weight: 700; margin: 0.75rem 0 0.35rem; line-height: 1.25; }
+.md table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 0.6rem 0;
+  font-size: 0.85em;
+  display: block;
+  overflow-x: auto;
+}
+.md th, .md td { border: 1px solid var(--border); padding: 0.35rem 0.55rem; text-align: left; white-space: nowrap; }
+.md th { background: rgba(0, 0, 0, 0.03); font-weight: 600; }
 
 /* gentle reveal for async content (e.g. the AI intake result panel) */
 @keyframes reveal {

@@ -67,8 +67,11 @@ export function toFieldItem(meal: FieldMeal, now: Date): FieldItem | null {
 }
 
 /**
- * Build the operator queue: only actionable meals, overdue first, then oldest
- * first within each group — so the most urgent action is always on top.
+ * Build the operator queue: only actionable meals, overdue first. Within the
+ * non-overdue tier, the VERIFY stage is sorted most-recently-delivered first —
+ * so a meal you just delivered is ready to verify at the top of the list, not
+ * buried at the bottom. Everything else (overdue items, and the DELIVER backlog)
+ * stays oldest-first, so the longest-waiting action is on top.
  */
 export function buildFieldQueue(meals: FieldMeal[], now: Date): FieldItem[] {
   return meals
@@ -76,7 +79,11 @@ export function buildFieldQueue(meals: FieldMeal[], now: Date): FieldItem[] {
     .filter((i): i is FieldItem => i !== null)
     .sort((a, b) => {
       if (a.overdue !== b.overdue) return a.overdue ? -1 : 1;
-      return b.ageHours - a.ageHours;
+      // Just-delivered verify items rise to the top of the non-overdue tier.
+      if (a.stage === "verify" && b.stage === "verify" && !a.overdue && !b.overdue) {
+        return a.ageHours - b.ageHours; // newest delivered first
+      }
+      return b.ageHours - a.ageHours; // oldest first
     });
 }
 

@@ -50,7 +50,15 @@ export async function askAction(question: string): Promise<AskResult> {
       data: {
         question: trimmed,
         answer: result.answer,
-        citations: result.citations.map((c) => ({ type: c.type, id: c.id, label: c.label })),
+        // store the full citation (incl. href + fields) so a logged answer can be
+        // replayed in the UI without another model call
+        citations: result.citations.map((c) => ({
+          type: c.type,
+          id: c.id,
+          label: c.label,
+          href: c.href ?? null,
+          fields: c.fields,
+        })),
         modelUsed: result.modelUsed,
         askedBy: await getOperatorIdentity(),
       },

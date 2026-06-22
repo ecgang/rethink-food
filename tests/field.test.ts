@@ -70,7 +70,7 @@ describe("toFieldItem", () => {
 });
 
 describe("buildFieldQueue", () => {
-  it("orders overdue first, then oldest within each group", () => {
+  it("orders overdue first, then oldest within the deliver backlog", () => {
     const meals: FieldMeal[] = [
       meal({ id: "fresh", producedAt: hoursAgo(1) }),
       meal({ id: "overdue-old", producedAt: hoursAgo(60) }),
@@ -79,6 +79,16 @@ describe("buildFieldQueue", () => {
     ];
     const q = buildFieldQueue(meals, NOW);
     expect(q.map((i) => i.id)).toEqual(["overdue-old", "overdue-recent", "fresh"]);
+  });
+
+  it("surfaces the most recently delivered first in the non-overdue verify queue", () => {
+    const meals: FieldMeal[] = [
+      meal({ id: "verify-old", status: "DELIVERED", deliveredAt: hoursAgo(20) }),
+      meal({ id: "verify-fresh", status: "DELIVERED", deliveredAt: hoursAgo(1) }),
+    ];
+    const q = buildFieldQueue(meals, NOW);
+    // a meal you just delivered is ready to verify at the top, not buried
+    expect(q.map((i) => i.id)).toEqual(["verify-fresh", "verify-old"]);
   });
 });
 
