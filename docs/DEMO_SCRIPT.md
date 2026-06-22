@@ -7,8 +7,8 @@ Rethink Food's posting screens for. Times are cumulative. Speak plainly; let the
 
 ### 0:00 — Frame it (10s)
 > "This is a working build of the **Rethink Command Center** — the real-time operating system
-> from your posting. I scoped it on purpose to the six-month flagship plus the one AI workflow,
-> and I'll show you what I deliberately left out and why."
+> from your posting. I scoped it on purpose to the six-month flagship plus a **human-reviewed AI
+> operating layer**, and I'll show you what I deliberately left out and why."
 
 *(Land on `/`, the dashboard.)*
 
@@ -75,6 +75,44 @@ Restaurant Response shows a negative bar.)*
 > thesis — turn a messy food operation into software a CEO understands at a glance and an
 > operator acts on in seconds. It's typed end-to-end, tested, and deploys on Vercel and Postgres.
 > Happy to go deeper on the data model."
+
+---
+
+## Extended — the AI operating layer (+60s, if they want to see more)
+
+The intake parser above is **one** of the JD's five "AI-enabled operating layer" bullets. The same
+principle runs through all of them: **the model narrates, drafts, and retrieves — the deterministic
+engines own every number, and a human approves anything that leaves the system.**
+
+### Ask the Operating Layer (search → cited answer → click)
+*(Click **Ask AI**, run "Which funders have the largest committed budgets?")*
+> "Plain-English search over partners, funders, and contracts. Notice every fact is a **citation** —
+> and clicking one drops me on the real record. There's no vector database here; the model calls
+> bounded database queries, so answers are exact and traceable, and it never invents a number."
+
+### Today's briefing (narrate the exceptions, don't replace them)
+*(Back on `/`, point at the "Today's briefing" card above "Act on today.")*
+> "This is the same exception engine from a minute ago, narrated into a morning briefing. The
+> **severities and the items come from the deterministic engine** — the model only explains them and
+> can't re-rank or fabricate. Each item has a **Draft follow-up** button."
+
+### Draft-and-approve follow-ups (human-reviewed agents, never auto-send)
+*(Click **Draft follow-up** on a flagged item → edit → **Approve**; then open **Draft Follow-ups**.)*
+> "It drafts the clarification email — grounded in the real record — and **nothing sends**. I edit,
+> approve or discard, and it's logged to the audit trail. On the Reports page the same flow drafts a
+> **board narrative** from the live weekly totals, reviewed before it ever reaches a funder."
+
+### What this buys an operator (illustrative estimates, not measured)
+
+| Task | By hand today | With the operating layer |
+|---|---|---|
+| Find a contract's budget + dates | dig through 3–4 detail pages (~3–4 min) | one question, cited answer (~5s) |
+| Triage what needs action this morning | read every exception, judge severity (~10 min) | scan a plain-English briefing (~30s) |
+| Follow up on a partner missing info | spot the gap, write the email (~8 min) | drafted in ~2s, then edit + approve |
+| Weekly board/funder narrative | write prose from the numbers (~20 min) | drafted from live totals, edit + approve |
+
+> "That's the JD's thesis — reduce administrative work, keep a human in the loop — built as four
+> features on one shared, fallback-safe AI layer."
 
 ---
 
