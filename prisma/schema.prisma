@@ -275,8 +275,11 @@ model MealCostLineItem {
 
 model IntakeRequest {
   id              String       @id @default(cuid())
+  // PII: rawInput + extractedFields hold partner-submitted text (names, locations,
+  // dietary/medical constraints). Encrypted at rest by Neon. Demo retains all rows;
+  // production needs a retention window + the operator deletion path (deleteIntakeRequest).
   rawInput        String // the pasted email / message
-  extractedFields Json // structured output from the LLM
+  extractedFields Json // structured output from the LLM (may contain PII)
   confidenceFlags Json // per-field confidence / warnings
   modelUsed       String?
   status          IntakeStatus @default(PENDING)
@@ -293,4 +296,26 @@ model IntakeRequest {
   createdAt DateTime @default(now())
 
   @@index([status])
+}
+
+// ----------------------------------------------------------------------------
+// Reporting — snapshots produced by the weekly cron (automated recurring report)
+// ----------------------------------------------------------------------------
+
+enum ReportKind {
+  FUNDER_IMPACT
+  BOARD_SUMMARY
+}
+
+model ReportSnapshot {
+  id          String     @id @default(cuid())
+  kind        ReportKind
+  title       String
+  periodStart DateTime
+  periodEnd   DateTime
+  payload     Json // the computed report (totals + per-funder lines) at generation time
+  generatedBy String // "weekly-cron" or an operator identity
+  createdAt   DateTime   @default(now())
+
+  @@index([kind, createdAt])
 }
