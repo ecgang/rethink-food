@@ -2,6 +2,23 @@
 // MEANS across the whole product. The dashboard renders these (Definitions panel),
 // the data dictionary documents them, and tests/metrics.test.ts enforces that every
 // view computes them the same way. This is the "everyone agrees what a meal is" layer.
+//
+// LOAD-BEARING PRIMITIVES — every compute path imports from here so JS predicates
+// and SQL fragments cannot drift from one another.
+
+/** The two statuses that make a meal "realized" (billable). */
+export const REALIZED_STATUSES = ["DELIVERED", "VERIFIED"] as const;
+
+/** Returns true iff the meal status counts toward revenue and margin. */
+export function isRealized(status: string): boolean {
+  return (REALIZED_STATUSES as readonly string[]).includes(status);
+}
+
+export const DAY_MS = 24 * 60 * 60 * 1000;
+export const WEEK_MS = 7 * DAY_MS;
+
+/** Target food cost per meal (cents) — the "over food budget" exception threshold. */
+export const FOOD_BUDGET_PER_MEAL_CENTS = 420;
 
 export interface MetricDefinition {
   term: string;

@@ -1,12 +1,6 @@
 import { cache } from "react";
 import { prisma } from "@/lib/db";
-
-// ---------------------------------------------------------------------------
-// Time window constants (mirror lib/queries.ts — kept local to avoid widening
-// that file's export surface)
-// ---------------------------------------------------------------------------
-const DAY = 24 * 3600 * 1000;
-const WEEK_MS = 7 * DAY;
+import { isRealized, DAY_MS as DAY, WEEK_MS } from "@/lib/definitions";
 
 // ---------------------------------------------------------------------------
 // Slug helpers
@@ -251,9 +245,7 @@ export async function getRestaurantDetail(id: string): Promise<RestaurantDetail 
   });
   if (!r) return null;
 
-  const deliveredCount = r.meals.filter(
-    (m) => m.status === "DELIVERED" || m.status === "VERIFIED",
-  ).length;
+  const deliveredCount = r.meals.filter((m) => isRealized(m.status)).length;
 
   return {
     id: r.id,
@@ -323,9 +315,7 @@ export async function getCboDetail(id: string): Promise<CboDetail | null> {
   });
   if (!c) return null;
 
-  const deliveredCount = c.meals.filter(
-    (m) => m.status === "DELIVERED" || m.status === "VERIFIED",
-  ).length;
+  const deliveredCount = c.meals.filter((m) => isRealized(m.status)).length;
 
   return {
     id: c.id,

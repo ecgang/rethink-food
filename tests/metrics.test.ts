@@ -14,7 +14,7 @@ import {
   marginByDimension,
   type MealEconInput,
 } from "@/lib/margin";
-import { DEFINITIONS } from "@/lib/definitions";
+import { DEFINITIONS, isRealized, REALIZED_STATUSES } from "@/lib/definitions";
 
 interface TaggedMeal extends MealEconInput {
   program: string;
@@ -91,5 +91,38 @@ describe("definitions registry", () => {
     for (const required of ["meal", "cost", "revenue", "contribution margin"]) {
       expect(terms.some((t) => t.includes(required))).toBe(true);
     }
+  });
+});
+
+// ---------------------------------------------------------------------------
+// Realized-status parity — pins prose dictionary to runtime behaviour.
+// The SQL fragment in lib/aggregates.ts is derived from REALIZED_STATUSES via
+// Prisma.join(), so all three (JS predicate, SQL fragment, prose definition)
+// share the same source and CANNOT drift independently.
+// ---------------------------------------------------------------------------
+describe("realized-status parity", () => {
+  it("REALIZED_STATUSES contains exactly DELIVERED and VERIFIED", () => {
+    expect([...REALIZED_STATUSES].sort()).toEqual(["DELIVERED", "VERIFIED"]);
+  });
+
+  it("isRealized returns true for DELIVERED", () => {
+    expect(isRealized("DELIVERED")).toBe(true);
+  });
+
+  it("isRealized returns true for VERIFIED", () => {
+    expect(isRealized("VERIFIED")).toBe(true);
+  });
+
+  it("isRealized returns false for PLANNED", () => {
+    expect(isRealized("PLANNED")).toBe(false);
+  });
+
+  it("isRealized returns false for PRODUCED", () => {
+    expect(isRealized("PRODUCED")).toBe(false);
+  });
+
+  it("isRealized rejects unknown statuses", () => {
+    expect(isRealized("")).toBe(false);
+    expect(isRealized("CANCELLED")).toBe(false);
   });
 });

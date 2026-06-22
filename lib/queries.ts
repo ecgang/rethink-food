@@ -3,6 +3,12 @@ import { Prisma } from "@prisma/client";
 import { prisma } from "@/lib/db";
 import { rollupMargin, mealEcon, type CostType } from "@/lib/margin";
 import {
+  isRealized,
+  DAY_MS as DAY,
+  WEEK_MS,
+  FOOD_BUDGET_PER_MEAL_CENTS,
+} from "@/lib/definitions";
+import {
   buildFieldQueue,
   verificationRate,
   type FieldItem,
@@ -17,16 +23,6 @@ import {
 } from "@/lib/aggregates";
 import { marketSlug } from "@/lib/partners";
 
-const DAY = 24 * 3600 * 1000;
-const WEEK_MS = 7 * DAY;
-// Target food cost per meal used to evaluate kitchens (cents). Kept here as the
-// single policy knob for the "over food budget" exception.
-const FOOD_BUDGET_PER_MEAL_CENTS = 420;
-
-// Revenue is realized once a meal is delivered/verified; before that it is
-// planned/in-production. DELIVERED+VERIFIED are "billable" for margin.
-const isRealized = (s: "PLANNED" | "PRODUCED" | "DELIVERED" | "VERIFIED") =>
-  s === "DELIVERED" || s === "VERIFIED";
 
 export type DimensionKey =
   | "program"

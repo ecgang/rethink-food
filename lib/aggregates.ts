@@ -23,10 +23,20 @@ import type {
   MarqueeStats,
   MtmReporting,
 } from "@/lib/queries";
+import {
+  REALIZED_STATUSES,
+  DAY_MS as DAY,
+  FOOD_BUDGET_PER_MEAL_CENTS,
+} from "@/lib/definitions";
 
-const DAY = 24 * 3600 * 1000;
-const FOOD_BUDGET_PER_MEAL_CENTS = 420; // mirrors the policy knob in queries.ts
-const REALIZED = Prisma.sql`m.status IN ('DELIVERED', 'VERIFIED')`;
+// SQL fragment derived from REALIZED_STATUSES so it CANNOT drift from the JS predicate.
+// Rendered as LITERAL SQL (not bound params) so Postgres compares the MealStatus enum
+// column directly — `m.status IN ($1,$2)` fails with "operator does not exist:
+// MealStatus = text" (42883). Prisma.raw is safe here: REALIZED_STATUSES is a
+// compile-time constant of our own enum values, never user input.
+const REALIZED = Prisma.raw(
+  `m.status IN (${REALIZED_STATUSES.map((s) => `'${s}'`).join(", ")})`,
+);
 const n = (v: bigint | number | null): number => (v == null ? 0 : Number(v));
 
 export type DimensionKey = "program" | "kitchen" | "restaurant" | "contract" | "market";

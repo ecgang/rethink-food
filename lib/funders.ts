@@ -3,19 +3,13 @@
 // getFundersRoster — headline metrics per funder, sorted by meals served desc.
 // getFunderImpact  — full impact breakdown for a single funder.
 //
-// "Realized" = status ∈ {DELIVERED, VERIFIED} per lib/definitions.ts.
+// "Realized" = status ∈ {DELIVERED, VERIFIED} — isRealized() imported from lib/definitions.ts.
 // Revenue per realized meal = program.reimbursementRateCents.
 // Margin uses mealEcon/rollupMargin from lib/margin.ts (no re-derivation here).
 
 import { prisma } from "@/lib/db";
 import { mealEcon, rollupMargin, type CostType } from "@/lib/margin";
-
-// ---------------------------------------------------------------------------
-// Shared helper
-// ---------------------------------------------------------------------------
-
-const isRealized = (s: string): boolean =>
-  s === "DELIVERED" || s === "VERIFIED";
+import { isRealized } from "@/lib/definitions";
 
 // ---------------------------------------------------------------------------
 // Roster
