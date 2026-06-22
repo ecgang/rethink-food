@@ -84,6 +84,7 @@ Real production work, intentionally not built so the demo stays focused (the pos
 
 - **Full auth / SSO** — roles (Operations / Finance / Executive) are gated by capabilities (`can()`) enforced server-side in every write path, and the role cookie is **HMAC-signed** so it's tamper-evident (you can't hand-edit `rcc_role=EXEC` to unlock financials). What's *deliberately* open is role **selection** — there's no login wall, by demo choice, so you can click between roles. A real identity provider (NextAuth/SSO) swaps in behind the same `can()` checks; nothing else changes.
 - **Live-model eval in CI** — the eval harness pins the deterministic parser today; add golden-fixture accuracy gating for the live model behind an API-key flag.
+- **PII handling** — intake stores partner PII (`rawInput` / `extractedFields`), encrypted at rest by Neon; a pure input-safety screen (`screenIntakeInput`) runs before every model call to block injections and binary pastes, and an EXEC-only `deleteIntakeRequest` server action provides a right-to-erasure path (linked scheduled meals survive with a NULL back-reference). Production adds a configurable retention window and an LLM moderation pass (e.g. Model Armor) before the screen.
 - **Source reconciliation** (HubSpot/CSV ingest → canonical schema → diff) and **mobile field-ops tools**.
 
 ## Stack

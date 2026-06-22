@@ -6,6 +6,7 @@ import { getCurrentRole, getOperatorIdentity } from "@/lib/current-role";
 import { can } from "@/lib/roles";
 import {
   parseIntakeEmail,
+  screenIntakeInput,
   type IntakeParseResult,
   type IntakeFields,
   type ConfidenceFlags,
@@ -31,6 +32,20 @@ export async function parseAction(raw: string): Promise<IntakeParseResult> {
   if (!trimmed) {
     return { fields: EMPTY_FIELDS, confidence: {}, modelUsed: "none" };
   }
+
+  // Input safety screen — runs before the model, costs nothing.
+  // Flagged input is routed to human review (modelUsed: "flagged") rather
+  // than sent to the LLM. The production upgrade is a moderation/Model-Armor
+  // pass that catches subtler violations (see screenIntakeInput in lib/intake.ts).
+  const screen = screenIntakeInput(trimmed);
+  if (!screen.ok) {
+    return {
+      fields: { ...EMPTY_FIELDS, notes: `Flagged for review: ${screen.reason}` },
+      confidence: { notes: "low" },
+      modelUsed: "flagged",
+    };
+  }
+
   return parseIntakeEmail(trimmed);
 }
 
@@ -90,4 +105,25 @@ export async function rejectAction(payload: DecisionPayload): Promise<void> {
     },
   });
   revalidatePath("/intake");
+}
+
+/**
+ * PII deletion path — right-to-erasure for a stored intake request.
+ * Gated to the EXEC role only. Deletes rawInput + extractedFields; any
+ * scheduled Meals linked via intakeRequestId survive with a NULL back-link
+ * (ON DELETE SET NULL on the FK — intentional, documented in DECISIONS.md).
+ */
+export async function deleteIntakeRequest(
+  id: string,
+): Promise<{ ok: boolean; error?: string }> {
+  if ((await getCurrentRole()) !== "EXEC") {
+    return { ok: false, error: "Only the EXEC role may delete intake records." };
+  }
+  try {
+    await prisma.intakeRequest.delete({ where: { id } });
+    revalidatePath("/intake");
+    return { ok: true };
+  } catch {
+    return { ok: false, error: "Deletion failed — record may not exist." };
+  }
 }

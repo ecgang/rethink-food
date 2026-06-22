@@ -39,6 +39,64 @@ export function capIntakeInput(raw: string): string {
   return raw.trim().slice(0, MAX_INTAKE_CHARS);
 }
 
+/**
+ * Pure input safety screen — runs BEFORE any model call.
+ * Flags obviously unsafe or malformed input so it can be routed straight to
+ * human review without spending a token on it.
+ *
+ * This is defense-in-depth only; the production upgrade is an LLM-based
+ * moderation pass (e.g. Google Model Armor or Anthropic's moderation endpoint)
+ * that catches subtler injections and policy violations.
+ */
+export function screenIntakeInput(
+  raw: string,
+): { ok: true } | { ok: false; reason: string } {
+  // 1. Empty / whitespace-only
+  if (!raw.trim()) {
+    return { ok: false, reason: "Input is empty." };
+  }
+
+  // 2. Over the cost cap
+  if (raw.length > MAX_INTAKE_CHARS) {
+    return {
+      ok: false,
+      reason: `Input exceeds the ${MAX_INTAKE_CHARS}-character limit.`,
+    };
+  }
+
+  // 3. Binary / control-character paste heuristic.
+  //    Flag if more than 5 % of characters are non-printable (excludes normal
+  //    whitespace: space, tab, CR, LF).
+  const controlCount = Array.from(raw).filter((ch) => {
+    const cp = ch.codePointAt(0) ?? 0;
+    return cp < 32 && cp !== 9 && cp !== 10 && cp !== 13;
+  }).length;
+  if (controlCount / raw.length > 0.05) {
+    return { ok: false, reason: "Input contains an unusual density of control characters." };
+  }
+
+  // 4. Prompt-injection denylist (case-insensitive, regex-based).
+  //    Keep the list small and readable — this is a heuristic guard, not a
+  //    classifier. The production upgrade is an LLM moderation pass.
+  const INJECTION_PATTERNS: RegExp[] = [
+    /ignore\s+(all\s+)?previous/i,
+    /disregard\s+(all\s+)?(previous|prior)/i,
+    /system\s*:/i,
+    /you\s+are\s+now/i,
+    /act\s+as/i,
+    /forget\s+(your|all|everything)/i,
+    /override\s+.*instructions/i,
+    /new\s+instructions\s*:/i,
+  ];
+  for (const pattern of INJECTION_PATTERNS) {
+    if (pattern.test(raw)) {
+      return { ok: false, reason: "Input contains a potential prompt-injection marker." };
+    }
+  }
+
+  return { ok: true };
+}
+
 const TOOL: Anthropic.Tool = {
   name: "submit_meal_request",
   description:
