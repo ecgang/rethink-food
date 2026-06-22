@@ -2,13 +2,15 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { LayoutDashboard, Inbox, Map, Smartphone } from "lucide-react";
+import { LayoutDashboard, Inbox, Map, Smartphone, Table2, PackageCheck } from "lucide-react";
 import { cn } from "@/lib/cn";
 import { RoleSwitcher } from "@/components/role-switcher";
 import type { RoleKey } from "@/lib/roles";
 
 const NAV = [
   { href: "/", label: "Command Center", icon: LayoutDashboard },
+  { href: "/meals", label: "Records", icon: Table2 },
+  { href: "/deliveries", label: "Deliveries", icon: PackageCheck },
   { href: "/intake", label: "AI Intake", icon: Inbox },
   { href: "/map", label: "Demand Map", icon: Map },
   { href: "/field", label: "Field App", icon: Smartphone },

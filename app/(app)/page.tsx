@@ -6,12 +6,14 @@ import { DimensionTabs } from "@/components/dimension-tabs";
 import { DefinitionsPanel } from "@/components/definitions-panel";
 import { LifecycleFunnel, CostDonut, MarginBars } from "@/components/charts";
 import { ActOnToday } from "@/components/act-on-today";
+import Link from "next/link";
 import {
   getDashboardData,
   getActOnToday,
   getMtmReporting,
   getKpiDeltas,
   getHeroStats,
+  getRecentDeliveries,
   type DimensionKey,
 } from "@/lib/queries";
 import { formatUsd, formatUsdCompact, formatPct, formatCount } from "@/lib/money";
@@ -39,13 +41,14 @@ export default async function DashboardPage({
     ? (sp.by as DimensionKey)
     : "program";
 
-  const [data, exceptions, mtm, deltas, role, hero] = await Promise.all([
+  const [data, exceptions, mtm, deltas, role, hero, deliveries] = await Promise.all([
     getDashboardData(dim),
     getActOnToday(),
     getMtmReporting(),
     getKpiDeltas(),
     getCurrentRole(),
     getHeroStats(),
+    getRecentDeliveries(6),
   ]);
   const showFin = can(role, "view:financials");
 
@@ -189,6 +192,67 @@ export default async function DashboardPage({
           )}
         </Card>
       </div>
+
+      {/* Recent deliveries — where field-confirmed deliveries (and proof photos) land */}
+      <Card className="mb-6">
+        <CardHeader
+          title="Recent deliveries"
+          subtitle="Field-confirmed deliveries with proof photos — the loop closing in real time."
+          action={
+            <Link href="/deliveries" className="text-xs font-medium text-brand-deep hover:underline">
+              View all →
+            </Link>
+          }
+        />
+        <CardBody>
+          {deliveries.length === 0 ? (
+            <p className="text-sm text-muted">
+              No deliveries recorded yet — record one in the Field App.
+            </p>
+          ) : (
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
+              {deliveries.map((d) => (
+                <Link
+                  key={d.id}
+                  href={`/meals/${d.id}`}
+                  className="block overflow-hidden rounded-lg border border-border transition-colors hover:border-brand-deep"
+                >
+                  {d.deliveryPhotoUrl ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img
+                      src={d.deliveryPhotoUrl}
+                      alt={`Delivery to ${d.cboName}`}
+                      className="h-24 w-full object-cover"
+                    />
+                  ) : (
+                    <div className="grid h-24 w-full place-items-center bg-black/[0.03] text-[10px] text-muted">
+                      No photo
+                    </div>
+                  )}
+                  <div className="px-2 py-1.5">
+                    <div className="truncate text-xs font-medium">{d.cboName}</div>
+                    <div className="mt-0.5 flex items-center justify-between">
+                      <span
+                        className={`text-[10px] uppercase tracking-wide ${d.status === "VERIFIED" ? "text-brand-deep" : "text-muted"}`}
+                      >
+                        {d.status === "VERIFIED" ? "Verified" : "Delivered"}
+                      </span>
+                      {d.deliveredAt && (
+                        <span className="text-[10px] text-muted tnum">
+                          {new Date(d.deliveredAt).toLocaleDateString("en-US", {
+                            month: "short",
+                            day: "numeric",
+                          })}
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                </Link>
+              ))}
+            </div>
+          )}
+        </CardBody>
+      </Card>
 
       {/* Margin by dimension */}
       <Card className="mb-6">
