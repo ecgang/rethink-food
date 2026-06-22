@@ -135,7 +135,7 @@ export function MarginBars({
   return (
     <div role="img" aria-label={label}>
       <ResponsiveContainer width="100%" height={height}>
-        <BarChart layout="vertical" data={data} margin={{ left: 8, right: 44 }}>
+        <BarChart layout="vertical" data={data} margin={{ left: 8, right: 96 }}>
           <XAxis type="number" hide />
           <YAxis
             type="category"
@@ -152,11 +152,38 @@ export function MarginBars({
             {data.map((d) => (
               <Cell key={d.key} fill={d.marginPerMealCents >= 0 ? BRAND : NEG} />
             ))}
+            {/* Value + volume: "$0.80 · 1,240" — rate AND scale, so a small loss
+                on a big market reads differently than one on a tiny market. */}
             <LabelList
               dataKey="marginPerMealCents"
-              position="right"
-              formatter={(v: unknown) => usd(num(v))}
-              style={{ fontSize: 11, fill: "#595954" }}
+              content={(props: {
+                x?: number | string;
+                y?: number | string;
+                width?: number | string;
+                height?: number | string;
+                index?: number;
+              }) => {
+                const d = props.index != null ? data[props.index] : undefined;
+                if (!d) return null;
+                const x = Number(props.x);
+                const y = Number(props.y);
+                const w = Number(props.width);
+                const h = Number(props.height);
+                if ([x, y, w, h].some(Number.isNaN)) return null;
+                const positive = d.marginPerMealCents >= 0;
+                return (
+                  <text
+                    x={positive ? x + w + 6 : x - 6}
+                    y={y + h / 2}
+                    textAnchor={positive ? "start" : "end"}
+                    dominantBaseline="central"
+                    style={{ fontSize: 11 }}
+                  >
+                    <tspan fill="#1c1c1a">{usd(d.marginPerMealCents)}</tspan>
+                    <tspan fill="#9a9a93"> · {d.mealCount.toLocaleString()}</tspan>
+                  </text>
+                );
+              }}
             />
           </Bar>
         </BarChart>
