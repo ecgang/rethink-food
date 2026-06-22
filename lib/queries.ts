@@ -148,9 +148,9 @@ function dimensionKeyOf(dim: DimensionKey, m: EconMeal): string | null {
   }
 }
 
-export async function getDashboardData(
+export const getDashboardData = cache(async (
   dim: DimensionKey = "program",
-): Promise<DashboardData> {
+): Promise<DashboardData> => {
   const meals = await loadEconMeals();
 
   const funnel = { planned: 0, produced: 0, delivered: 0, verified: 0 };
@@ -192,7 +192,7 @@ export async function getDashboardData(
     dimensionLabel: DIMENSION_LABELS[dim],
     marginByDimension: grouped,
   };
-}
+});
 
 /** The "act on today" feed — runs the exception engine against live data. */
 export async function getActOnToday(now: Date = new Date()): Promise<ExceptionItem[]> {

@@ -28,18 +28,30 @@ function StatNumber({ value, label, suffix, compact }: HeroStat) {
   );
 }
 
+/** The row of giant green mission numbers — animates a count-up on mount. */
+export function HeroStatsRow({ stats }: { stats: HeroStat[] }) {
+  return (
+    <>
+      {stats.map((s) => (
+        <StatNumber key={s.label} {...s} />
+      ))}
+    </>
+  );
+}
+
 /**
- * Full-bleed black editorial band: oversized title + giant green mission numbers.
- * Echoes rethinkfood.org's "big black field, green interruption, giant number."
+ * Full-bleed black editorial band: oversized title + a slot for the giant green
+ * mission numbers. The stats are passed as `children` so they can stream in
+ * behind a skeleton via <Suspense>.
  */
 export function HeroBand({
   eyebrow,
   title,
-  stats = [],
+  children,
 }: {
   eyebrow: string;
   title: string;
-  stats?: HeroStat[];
+  children?: React.ReactNode;
 }) {
   return (
     <div className="bg-foreground text-background">
@@ -52,12 +64,8 @@ export function HeroBand({
             {title}
           </h1>
         </div>
-        {stats.length > 0 && (
-          <div className="flex flex-wrap items-end gap-x-10 gap-y-4">
-            {stats.map((s) => (
-              <StatNumber key={s.label} {...s} />
-            ))}
-          </div>
+        {children && (
+          <div className="flex flex-wrap items-end gap-x-8 gap-y-4">{children}</div>
         )}
       </div>
     </div>
