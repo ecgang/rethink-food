@@ -30,7 +30,7 @@ export function CardHeader({
   action?: React.ReactNode;
 }) {
   return (
-    <div className="flex items-start justify-between gap-3 px-5 pt-4 pb-3 border-b border-border">
+    <div className="flex flex-wrap items-start justify-between gap-3 px-5 pt-4 pb-3 border-b border-border">
       <div>
         <h2 className="flex items-center gap-2 text-xs font-bold uppercase tracking-[0.16em]">
           <span className="text-brand-deep" aria-hidden>

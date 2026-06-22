@@ -18,7 +18,7 @@ export interface KpiBlock {
  */
 export function KpiStrip({ items }: { items: KpiBlock[] }) {
   return (
-    <div className="grid grid-cols-2 lg:grid-cols-4 divide-x divide-y lg:divide-y-0 divide-border border-y border-border bg-surface">
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 divide-y sm:divide-x lg:divide-y-0 divide-border border-y border-border bg-surface">
       {items.map((it) => {
         const tone =
           it.tone === "pos"
@@ -30,11 +30,11 @@ export function KpiStrip({ items }: { items: KpiBlock[] }) {
                 : "text-foreground";
         if (it.locked) {
           return (
-            <div key={it.label} className="px-5 py-6">
+            <div key={it.label} className="px-4 py-5 sm:px-5 sm:py-6">
               <div className="text-[0.625rem] uppercase tracking-[0.2em] text-muted">
                 {it.label}
               </div>
-              <div className="mt-2 font-display font-black tracking-tight text-[clamp(2rem,3.2vw,3rem)] leading-none text-muted/50">
+              <div className="mt-2 font-display font-black tracking-tight text-[clamp(1.5rem,7vw,2.75rem)] leading-none text-muted/50">
                 •••
               </div>
               <div className="mt-2 flex items-center gap-1 text-xs text-muted">
@@ -44,14 +44,14 @@ export function KpiStrip({ items }: { items: KpiBlock[] }) {
           );
         }
         return (
-          <div key={it.label} className="px-5 py-6">
+          <div key={it.label} className="px-4 py-5 sm:px-5 sm:py-6">
             <div className="text-[0.625rem] uppercase tracking-[0.2em] text-muted">
               {it.label}
             </div>
-            <div className="mt-2 flex items-baseline gap-2">
+            <div className="mt-2 flex flex-wrap items-baseline gap-x-2 gap-y-1">
               <span
                 className={cn(
-                  "font-display font-black tracking-tight tnum text-[clamp(2rem,3.2vw,3rem)] leading-none",
+                  "font-display font-black tracking-tight tnum text-[clamp(1.5rem,7vw,2.75rem)] leading-none",
                   tone,
                 )}
               >

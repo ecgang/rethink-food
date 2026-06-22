@@ -43,7 +43,7 @@ export function HeroBand({
 }) {
   return (
     <div className="bg-foreground text-background">
-      <div className="flex flex-wrap items-end justify-between gap-x-10 gap-y-6 px-8 py-9">
+      <div className="flex flex-wrap items-end justify-between gap-x-8 gap-y-6 px-5 py-7 sm:px-8 sm:py-9">
         <div>
           <div className="text-[0.7rem] uppercase tracking-[0.22em] text-brand font-semibold">
             {eyebrow}

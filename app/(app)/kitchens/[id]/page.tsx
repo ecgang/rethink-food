@@ -26,7 +26,7 @@ export default async function KitchenDetailPage({
   const overBudget = overage >= 0.2;
 
   return (
-    <div className="px-8 py-7 max-w-[1100px]">
+    <div className="px-4 py-6 sm:px-6 lg:px-8 max-w-[1100px]">
       <Link href="/" className="text-xs text-muted hover:underline">
         ← Command Center
       </Link>
@@ -95,8 +95,8 @@ export default async function KitchenDetailPage({
             <p className="text-sm text-muted">No meals yet.</p>
           </CardBody>
         ) : (
-          <div className="overflow-hidden">
-            <table className="w-full text-sm">
+          <div className="overflow-x-auto">
+            <table className="w-full min-w-[480px] text-sm">
               <thead className="bg-black/[0.02] text-xs text-muted">
                 <tr>
                   <th className="text-left font-medium px-5 py-2">Date</th>

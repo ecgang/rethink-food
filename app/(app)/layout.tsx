@@ -1,4 +1,5 @@
 import { Sidebar } from "@/components/sidebar";
+import { MobileTopBar } from "@/components/mobile-topbar";
 import { MarqueeBar } from "@/components/marquee-bar";
 import { getCurrentRole } from "@/lib/current-role";
 
@@ -18,7 +19,10 @@ export default async function AppLayout({
       <MarqueeBar />
       <div className="flex min-h-screen">
         <Sidebar role={role} />
-        <main className="flex-1 min-w-0">{children}</main>
+        <main className="flex-1 min-w-0 pb-20 lg:pb-0">
+          <MobileTopBar role={role} />
+          {children}
+        </main>
       </div>
     </>
   );

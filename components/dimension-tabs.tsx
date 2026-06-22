@@ -22,13 +22,13 @@ export function DimensionTabs({ current }: { current: string }) {
   }
 
   return (
-    <div className="inline-flex rounded-lg border border-border bg-surface p-0.5">
+    <div className="flex max-w-full overflow-x-auto rounded-lg border border-border bg-surface p-0.5">
       {DIMS.map((d) => (
         <button
           key={d.key}
           onClick={() => select(d.key)}
           className={cn(
-            "rounded-md px-3 py-1.5 text-xs font-semibold transition-colors outline-none focus-visible:ring-2 focus-visible:ring-brand-deep focus-visible:ring-offset-1",
+            "shrink-0 whitespace-nowrap rounded-md px-3 py-1.5 text-xs font-semibold transition-colors outline-none focus-visible:ring-2 focus-visible:ring-brand-deep focus-visible:ring-offset-1",
             current === d.key
               ? "bg-brand text-brand-ink"
               : "text-foreground/65 hover:text-foreground",

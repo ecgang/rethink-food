@@ -43,7 +43,7 @@ export default async function MealDetailPage({
   ];
 
   return (
-    <div className="px-8 py-7 max-w-[1100px]">
+    <div className="px-4 py-6 sm:px-6 lg:px-8 max-w-[1100px]">
       <Link href="/meals" className="text-xs text-muted hover:underline">
         ← All records
       </Link>

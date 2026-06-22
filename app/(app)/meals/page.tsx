@@ -35,7 +35,7 @@ export default async function MealsExplorerPage({
   const active = sp.status ?? "";
 
   return (
-    <div className="px-8 py-7 max-w-[1300px]">
+    <div className="px-4 py-6 sm:px-6 lg:px-8 max-w-[1300px]">
       <PageHeader title="Meal records" subtitle="Every meal in the system — filter and drill into any one." />
 
       {/* status filter */}
@@ -68,7 +68,7 @@ export default async function MealsExplorerPage({
           <div className="px-5 py-10 text-center text-sm text-muted">No meals match these filters.</div>
         ) : (
           <div className="overflow-x-auto">
-            <table className="w-full text-sm">
+            <table className="w-full min-w-[720px] text-sm">
               <thead className="bg-black/[0.02] text-xs text-muted">
                 <tr>
                   <th className="text-left font-medium px-5 py-2">Date</th>

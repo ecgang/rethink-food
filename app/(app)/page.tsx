@@ -84,8 +84,8 @@ export default async function DashboardPage({
           { value: Math.round(hero.verifiedRate * 100), label: "Delivered meals verified", suffix: "%" },
         ]}
       />
-      <div className="px-8 py-7 max-w-[1400px]">
-        <div className="mb-3 flex items-center justify-between">
+      <div className="px-4 py-6 sm:px-6 lg:px-8 max-w-[1400px]">
+        <div className="mb-3 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
           <p className="text-sm text-muted max-w-2xl">
             Meal volumes, unit economics, delivery performance, and what to act on today — across
             every program, kitchen, and contract.
@@ -295,8 +295,8 @@ export default async function DashboardPage({
               tone={mtm.fulfillmentPct >= 0.9 ? "pos" : "neg"}
             />
           </div>
-          <div className="overflow-hidden rounded-lg border border-border">
-            <table className="w-full text-sm">
+          <div className="overflow-x-auto rounded-lg border border-border">
+            <table className="w-full min-w-[520px] text-sm">
               <thead className="bg-black/[0.02] text-xs text-muted">
                 <tr>
                   <th className="text-left font-medium px-4 py-2">

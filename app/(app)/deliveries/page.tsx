@@ -19,7 +19,7 @@ export default async function DeliveriesPage() {
   const deliveries = await getRecentDeliveries(24);
 
   return (
-    <div className="px-8 py-7 max-w-[1300px]">
+    <div className="px-4 py-6 sm:px-6 lg:px-8 max-w-[1300px]">
       <PageHeader
         title="Recent deliveries"
         subtitle="Field-confirmed deliveries and verification — with the proof photos captured on the ground."
