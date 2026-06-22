@@ -13,6 +13,15 @@ const nextConfig: NextConfig = {
   async headers() {
     return [
       {
+        // Baseline security headers for all routes.
+        source: "/:path*",
+        headers: [
+          { key: "X-Content-Type-Options", value: "nosniff" },
+          { key: "X-Frame-Options", value: "SAMEORIGIN" },
+          { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
+        ],
+      },
+      {
         // Always serve the service worker fresh so clients pick up new versions.
         source: "/sw.js",
         headers: [
