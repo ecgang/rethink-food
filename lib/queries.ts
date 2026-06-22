@@ -17,6 +17,7 @@ import {
 } from "@/lib/aggregates";
 
 const DAY = 24 * 3600 * 1000;
+const WEEK_MS = 7 * DAY;
 // Target food cost per meal used to evaluate kitchens (cents). Kept here as the
 // single policy knob for the "over food budget" exception.
 const FOOD_BUDGET_PER_MEAL_CENTS = 420;
@@ -131,7 +132,7 @@ export interface HeroStats {
  * real time as field operators verify meals.
  */
 export async function getHeroStats(now: Date = new Date()): Promise<HeroStats> {
-  const weekAgo = new Date(now.getTime() - 7 * DAY);
+  const weekAgo = new Date(now.getTime() - WEEK_MS);
   const [statuses, deliveredThisWeek] = await Promise.all([
     prisma.meal.findMany({ select: { status: true } }),
     prisma.meal.count({ where: { deliveredAt: { gte: weekAgo } } }),
@@ -185,7 +186,7 @@ export async function getDemandMap(now: Date = new Date()): Promise<DemandMapPoi
       kitchens: { select: { weeklyCapacity: true } },
       restaurants: { select: { weeklyCapacity: true } },
       meals: {
-        where: { deliveredAt: { gte: new Date(now.getTime() - 7 * DAY) } },
+        where: { deliveredAt: { gte: new Date(now.getTime() - WEEK_MS) } },
         select: { id: true },
       },
     },
@@ -407,7 +408,7 @@ export async function getKitchenDetail(id: string, now: Date = new Date()): Prom
     },
   });
   if (!k) return null;
-  const weekAgo = now.getTime() - 7 * DAY;
+  const weekAgo = now.getTime() - WEEK_MS;
   const econOf = (m: { program: { reimbursementRateCents: number }; costLineItems: { type: string; amountCents: number }[] }) =>
     mealEcon({
       reimbursementCents: m.program.reimbursementRateCents,
@@ -490,7 +491,7 @@ export async function getMealsExplorer(f: ExplorerFilters = {}): Promise<Explore
     total,
     capped: total > LIMIT,
     rows: rows.map((r) => {
-      const realized = r.status === "DELIVERED" || r.status === "VERIFIED";
+      const realized = isRealized(r.status);
       const econ = mealEcon({
         reimbursementCents: r.program.reimbursementRateCents,
         costLineItems: r.costLineItems.map((c) => ({ type: c.type as CostType, amountCents: c.amountCents })),
