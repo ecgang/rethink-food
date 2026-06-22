@@ -38,7 +38,7 @@ export function Sidebar({ role }: { role: RoleKey }) {
               R
             </span>
             <div className="leading-tight">
-              <div className="font-display font-extrabold text-base tracking-tight">Rethink</div>
+              <div className="font-display font-extrabold text-base tracking-tight">Rethink Food</div>
               <div className="text-[11px] text-muted">Command Center</div>
             </div>
           </div>

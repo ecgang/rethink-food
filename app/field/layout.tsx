@@ -9,7 +9,7 @@ export const metadata: Metadata = {
 };
 
 // Field operators work on a phone, often offline. This standalone chrome drops
-// the exec sidebar/marquee in favor of a single-column, thumb-reachable layout.
+// the exec sidebar in favor of a single-column, thumb-reachable layout.
 export default async function FieldLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {

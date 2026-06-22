@@ -76,29 +76,8 @@ body {
   animation: reveal 0.28s ease-out;
 }
 
-/* editorial scrolling marquee (doubled content, translate -50%) */
-@keyframes marquee {
-  from {
-    transform: translateX(0);
-  }
-  to {
-    transform: translateX(-50%);
-  }
-}
-.marquee-track {
-  display: inline-flex;
-  white-space: nowrap;
-  animation: marquee 38s linear infinite;
-}
-.marquee-track:hover {
-  animation-play-state: paused;
-}
-
 @media (prefers-reduced-motion: reduce) {
   .reveal {
-    animation: none;
-  }
-  .marquee-track {
     animation: none;
   }
   * {

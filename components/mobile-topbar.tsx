@@ -20,7 +20,7 @@ export function MobileTopBar({ role }: { role: RoleKey }) {
         <span className="grid h-6 w-6 place-items-center rounded-md bg-brand text-brand-ink font-display font-extrabold text-xs shrink-0">
           R
         </span>
-        <span className="truncate font-display text-sm font-extrabold tracking-tight">Rethink</span>
+        <span className="truncate font-display text-sm font-extrabold tracking-tight">Rethink Food</span>
       </div>
       <div className="flex shrink-0 items-center gap-1" role="group" aria-label="Viewing as">
         {(Object.keys(ROLES) as RoleKey[]).map((k) => (

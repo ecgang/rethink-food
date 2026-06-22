@@ -20,7 +20,6 @@ import {
 import type {
   DashboardData,
   KpiDeltas,
-  MarqueeStats,
   MtmReporting,
 } from "@/lib/queries";
 import {
@@ -243,21 +242,6 @@ export async function getKpiDeltasAgg(now: Date = new Date()): Promise<KpiDeltas
     mealsPct: pct(cur.mealCount, prior.mealCount),
     marginPct: pct(cur.marginCents, prior.marginCents),
     marginPerMealPct: pct(curPerMeal, priorPerMeal),
-  };
-}
-
-export async function getMarqueeStatsAgg(now: Date = new Date()): Promise<MarqueeStats> {
-  const weekAgo = new Date(now.getTime() - 7 * DAY);
-  const monthAgo = new Date(now.getTime() - 30 * DAY);
-  const [week, month, pendingIntake] = await Promise.all([
-    realizedTotals({ deliveredAt: { gte: weekAgo } }),
-    realizedTotals({ deliveredAt: { gte: monthAgo } }),
-    prisma.intakeRequest.count({ where: { status: "PENDING" } }),
-  ]);
-  return {
-    deliveredThisWeek: week.mealCount,
-    contributionMonthCents: month.marginCents,
-    pendingIntake,
   };
 }
 

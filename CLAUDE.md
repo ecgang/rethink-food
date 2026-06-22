@@ -60,3 +60,32 @@ When spawning subagents (Agent/Task tool), the routing block is automatically in
 | `ctx stats` | Call the `ctx_stats` MCP tool and display the full output verbatim |
 | `ctx doctor` | Call the `ctx_doctor` MCP tool, run the returned shell command, display as checklist |
 | `ctx upgrade` | Call the `ctx_upgrade` MCP tool, run the returned shell command, display as checklist |
+
+---
+
+# Rethink Command Center — project guide
+
+Next.js 16 portfolio app: a food-ops "Command Center" dashboard, AI intake, and demand map. Real NYC data, Prisma/Postgres, live Anthropic intake.
+
+## ⚠️ Next.js 16 — read the docs before writing code
+This is **Next.js 16.2.9** (App Router / RSC / Server Actions) + **React 19**. APIs and conventions differ from older Next.js. Before writing Next.js code, read the relevant guide in `node_modules/next/dist/docs/`. Heed deprecation notices. (Mirrors AGENTS.md.)
+
+## Commands Claude can't guess
+- `npm test` → `vitest run` (single test: `npx vitest run -t "name"`). `npm run test:watch` for watch.
+- `npm run typecheck` → `tsc --noEmit`. `npm run lint` → eslint.
+- `npm run build` → `prisma generate && next build` (needs `DATABASE_URL` set, even though no DB connection is made at build).
+- `npm run db:seed` → `tsx prisma/seed.ts` (reads committed `data/*.json`, plants anomalies for the "act on today" engine).
+- `npm run ingest` → regenerates `data/*.json` from NYC Open Data + rethinkfood.org (deterministic, offline-safe snapshots — commit the output).
+- **CI** (`.github/workflows/ci.yml`, Node 20) runs: `npm ci` → `prisma generate` → typecheck → test → build. Keep all four green.
+
+## Database / Prisma
+- **Prisma is pinned to v6 (6.19.3) — do not upgrade to v7.**
+- Local dev = Docker Postgres on **port 5433** (not 5432). `DATABASE_URL` in `.env`.
+- `prisma migrate dev` / `migrate reset` are interactive and **gated in this env** — for schema changes use `prisma migrate diff` → `prisma migrate deploy`. Reseed Neon with `DATABASE_URL=$DATABASE_URL_UNPOOLED npx prisma db seed`.
+
+## Conventions / gotchas
+- **Tailwind v4** — no `tailwind.config.ts`; config is the PostCSS plugin. TS path alias `@/*` → `./`; `strict: true`.
+- **AI intake**: `/intake` uses the live Anthropic model (`claude-haiku-4-5`) when `ANTHROPIC_API_KEY` is set; otherwise falls back to a deterministic parser. Don't assume the key exists.
+- Core tested logic lives in `lib/` — `margin.ts` (unit economics), `exceptions.ts` (act-on-today engine), `definitions.ts` (canonical metrics). Add tests when touching these.
+- `data/*.json` are committed real-data snapshots (NYC NTA 2020, Rethink's real partner roster, food-insecurity) — the source of truth for the seed; regenerate via `npm run ingest`, don't hand-edit.
+- Docs: `docs/ARCHITECTURE.md` (data dictionary), `docs/DECISIONS.md` (ADR log), `docs/DEMO_SCRIPT.md`.

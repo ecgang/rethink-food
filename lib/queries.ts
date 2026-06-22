@@ -17,7 +17,6 @@ import {
   getDashboardDataAgg,
   getActOnTodayAgg,
   getKpiDeltasAgg,
-  getMarqueeStatsAgg,
   getMtmReportingAgg,
 } from "@/lib/aggregates";
 import { marketSlug } from "@/lib/partners";
@@ -67,15 +66,6 @@ export interface KpiDeltas {
 
 /** Recent momentum: current 7-day vs prior 7-day window on realized meals. */
 export const getKpiDeltas = getKpiDeltasAgg;
-
-export interface MarqueeStats {
-  deliveredThisWeek: number;
-  contributionMonthCents: number;
-  pendingIntake: number;
-}
-
-/** Small live figures for the editorial marquee bar. */
-export const getMarqueeStats = getMarqueeStatsAgg;
 
 /**
  * The frontline operator queue for the /field PWA: every meal awaiting a
