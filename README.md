@@ -5,7 +5,7 @@ Rethink Food's *Lead Full-Stack Engineer* posting. Built as a focused demo of th
 thesis: *turn a complicated, real-world food system into software that a frontline operator can
 act on in seconds and a CEO can understand at a glance.*
 
-**▶ Live demo: https://rethink-food.vercel.app**  ·  pages: [Command Center](https://rethink-food.vercel.app/) · [AI Intake](https://rethink-food.vercel.app/intake) · [Demand Map](https://rethink-food.vercel.app/map)
+**▶ Live demo: https://rethink-food.ericgang.com**  ·  pages: [Command Center](https://rethink-food.ericgang.com/) · [AI Intake](https://rethink-food.ericgang.com/intake) · [Demand Map](https://rethink-food.ericgang.com/map)
 
 > Demo build, not affiliated with Rethink Food. **Geography, restaurants, community partners,
 > food-insecurity rates, and Social Care Networks are real** (NYC Open Data, Feeding America,
