@@ -317,18 +317,30 @@ export interface DeliveryFeedItem {
 
 /** Most recent deliveries — the proof feed where field photos surface. */
 export async function getRecentDeliveries(limit = 12): Promise<DeliveryFeedItem[]> {
-  const rows = await prisma.meal.findMany({
-    where: { deliveredAt: { not: null } },
-    orderBy: { deliveredAt: "desc" },
-    take: limit,
-    select: {
-      id: true, status: true, deliveredAt: true, verifiedAt: true,
-      deliveredBy: true, verifiedBy: true, deliveryPhotoUrl: true,
-      program: { select: { name: true } },
-      cbo: { select: { name: true } },
-      market: { select: { borough: true, neighborhood: true } },
-    },
-  });
+  const select = {
+    id: true, status: true, deliveredAt: true, verifiedAt: true,
+    deliveredBy: true, verifiedBy: true, deliveryPhotoUrl: true,
+    program: { select: { name: true } },
+    cbo: { select: { name: true } },
+    market: { select: { borough: true, neighborhood: true } },
+  } as const;
+  // Surface real field-captured proof photos first (they're rare — only the
+  // operator PWA captures them), then fill the rest with the most recent
+  // deliveries, so the strip leads with proof rather than empty tiles.
+  const [withPhoto, recent] = await Promise.all([
+    prisma.meal.findMany({
+      where: { deliveredAt: { not: null }, deliveryPhotoUrl: { not: null } },
+      orderBy: { deliveredAt: "desc" }, take: limit, select,
+    }),
+    prisma.meal.findMany({
+      where: { deliveredAt: { not: null } },
+      orderBy: { deliveredAt: "desc" }, take: limit, select,
+    }),
+  ]);
+  const seen = new Set<string>();
+  const rows = [...withPhoto, ...recent]
+    .filter((r) => (seen.has(r.id) ? false : seen.add(r.id)))
+    .slice(0, limit);
   return rows.map((r) => ({
     id: r.id,
     status: r.status as "DELIVERED" | "VERIFIED",
