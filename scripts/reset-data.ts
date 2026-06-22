@@ -11,7 +11,6 @@ async function main() {
   await p.mealCostLineItem.deleteMany();
   await p.meal.deleteMany();
   await p.intakeRequest.deleteMany();
-  await p.exception.deleteMany();
   await p.member.deleteMany();
   await p.contract.deleteMany();
   await p.program.deleteMany();

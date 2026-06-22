@@ -84,7 +84,6 @@ async function main() {
   await prisma.mealCostLineItem.deleteMany();
   await prisma.meal.deleteMany();
   await prisma.intakeRequest.deleteMany();
-  await prisma.exception.deleteMany();
   await prisma.member.deleteMany();
   await prisma.contract.deleteMany();
   await prisma.program.deleteMany();
