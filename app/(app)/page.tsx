@@ -6,7 +6,8 @@ import { KpiStrip } from "@/components/kpi-strip";
 import { HeroBand, HeroStatsRow } from "@/components/hero-band";
 import { DimensionTabs } from "@/components/dimension-tabs";
 import { DefinitionsPanel } from "@/components/definitions-panel";
-import { LifecycleFunnel, CostDonut, MarginBars } from "@/components/charts";
+import { CostDonut, MarginBars } from "@/components/charts";
+import { LifecyclePipeline } from "@/components/lifecycle-pipeline";
 import { ActOnToday } from "@/components/act-on-today";
 import {
   HeroStatsSkeleton,
@@ -98,7 +99,7 @@ export default async function DashboardPage({
           </Card>
 
           <Card>
-            <CardHeader title="Meal lifecycle" subtitle="Planned → produced → delivered → verified" />
+            <CardHeader title="Meals in flight" subtitle="Where meals are right now — and what's blocking the bill" />
             <CardBody>
               <Suspense fallback={<ChartSkeleton height={200} />}>
                 <FunnelSection dim={dim} />
@@ -235,13 +236,7 @@ async function ActSection() {
 
 async function FunnelSection({ dim }: { dim: DimensionKey }) {
   const data = await getDashboardData(dim);
-  const funnelData = [
-    { stage: "Planned", count: data.funnel.planned },
-    { stage: "Produced", count: data.funnel.produced },
-    { stage: "Delivered", count: data.funnel.delivered },
-    { stage: "Verified", count: data.funnel.verified },
-  ];
-  return <LifecycleFunnel data={funnelData} />;
+  return <LifecyclePipeline {...data.funnel} />;
 }
 
 async function CostSection({ dim }: { dim: DimensionKey }) {
