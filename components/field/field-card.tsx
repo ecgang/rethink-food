@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState, useTransition } from "react";
+import { useEffect, useRef, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { markDelivered, markVerified } from "@/app/actions/field";
 
@@ -48,13 +48,26 @@ export function FieldCard(props: FieldCardData) {
   const [error, setError] = useState<string | null>(null);
   const [pending, startTransition] = useTransition();
 
+  useEffect(() => {
+    return () => {
+      if (preview) URL.revokeObjectURL(preview);
+    };
+  }, [preview]);
+
   async function onPick(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
     if (!file) return;
     setError(null);
-    const small = await downscale(file);
-    setPhoto(small);
-    setPreview(URL.createObjectURL(small));
+    try {
+      const small = await downscale(file);
+      setPhoto(small);
+      setPreview((prev) => {
+        if (prev) URL.revokeObjectURL(prev);
+        return URL.createObjectURL(small);
+      });
+    } catch {
+      setError("Couldn't process that photo — try again.");
+    }
   }
 
   function runDeliver() {
