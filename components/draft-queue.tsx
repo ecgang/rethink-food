@@ -11,6 +11,7 @@ const KIND_LABEL: Record<DraftCommKind, string> = {
   DELIVERY_NUDGE: "Delivery nudge",
   RECONCILIATION_FLAG: "Reconciliation",
   REPORT_NARRATIVE: "Report narrative",
+  INCIDENT_NOTICE: "Incident notice",
 };
 
 const STATUS_STYLES: Record<DraftDTO["status"], string> = {

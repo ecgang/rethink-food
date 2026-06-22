@@ -8,7 +8,7 @@ export type Severity = "LOW" | "MEDIUM" | "HIGH" | "CRITICAL";
 export interface ExceptionItem {
   reasonCode: string;
   severity: Severity;
-  entityType: "Meal" | "Kitchen" | "Contract" | "Member";
+  entityType: "Meal" | "Kitchen" | "Contract" | "Member" | "Incident" | "SafetyCheck";
   entityId: string;
   title: string;
   detail: string;
@@ -45,10 +45,33 @@ export interface ContractSnapshot {
   lastInvoicedAt: Date | null;
 }
 
+// An open incident logged from the kitchen/field. Only HIGH/CRITICAL open ones
+// rise to "act on today"; lower-severity incidents live on the field log.
+export interface IncidentSnapshot {
+  id: string;
+  kind: string; // human label, e.g. "Equipment"
+  severity: Severity;
+  status: "OPEN" | "ACKNOWLEDGED" | "RESOLVED";
+  title: string;
+  kitchenName: string | null;
+}
+
+// A recent food-safety / QA checklist result. A recent failed one is actionable.
+export interface SafetyCheckSnapshot {
+  id: string;
+  kind: "FOOD_SAFETY" | "QUALITY";
+  passed: boolean;
+  checkedAt: Date;
+  kitchenName: string | null;
+}
+
 export interface ExceptionInput {
   meals: MealSnapshot[];
   kitchens: KitchenSnapshot[];
   contracts: ContractSnapshot[];
+  // kitchen & field ops (optional so existing callers/tests need no change)
+  incidents?: IncidentSnapshot[];
+  safetyChecks?: SafetyCheckSnapshot[];
   now: Date;
 }
 
@@ -59,6 +82,7 @@ const FOOD_BUDGET_OVERAGE_PCT = 0.2; // 20% over budget
 const CAPACITY_UNDERUTILIZED_PCT = 0.6; // produced < 60% of capacity
 const BILLING_DUE_SOON_DAYS = 3;
 const INVOICE_CLEARS_BILLING_DAYS = 25; // an invoice this recent covers the cycle
+const SAFETY_CHECK_RECENT_HOURS = 72; // a failed check older than this has aged out
 
 const HOUR_MS = 60 * 60 * 1000;
 const DAY_MS = 24 * HOUR_MS;
@@ -157,6 +181,41 @@ export function detectExceptions(input: ExceptionInput): ExceptionItem[] {
         });
       }
     }
+  }
+
+  // Open, high-severity incidents from the kitchen/field demand attention today.
+  for (const inc of input.incidents ?? []) {
+    const open = inc.status === "OPEN" || inc.status === "ACKNOWLEDGED";
+    if (open && (inc.severity === "HIGH" || inc.severity === "CRITICAL")) {
+      const where = inc.kitchenName ? ` at ${inc.kitchenName}` : "";
+      out.push({
+        reasonCode: "INCIDENT_OPEN",
+        severity: inc.severity,
+        entityType: "Incident",
+        entityId: inc.id,
+        title: `${inc.severity === "CRITICAL" ? "Critical" : "High"} incident: ${inc.title}`,
+        detail: `An open ${inc.kind.toLowerCase()} incident${where} is unresolved.`,
+        recommendedAction: `Resolve or escalate the incident; draft a partner notice if deliveries are affected.`,
+      });
+    }
+  }
+
+  // A recent failed food-safety / QA check is a compliance and quality risk.
+  for (const sc of input.safetyChecks ?? []) {
+    if (sc.passed) continue;
+    const hours = (now.getTime() - sc.checkedAt.getTime()) / HOUR_MS;
+    if (hours > SAFETY_CHECK_RECENT_HOURS) continue;
+    const where = sc.kitchenName ? ` at ${sc.kitchenName}` : "";
+    const isFood = sc.kind === "FOOD_SAFETY";
+    out.push({
+      reasonCode: "SAFETY_CHECK_FAILED",
+      severity: isFood ? "HIGH" : "MEDIUM",
+      entityType: "SafetyCheck",
+      entityId: sc.id,
+      title: `Failed ${isFood ? "food-safety" : "quality"} check${where}`,
+      detail: `A ${isFood ? "food-safety" : "quality-assurance"} checklist failed its required items.`,
+      recommendedAction: `Take corrective action and re-run the check; log an incident if it can't be cleared.`,
+    });
   }
 
   return out.sort(

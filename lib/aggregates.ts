@@ -16,6 +16,8 @@ import {
   type MealSnapshot,
   type KitchenSnapshot,
   type ContractSnapshot,
+  type IncidentSnapshot,
+  type SafetyCheckSnapshot,
 } from "@/lib/exceptions";
 import type {
   DashboardData,
@@ -329,7 +331,8 @@ async function kitchenAggregates(weekAgo: Date): Promise<Map<string, { meals: nu
 
 export async function getActOnTodayAgg(now: Date = new Date()): Promise<ExceptionItem[]> {
   const weekAgo = new Date(now.getTime() - 7 * DAY);
-  const [meals, kitchens, kAgg, contractsRaw] = await Promise.all([
+  const safetyCutoff = new Date(now.getTime() - 3 * DAY); // recent failed checks only
+  const [meals, kitchens, kAgg, contractsRaw, incidentsRaw, safetyRaw] = await Promise.all([
     prisma.meal.findMany({
       where: { status: { in: ["PRODUCED", "DELIVERED"] } },
       select: {
@@ -341,6 +344,14 @@ export async function getActOnTodayAgg(now: Date = new Date()): Promise<Exceptio
     kitchenAggregates(weekAgo),
     prisma.contract.findMany({
       select: { id: true, name: true, billingDeadline: true, lastInvoicedAt: true, funder: { select: { name: true } } },
+    }),
+    prisma.incident.findMany({
+      where: { status: { in: ["OPEN", "ACKNOWLEDGED"] }, severity: { in: ["HIGH", "CRITICAL"] } },
+      select: { id: true, kind: true, severity: true, status: true, title: true, kitchen: { select: { name: true } } },
+    }),
+    prisma.safetyCheck.findMany({
+      where: { passed: false, checkedAt: { gte: safetyCutoff } },
+      select: { id: true, kind: true, passed: true, checkedAt: true, kitchen: { select: { name: true } } },
     }),
   ]);
 
@@ -365,5 +376,18 @@ export async function getActOnTodayAgg(now: Date = new Date()): Promise<Exceptio
     billingDeadline: c.billingDeadline, lastInvoicedAt: c.lastInvoicedAt,
   }));
 
-  return detectExceptions({ meals: mealSnapshots, kitchens: kitchenSnapshots, contracts: contractSnapshots, now });
+  const incidentSnapshots: IncidentSnapshot[] = incidentsRaw.map((i) => ({
+    id: i.id, kind: i.kind.replace(/_/g, " "), severity: i.severity, status: i.status,
+    title: i.title, kitchenName: i.kitchen?.name ?? null,
+  }));
+
+  const safetyCheckSnapshots: SafetyCheckSnapshot[] = safetyRaw.map((s) => ({
+    id: s.id, kind: s.kind, passed: s.passed, checkedAt: s.checkedAt,
+    kitchenName: s.kitchen?.name ?? null,
+  }));
+
+  return detectExceptions({
+    meals: mealSnapshots, kitchens: kitchenSnapshots, contracts: contractSnapshots,
+    incidents: incidentSnapshots, safetyChecks: safetyCheckSnapshots, now,
+  });
 }

@@ -12,8 +12,16 @@ function entityHref(type: ExceptionItem["entityType"], id: string): string | und
     case "Meal": return `/meals/${id}`;
     case "Kitchen": return `/kitchens/${id}`;
     case "Contract": return `/contracts/${id}`;
+    case "Incident": return `/field/incidents`;
+    case "SafetyCheck": return `/field/safety`;
     case "Member": return undefined; // no standalone member detail page
   }
+}
+
+// Human label for the "View …" drill-down link.
+function entityLabel(type: ExceptionItem["entityType"]): string {
+  if (type === "SafetyCheck") return "safety check";
+  return type.toLowerCase();
 }
 
 // Which exceptions can spawn a drafted follow-up, and of what kind.
@@ -21,6 +29,7 @@ function draftKindFor(type: ExceptionItem["entityType"]): DraftCommKind | null {
   switch (type) {
     case "Meal": return "DELIVERY_NUDGE";
     case "Contract": return "RECONCILIATION_FLAG";
+    case "Incident": return "INCIDENT_NOTICE";
     default: return null;
   }
 }
@@ -82,7 +91,7 @@ export function BriefingCard({ board }: { board: BriefingBoard }) {
                     <div className="mt-2 flex flex-wrap items-center gap-3">
                       {href && (
                         <Link href={href} className="text-xs font-medium text-brand-deep hover:underline">
-                          View {item.entityType.toLowerCase()} →
+                          View {entityLabel(item.entityType)} →
                         </Link>
                       )}
                       {draftKind && <DraftFollowUpButton kind={draftKind} entityId={item.entityId} />}

@@ -144,6 +144,39 @@ export function draftReconciliationFlag(ctx: ReconciliationFlagCtx): Promise<Dra
   );
 }
 
+export interface IncidentNoticeCtx {
+  title: string;
+  kind: string; // human label, e.g. "Equipment"
+  severity: string; // LOW..CRITICAL
+  kitchenName: string | null;
+  partnerName: string | null; // affected community partner, if the incident links a meal
+}
+
+export function draftIncidentNotice(ctx: IncidentNoticeCtx): Promise<DraftContent> {
+  const who = ctx.partnerName ?? "there";
+  const at = ctx.kitchenName ? ` at ${ctx.kitchenName}` : "";
+  const fallback = (): DraftContent => ({
+    subject: `Service notice: ${ctx.title}`,
+    body:
+      `Hi ${who},\n\n` +
+      `We're writing to let you know about a ${ctx.kind.toLowerCase()} issue${at} that may affect your ` +
+      `upcoming meal service. Our team is actively working to resolve it and we'll follow up as soon as ` +
+      `it's cleared.\n\n` +
+      `We're sorry for any disruption, and thank you for your patience.\n\nRethink Food`,
+    modelUsed: "template-fallback",
+  });
+  const system =
+    "You draft a short, candid, reassuring notice from Rethink Food (a nonprofit food operation) to a " +
+    "community partner about an operational incident that may affect their meal service. Acknowledge the " +
+    "issue, say it's being worked, and do NOT over-promise a resolution time or invent details beyond those " +
+    "provided. Warm and professional. Always call submit_draft.";
+  return generateDraft(
+    system,
+    `Partner: ${who}. Incident: ${ctx.title} (${ctx.kind}, ${ctx.severity})${at}.`,
+    fallback,
+  );
+}
+
 export function draftReportNarrative(
   payload: WeeklyReportPayload,
   audience: "board" | "funder",

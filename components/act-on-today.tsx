@@ -12,6 +12,10 @@ function hrefFor(it: ExceptionItem): string | null {
       return `/contracts/${it.entityId}`;
     case "Kitchen":
       return `/kitchens/${it.entityId}`;
+    case "Incident":
+      return `/field/incidents`;
+    case "SafetyCheck":
+      return `/field/safety`;
     default:
       return null;
   }

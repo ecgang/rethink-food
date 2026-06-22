@@ -11,6 +11,7 @@ import {
   draftDeliveryNudge,
   draftReconciliationFlag,
   draftReportNarrative,
+  draftIncidentNotice,
   type DraftContent,
 } from "@/lib/ai/comms";
 import type { DraftCommKind } from "@prisma/client";
@@ -100,6 +101,26 @@ export async function generateDraftFor(
         reason,
       });
       relatedEntityType = "contract";
+      break;
+    }
+    case "INCIDENT_NOTICE": {
+      const inc = await prisma.incident.findUnique({
+        where: { id: entityId },
+        select: {
+          id: true, title: true, kind: true, severity: true,
+          kitchen: { select: { name: true } },
+          meal: { select: { cbo: { select: { name: true } } } },
+        },
+      });
+      if (!inc) throw new Error("Incident not found.");
+      content = await draftIncidentNotice({
+        title: inc.title,
+        kind: inc.kind.replace(/_/g, " "),
+        severity: inc.severity,
+        kitchenName: inc.kitchen?.name ?? null,
+        partnerName: inc.meal?.cbo?.name ?? null,
+      });
+      relatedEntityType = "incident";
       break;
     }
     case "REPORT_NARRATIVE": {

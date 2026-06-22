@@ -194,3 +194,63 @@ describe("detectExceptions — contract billing", () => {
     expect(out).toEqual([]);
   });
 });
+
+describe("detectExceptions — incidents", () => {
+  it("flags an open HIGH/CRITICAL incident at its own severity", () => {
+    const out = detectExceptions(
+      baseInput({
+        incidents: [
+          { id: "i1", kind: "Equipment", severity: "CRITICAL", status: "OPEN", title: "Walk-in cooler down", kitchenName: "Bronx Community Kitchen" },
+        ],
+      }),
+    );
+    expect(out).toHaveLength(1);
+    expect(out[0].reasonCode).toBe("INCIDENT_OPEN");
+    expect(out[0].severity).toBe("CRITICAL");
+    expect(out[0].entityType).toBe("Incident");
+    expect(out[0].entityId).toBe("i1");
+  });
+
+  it("ignores resolved incidents and low-severity ones", () => {
+    const out = detectExceptions(
+      baseInput({
+        incidents: [
+          { id: "i-res", kind: "Quality", severity: "HIGH", status: "RESOLVED", title: "Packaging", kitchenName: null },
+          { id: "i-low", kind: "Other", severity: "LOW", status: "OPEN", title: "Minor note", kitchenName: null },
+        ],
+      }),
+    );
+    expect(out).toEqual([]);
+  });
+});
+
+describe("detectExceptions — safety checks", () => {
+  it("flags a recent failed food-safety check as HIGH", () => {
+    const out = detectExceptions(
+      baseInput({
+        safetyChecks: [
+          { id: "s1", kind: "FOOD_SAFETY", passed: false, checkedAt: hoursAgo(2), kitchenName: "Bronx Community Kitchen" },
+        ],
+      }),
+    );
+    expect(out).toHaveLength(1);
+    expect(out[0].reasonCode).toBe("SAFETY_CHECK_FAILED");
+    expect(out[0].severity).toBe("HIGH");
+    expect(out[0].entityType).toBe("SafetyCheck");
+  });
+
+  it("rates a failed quality check MEDIUM and ignores passed or aged-out checks", () => {
+    const out = detectExceptions(
+      baseInput({
+        safetyChecks: [
+          { id: "s-q", kind: "QUALITY", passed: false, checkedAt: hoursAgo(1), kitchenName: null },
+          { id: "s-ok", kind: "FOOD_SAFETY", passed: true, checkedAt: hoursAgo(1), kitchenName: null },
+          { id: "s-old", kind: "FOOD_SAFETY", passed: false, checkedAt: hoursAgo(100), kitchenName: null },
+        ],
+      }),
+    );
+    expect(out).toHaveLength(1);
+    expect(out[0].entityId).toBe("s-q");
+    expect(out[0].severity).toBe("MEDIUM");
+  });
+});
