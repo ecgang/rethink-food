@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { LayoutDashboard, Inbox, Map, Smartphone, Table2, PackageCheck, Users } from "lucide-react";
+import { LayoutDashboard, Inbox, Landmark, Map, Smartphone, Table2, PackageCheck, Users } from "lucide-react";
 import { cn } from "@/lib/cn";
 import { RoleSwitcher } from "@/components/role-switcher";
 import type { RoleKey } from "@/lib/roles";
@@ -13,6 +13,7 @@ const NAV = [
   { href: "/deliveries", label: "Deliveries", short: "Proof", icon: PackageCheck },
   { href: "/intake", label: "AI Intake", short: "Intake", icon: Inbox },
   { href: "/partners", label: "Partners", short: "Partners", icon: Users },
+  { href: "/funders", label: "Funders", short: "Funders", icon: Landmark },
   { href: "/map", label: "Demand Map", short: "Map", icon: Map },
   { href: "/field", label: "Field App", short: "Field", icon: Smartphone },
 ] as const;
