@@ -5,14 +5,14 @@ import { HeroStatsRow } from "@/components/hero-band";
 export const metadata: Metadata = {
   title: "Rethink Command Center — built for your Lead Full-Stack Engineer role",
   description:
-    "A working demo of the Rethink Command Center, AI intake, and network marketplace — built by Eric Gang for Rethink Food's Lead Full-Stack Engineer search, grounded in real NYC data.",
+    "A working demo of the Rethink Command Center — a human-reviewed AI operating layer, an installable field app, AI intake, and a network marketplace — built by Eric Gang for Rethink Food's Lead Full-Stack Engineer search, grounded in real NYC data.",
 };
 
 const REPO = "https://github.com/ecgang/rethink-food";
 const ARCH = `${REPO}/blob/main/docs/ARCHITECTURE.md`;
 const DECISIONS = `${REPO}/blob/main/docs/DECISIONS.md`;
 
-const TOUR: { href: string; title: string; note: string; cta: string }[] = [
+const TOUR: { href: string; title: string; note: string; cta: string; badge?: string }[] = [
   {
     href: "/",
     title: "Command Center",
@@ -20,10 +20,23 @@ const TOUR: { href: string; title: string; note: string; cta: string }[] = [
     cta: "Open the dashboard",
   },
   {
+    href: "/ask",
+    title: "AI operating layer",
+    note: "A human-reviewed layer on top of the deterministic engines — the model narrates, drafts, and retrieves, but never computes a number. Ask plain-English questions and get cited answers that link to the real record; scan an AI “today’s briefing” of what needs action; and draft partner follow-ups, reconciliation notes, and a board narrative into an approve-or-discard queue that never auto-sends.",
+    cta: "Ask the operating layer",
+  },
+  {
     href: "/intake",
     title: "AI Intake",
     note: "Paste a partner’s free-text email; Claude extracts a structured request with per-field confidence. An operator approves before anything is written — human-in-the-loop, with an input-safety guardrail and an eval harness behind it.",
     cta: "Try the intake",
+  },
+  {
+    href: "/field",
+    title: "Field operator app",
+    badge: "Installable PWA",
+    note: "A mobile-first companion to the Command Center: a frontline operator installs it to their phone’s home screen, taps a delivery, snaps a proof photo, and marks it delivered or verified. Each action clears the matching “act on today” exception live and ticks the verified-rate up — closing the produced→delivered→verified loop from the field.",
+    cta: "Open the field app",
   },
   {
     href: "/map",
@@ -40,7 +53,7 @@ const TOUR: { href: string; title: string; note: string; cta: string }[] = [
   {
     href: "/audit",
     title: "Audit trail",
-    note: "Every operator action — approvals, fulfillments, deliveries, invoices — attributed and timestamped. The “auditability” the posting asks for, made visible.",
+    note: "Every operator action — approvals, fulfillments, deliveries, invoices, and AI-draft reviews — attributed and timestamped. The “auditability” the posting asks for, made visible.",
     cta: "Open the audit log",
   },
 ];
@@ -64,9 +77,10 @@ export default function ForRethinkPage() {
           <p className="mt-6 max-w-2xl text-base leading-relaxed text-background/80 sm:text-lg">
             I’m <span className="text-background">Eric Gang</span>. I built a working version of
             the operating system described in your <span className="text-background">Lead Full-Stack
-            Engineer</span> posting — the Command Center, the AI intake layer, and the network
-            marketplace loop — grounded in <span className="text-brand">real NYC data</span>. This
-            page is a 60-second tour; everything it links to is live and clickable.
+            Engineer</span> posting — the Command Center, a <span className="text-background">human-reviewed
+            AI operating layer</span>, an installable field app, and the network marketplace loop —
+            grounded in <span className="text-brand">real NYC data</span>. This page is a short
+            tour; everything it links to is live and clickable.
           </p>
 
           <div className="mt-8 flex flex-wrap items-center gap-3">
@@ -89,7 +103,7 @@ export default function ForRethinkPage() {
           <div className="mt-12 flex flex-wrap gap-x-12 gap-y-6">
             <HeroStatsRow
               stats={[
-                { value: 257, label: "automated tests · CI-green" },
+                { value: 279, label: "automated tests · CI-green" },
                 { value: 87, label: "real NYC partners (restaurants + CBOs)" },
                 { value: 3, label: "end-to-end product clusters shipped" },
               ]}
@@ -104,8 +118,8 @@ export default function ForRethinkPage() {
           A guided tour
         </h2>
         <p className="mt-2 max-w-2xl text-muted">
-          Five surfaces, each with what to look at. They’re live — click in, switch roles,
-          paste an email, run a match.
+          Each surface is live, with what to look at. Click in, switch roles, ask the operating
+          layer a question, paste an email, install the field app, run a match.
         </p>
 
         <ol className="mt-8 grid gap-4 sm:grid-cols-2">
@@ -119,6 +133,11 @@ export default function ForRethinkPage() {
                   {String(i + 1).padStart(2, "0")}
                 </span>
                 <h3 className="font-display text-lg font-bold tracking-tight">{t.title}</h3>
+                {t.badge && (
+                  <span className="ml-auto self-center rounded-full bg-brand/15 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.12em] text-brand-deep">
+                    {t.badge}
+                  </span>
+                )}
               </div>
               <p className="mt-2 flex-1 text-sm leading-relaxed text-muted">{t.note}</p>
               <Link
@@ -146,7 +165,9 @@ export default function ForRethinkPage() {
                 <span className="font-semibold"> operate</span> (the Command Center) →
                 <span className="font-semibold"> network</span> (partners, the demand map, supply
                 matching) → <span className="font-semibold"> marketplace</span> (an approved intake
-                request becomes scheduled meals, then funder reporting).
+                request becomes scheduled meals, then funder reporting) — with a{" "}
+                <span className="font-semibold">human-reviewed AI operating layer</span> (ask,
+                briefing, drafting) woven across.
               </p>
               <p>
                 <span className="font-semibold">A reliable data foundation.</span> Grounded in NYC
@@ -157,7 +178,7 @@ export default function ForRethinkPage() {
                 test that fails if any two views disagree.
               </p>
               <p>
-                <span className="font-semibold">Production hygiene, not just a demo.</span> 257
+                <span className="font-semibold">Production hygiene, not just a demo.</span> 279
                 tests with CI (typecheck → lint → test → build), an HMAC-signed role cookie with
                 server-side capability gates on every write, atomic scheduling, a{" "}
                 <code className="rounded bg-foreground/[0.06] px-1 py-0.5 text-[0.8em]">/health</code>{" "}
@@ -166,8 +187,9 @@ export default function ForRethinkPage() {
               </p>
               <p>
                 <span className="font-semibold">Build-vs-buy discipline.</span> Full SSO, four-system
-                integrations, and offline field sync are deliberately <em>not</em> built — each a
-                documented decision, because the role screens for shipping over overengineering.
+                integrations, and an offline write-queue for the field app are deliberately{" "}
+                <em>not</em> built — each a documented decision, because the role screens for
+                shipping over overengineering.
               </p>
             </div>
 
@@ -177,9 +199,9 @@ export default function ForRethinkPage() {
                   Stack
                 </h3>
                 <p className="mt-2 text-sm leading-relaxed">
-                  TypeScript · Next.js 16 (App Router, RSC + Server Actions) · PostgreSQL · Prisma ·
-                  Neon · Tailwind v4 · Anthropic SDK (tool use / structured output) · Vitest · GitHub
-                  Actions · Vercel.
+                  TypeScript · Next.js 16 (App Router, RSC + Server Actions) · installable PWA ·
+                  PostgreSQL · Prisma · Neon · Tailwind v4 · Anthropic SDK (tool-use / structured
+                  output / agentic retrieval — no vector DB) · Vitest · GitHub Actions · Vercel.
                 </p>
               </div>
               <div className="rounded-xl border border-border bg-surface p-5">
