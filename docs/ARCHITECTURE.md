@@ -15,7 +15,11 @@
                       │                              │
                       │                              └─ pure domain core: lib/margin.ts, lib/exceptions.ts
                       │
-                      └── Server Actions (intake) ──> lib/intake.ts ──> Anthropic API (tool use)
+                      ├── Server Actions (intake) ──> lib/intake.ts ──> Anthropic API (tool use)
+                      │
+                      └── Server Actions (field) ──> Prisma + Vercel Blob (delivery photos)
+                              ↑
+                        /field — mobile-first operator PWA (installable; sw.js service worker)
 ```
 
 - **One source of truth for economics.** `lib/margin.ts` and `lib/exceptions.ts` are pure,
@@ -33,6 +37,7 @@
 | **Meal** | One prepared meal for one recipient on one `mealDate`, moving through an explicit lifecycle. | `Meal` |
 | **Lifecycle** | `PLANNED → PRODUCED → DELIVERED → VERIFIED`, each with its own timestamp. Status is denormalized for query speed but always derivable from the timestamps. | `Meal.status`, `*At` |
 | **Delivery** | The `DELIVERED` transition (`deliveredAt`). Distinct from **verification** (`verifiedAt`), the partner's confirmation of receipt. | `Meal.deliveredAt`, `verifiedAt` |
+| **Delivery proof** | Operator identity and optional photo captured in the field when a meal is marked DELIVERED or VERIFIED. | `Meal.deliveredBy`, `verifiedBy`, `deliveryPhotoUrl` (Vercel Blob URL) |
 | **Cost** | The sum of a meal's **line items** (`FOOD`, `LABOR`, `TRANSPORT`, `OVERHEAD`). There is deliberately **no** flat `totalCost` column — cost is always composed. | `MealCostLineItem` |
 | **Revenue** | Reimbursement earned per delivered meal, set by the meal's **Program**. | `Program.reimbursementRateCents` |
 | **Contribution margin** | `revenue − cost`, per meal and aggregated. Can be negative. | `lib/margin.ts` |
@@ -59,7 +64,7 @@ Market 1──* Meal *──1 Contract
    └──* Member ──* Meal       (MTM only)
 
 IntakeRequest *──0..1 Cbo     (AI intake audit trail)
-Exception                      (computed live; table reserved for persistence)
+Exception                      (computed live in lib/exceptions.ts; no DB table)
 ```
 
 ## The exception engine (the "act on today" feed)
@@ -94,7 +99,12 @@ in one screen.
 
 ## Deliberate non-goals (scope discipline)
 
-Not built, on purpose: multi-tenant auth/RBAC, kitchen/field mobile ops, inventory, donor
-self-serve reporting, and any ML anomaly model. Each is real production work; none is needed
-to prove the thesis — *can this person turn a messy food operation into software a CEO
-understands at a glance and an operator acts on in seconds?* See the README for the full rationale.
+Not built, on purpose: multi-tenant auth/RBAC, inventory, donor self-serve reporting, and any
+ML anomaly model. Each is real production work; none is needed to prove the thesis — *can this
+person turn a messy food operation into software a CEO understands at a glance and an operator
+acts on in seconds?* See the README for the full rationale.
+
+Since shipped: a mobile-first `/field` operator PWA closing the produced→delivered→verified
+loop — operators mark deliveries, capture proof photos, and verify receipts from any phone.
+The hero metrics (`mealsTracked`, delivered this week, verified rate via `getHeroStats()`)
+are computed live from the meal lifecycle, not static marketing figures.

@@ -8,8 +8,8 @@ the decision, why, the tradeoff, and what would change it.
 
 ### 1. Scope: go deep on the Command Center + one AI workflow, not wide on all four product areas
 **Why.** The posting screens explicitly for "distinguish an essential workflow from an impressive but unnecessary feature" and "bias toward shipping rather than overengineering." A shallow touch of all four areas would signal the opposite. The Command Center is the 6-month flagship; the AI intake proves the AI-layer requirements.
-**Tradeoff.** No kitchen/field mobile tools, inventory, or donor portal in the demo.
-**Revisit if.** A reviewer wants to see field-ops UX — that's the documented next slice.
+**Tradeoff.** No inventory or donor portal in the demo; field operator UX shipped as ADR 12.
+**Revisit if.** A reviewer wants to see more field-ops depth beyond the delivery proof flow.
 
 ### 2. Frame the data around Medically Tailored Meals (Medicaid 1115 waiver)
 **Why.** It's Rethink's newest, most reimbursement-driven, most audit-heavy program. Modeling Social Care Networks (PHS/SOMOS/SIPPS), delivered-vs-prescribed, and contract billing shows we understand their actual funding mechanics, not a generic food-bank dashboard.
@@ -54,4 +54,16 @@ the decision, why, the tradeoff, and what would change it.
 ---
 
 ## Roadmap (deferred on purpose)
-Hard auth + RBAC · live-model eval gating in CI · push aggregation to SQL/BigQuery at scale · HubSpot/Workspace/Slack source reconciliation · mobile field-ops tools. Each is real production work; none is needed to prove the thesis.
+Hard auth + RBAC · live-model eval gating in CI · push aggregation to SQL/BigQuery at scale · HubSpot/Workspace/Slack source reconciliation · offline write queue for field app. Each is real production work; none is needed to prove the thesis.
+
+---
+
+### 12. Field operator PWA + Vercel Blob for delivery proof
+**Why.** The produced→delivered→verified loop was incomplete without a field-facing tool. Operators needed to mark deliveries and capture proof photos from a phone, without installing a native app. A PWA (`/field`) reuses the existing Prisma layer and server actions — one codebase, one deploy, zero install friction. Delivery photos go to Vercel Blob; the public URL lands on `Meal.deliveryPhotoUrl`, degrading gracefully when no Blob token is configured.
+**Tradeoff.** Vendor coupling to Vercel Blob; no offline write queue yet (network required to commit actions). The service worker (`public/sw.js`) provides an installable shell but does not buffer writes offline.
+**Revisit if.** Field operators need to work in low-connectivity environments — add an offline write queue (e.g., IndexedDB + sync on reconnect).
+
+### 13. Live operational hero metrics over static marketing numbers
+**Why.** The hero band originally showed lifetime PR figures (~30M meals). These are accurate but don't reflect the live system state — they can't show whether the field loop is working today. Replacing them with `getHeroStats()` — meals tracked, delivered this week, verified rate — computes from the actual meal lifecycle and rises visibly when operators use the field app. A reviewer watching the demo can cause the verified-rate to tick up, proving the end-to-end loop is real.
+**Tradeoff.** Week-scoped figures look smaller than lifetime totals; the seed data is sized to make them non-zero and meaningful in the demo context.
+**Revisit if.** The hero band needs to show both operational and lifetime figures — add a toggle or a secondary stat row.

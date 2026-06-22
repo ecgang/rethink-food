@@ -43,7 +43,15 @@ Restaurant Response shows a negative bar.)*
 
 ---
 
-### 0:50 — The AI layer, done responsibly (25s)
+### 0:45 — The field app (15s)
+*(Click **Field App**.)*
+> "This is the frontline operator view — installable on a phone. Tap a delivery, snap a proof
+> photo, mark it delivered; verify the next one. Each action clears the matching 'Act on today'
+> exception live, and the hero's verified-rate ticks up."
+
+---
+
+### 1:00 — The AI layer, done responsibly (25s)
 *(Click **AI Intake**.)*
 > "Your posting asks for AI that turns emails into structured workflows — with guardrails and human
 > review. Here's a real partner email."
@@ -58,13 +66,13 @@ Restaurant Response shows a negative bar.)*
 
 ---
 
-### 1:15 — The map + the close (15s)
+### 1:25 — The map + the close (15s)
 *(Click **Demand Map**.)*
 > "And the first slice of the marketplace: meal demand versus what we're actually fulfilling, by
 > neighborhood — where to point funded capacity next."
 
-> "What I **cut**: auth, inventory, mobile field tools, an ML anomaly model. All real, none needed to
-> prove the thesis — turn a messy food operation into software a CEO understands at a glance and an
+> "What I **cut**: auth, inventory, an ML anomaly model. All real, none needed to prove the
+> thesis — turn a messy food operation into software a CEO understands at a glance and an
 > operator acts on in seconds. It's typed end-to-end, tested, and deploys on Vercel and Postgres.
 > Happy to go deeper on the data model."
 
