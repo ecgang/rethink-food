@@ -86,6 +86,7 @@ This is **Next.js 16.2.9** (App Router / RSC / Server Actions) + **React 19**. A
 ## Conventions / gotchas
 - **Tailwind v4** — no `tailwind.config.ts`; config is the PostCSS plugin. TS path alias `@/*` → `./`; `strict: true`.
 - **AI intake**: `/intake` uses the live Anthropic model (`claude-haiku-4-5`) when `ANTHROPIC_API_KEY` is set; otherwise falls back to a deterministic parser. Don't assume the key exists.
-- Core tested logic lives in `lib/` — `margin.ts` (unit economics), `exceptions.ts` (act-on-today engine), `definitions.ts` (canonical metrics). Add tests when touching these.
+- Core tested logic lives in `lib/` — `margin.ts` (unit economics), `exceptions.ts` (act-on-today engine), `definitions.ts` (canonical metrics), `field.ts` (operator queue + production summary), `safety.ts` (food-safety/QA checklist engine), `incidents.ts` (incident sorting/severity). Add tests when touching these (`tests/**` + `evals/**`; vitest does NOT pick up `lib/*.test.ts`).
+- **Field PWA** (`/field`): produce→deliver→verify lifecycle, plus `/field/safety` (checklists) and `/field/incidents` (incident log). New field/kitchen actions are gated by `operate:field`. Open HIGH/CRITICAL incidents + recent failed safety checks surface as act-on-today exceptions and feed the AI briefing.
 - `data/*.json` are committed real-data snapshots (NYC NTA 2020, Rethink's real partner roster, food-insecurity) — the source of truth for the seed; regenerate via `npm run ingest`, don't hand-edit.
 - Docs: `docs/ARCHITECTURE.md` (data dictionary), `docs/DECISIONS.md` (ADR log), `docs/DEMO_SCRIPT.md`.

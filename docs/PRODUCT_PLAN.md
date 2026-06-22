@@ -79,8 +79,35 @@ Acceptance: approve an intake request → it appears as matched demand → produ
 meals into the lifecycle; open a funder report → see exactly what their contracts
 paid for, exportable.
 
+## Cluster D — Kitchen & field operations tools (FOURTH)
+
+Builds out the posting's "Kitchen and Field Operations Tools" bullet as surfaces
+inside the existing `/field` PWA (install/offline shell, `operate:field` gate,
+server-action patterns reused).
+
+- **Mark produced** (lifecycle close): a `markProduced` action (`PLANNED→PRODUCED`)
+  and a "Produce" queue on `/field`, plus a per-stage **meal-counts** header
+  (`productionSummary`). Production was previously assumed upstream.
+- **Food safety & QA**: `/field/safety` — a checklist form backed by a pure engine
+  (`lib/safety.ts`: FOOD_SAFETY + QUALITY item sets, FDA cold-holding 41°F rule),
+  persisting `SafetyCheck` rows with a computed pass/fail and a recent-checks feed.
+- **Incident tracking**: `/field/incidents` — report (kind/severity/photo) and
+  resolve incidents (`Incident` + pure `lib/incidents.ts`).
+- **Integration**: open HIGH/CRITICAL incidents and recent failed safety checks
+  become live `detectExceptions` rules (dashboard + AI briefing). An incident can
+  draft an `INCIDENT_NOTICE` via the existing approve-loop = **partner comms**.
+
+Acceptance: produce → deliver → verify is fully in-app; a failed safety check or
+open critical incident shows up on "act on today"; an incident drafts a partner
+notice into `/drafts`.
+
+**Deferred (out of scope this round):** inventory / lot tracking; deep production
+planning (shifts, recipes, batch yields); recurring scheduling; a real comms
+transport. Checklist item sets live in code, not a DB-editable template.
+
 ## Sequencing & verification
 
-Execute A → B → C, deploying and checking in between each. Every cluster keeps
+Execute A → B → C → D, deploying and checking in between each. Every cluster keeps
 CI green (`npm run typecheck && npm test && npm run build`) and adds tests for new
-pure logic (invoice period math, matching eligibility, report rollups).
+pure logic (invoice period math, matching eligibility, report rollups, checklist
+verdicts, incident sorting, the new exception rules).
