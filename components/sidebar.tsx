@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { LayoutDashboard, Inbox, Landmark, Map, Smartphone, Table2, PackageCheck, Users } from "lucide-react";
+import { LayoutDashboard, Inbox, Landmark, Map, Smartphone, Table2, PackageCheck, Users, FileBarChart2, ScrollText } from "lucide-react";
 import { cn } from "@/lib/cn";
 import { RoleSwitcher } from "@/components/role-switcher";
 import type { RoleKey } from "@/lib/roles";
@@ -14,8 +14,10 @@ const NAV = [
   { href: "/intake", label: "AI Intake", short: "Intake", icon: Inbox },
   { href: "/partners", label: "Partners", short: "Partners", icon: Users },
   { href: "/funders", label: "Funders", short: "Funders", icon: Landmark },
+  { href: "/reports", label: "Reports", short: "Reports", icon: FileBarChart2 },
   { href: "/map", label: "Demand Map", short: "Map", icon: Map },
   { href: "/field", label: "Field App", short: "Field", icon: Smartphone },
+  { href: "/audit", label: "Audit Trail", short: "Audit", icon: ScrollText },
 ] as const;
 
 function isActive(pathname: string, href: string): boolean {

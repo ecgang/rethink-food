@@ -4,7 +4,6 @@ import { prisma } from "@/lib/db";
 import { rollupMargin, mealEcon, type CostType } from "@/lib/margin";
 import {
   isRealized,
-  DAY_MS as DAY,
   WEEK_MS,
   FOOD_BUDGET_PER_MEAL_CENTS,
 } from "@/lib/definitions";

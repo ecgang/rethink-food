@@ -1,6 +1,6 @@
 import { cache } from "react";
 import { prisma } from "@/lib/db";
-import { isRealized, DAY_MS as DAY, WEEK_MS } from "@/lib/definitions";
+import { isRealized, WEEK_MS } from "@/lib/definitions";
 
 // ---------------------------------------------------------------------------
 // Slug helpers
