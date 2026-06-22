@@ -57,7 +57,7 @@ export function BriefingCard({ board }: { board: BriefingBoard }) {
               const draftKind = draftKindFor(item.entityType);
               return (
                 <li key={`${item.reasonCode}:${item.entityId}`} className="flex gap-3">
-                  <span className="mt-0.5 shrink-0">
+                  <span className="mt-0.5 w-20 shrink-0">
                     <SeverityBadge severity={item.severity} />
                   </span>
                   <div className="min-w-0">
