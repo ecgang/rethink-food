@@ -70,6 +70,39 @@ enum InvoiceStatus {
 }
 
 // ----------------------------------------------------------------------------
+// Kitchen & field operations (JD: "production planning, ... food safety, quality
+// assurance, ... incident tracking"). These back the field PWA's ops surfaces.
+// ----------------------------------------------------------------------------
+
+enum IncidentKind {
+  FOOD_SAFETY
+  QUALITY
+  DELIVERY
+  EQUIPMENT
+  OTHER
+}
+
+enum IncidentSeverity {
+  LOW
+  MEDIUM
+  HIGH
+  CRITICAL
+}
+
+enum IncidentStatus {
+  OPEN
+  ACKNOWLEDGED
+  RESOLVED
+}
+
+// A completed checklist. FOOD_SAFETY and QUALITY share the model; the item set
+// per kind lives in pure code (lib/safety.ts) so it's testable and versionable.
+enum SafetyCheckKind {
+  FOOD_SAFETY
+  QUALITY
+}
+
+// ----------------------------------------------------------------------------
 // Geography
 // ----------------------------------------------------------------------------
 
@@ -87,6 +120,7 @@ model Market {
   cbos        Cbo[]
   members     Member[]
   meals       Meal[]
+  incidents   Incident[]
 
   @@unique([borough, neighborhood])
 }
@@ -163,7 +197,9 @@ model Kitchen {
   marketId       String
   weeklyCapacity Int // meals/week the kitchen can produce
 
-  meals Meal[]
+  meals        Meal[]
+  incidents    Incident[]
+  safetyChecks SafetyCheck[]
 }
 
 model RestaurantPartner {
@@ -247,11 +283,13 @@ model Meal {
 
   // field-ops audit trail: who advanced each transition (operator identity) and
   // the delivery proof photo captured in the field (Vercel Blob URL).
+  producedBy       String?
   deliveredBy      String?
   verifiedBy       String?
   deliveryPhotoUrl String?
 
   costLineItems MealCostLineItem[]
+  incidents     Incident[]
 
   @@index([status])
   @@index([programId])
@@ -351,6 +389,7 @@ enum DraftCommKind {
   DELIVERY_NUDGE // chase a produced-but-undelivered / unverified meal
   RECONCILIATION_FLAG // billing-due / budget-overage note for a contract
   REPORT_NARRATIVE // board/funder summary prose (the folded-in ② narrator)
+  INCIDENT_NOTICE // notify a partner of an incident affecting their meals
 }
 
 enum DraftCommStatus {
@@ -373,4 +412,59 @@ model DraftComm {
   reviewedAt        DateTime?
 
   @@index([status, generatedAt])
+}
+
+// ----------------------------------------------------------------------------
+// Incident tracking — a problem logged from the kitchen or field (food-safety
+// breach, quality defect, delivery failure, equipment fault). Open HIGH/CRITICAL
+// incidents surface as "act on today" exceptions (lib/exceptions.ts) and can spawn
+// a draft partner notice (DraftComm INCIDENT_NOTICE). reportedBy/resolvedBy audit.
+// ----------------------------------------------------------------------------
+
+model Incident {
+  id          String           @id @default(cuid())
+  kind        IncidentKind
+  severity    IncidentSeverity
+  status      IncidentStatus   @default(OPEN)
+  title       String
+  description String
+
+  // optional context — where/what the incident relates to
+  kitchen   Kitchen? @relation(fields: [kitchenId], references: [id])
+  kitchenId String?
+  market    Market?  @relation(fields: [marketId], references: [id])
+  marketId  String?
+  meal      Meal?    @relation(fields: [mealId], references: [id])
+  mealId    String?
+
+  photoUrl       String? // optional proof photo (Vercel Blob)
+  reportedBy     String // operator identity (audit)
+  reportedAt     DateTime @default(now())
+  resolvedBy     String?
+  resolvedAt     DateTime?
+  resolutionNote String?
+
+  @@index([status, severity])
+  @@index([reportedAt])
+}
+
+// ----------------------------------------------------------------------------
+// Food-safety / QA checklist result. The item set per kind is defined in pure
+// code (lib/safety.ts); `responses` stores the operator's answers and `passed` is
+// the computed verdict. A recent failed check surfaces as an exception.
+// ----------------------------------------------------------------------------
+
+model SafetyCheck {
+  id           String          @id @default(cuid())
+  kind         SafetyCheckKind
+  kitchen      Kitchen?        @relation(fields: [kitchenId], references: [id])
+  kitchenId    String?
+  mealDate     DateTime? // the production day this check covers
+  responses    Json // [{ itemId, ok, note? }]
+  passed       Boolean // computed from responses via evaluateCheck()
+  temperatureF Float? // optional cold-holding / pack temperature log
+  checkedBy    String // operator identity (audit)
+  checkedAt    DateTime        @default(now())
+
+  @@index([kind, checkedAt])
 }
