@@ -224,3 +224,79 @@ describe("empty rows array", () => {
     expect(csv).toBe("Name,Amount,Active,Note,Timestamp");
   });
 });
+
+// ---------------------------------------------------------------------------
+// Formula injection neutralization
+// ---------------------------------------------------------------------------
+
+describe("formula injection guard", () => {
+  interface R { v: string }
+  const cols: CsvColumn<R>[] = [{ key: "v", label: "Val" }];
+
+  it("prefixes = formula trigger with a single quote", () => {
+    // Value: =HYPERLINK("evil")
+    // After neutralize: '=HYPERLINK("evil")  — contains " → RFC-4180 wrap + escape
+    // Final: "'=HYPERLINK(""evil"")"
+    const csv = toCsv(cols, [{ v: '=HYPERLINK("evil")' }]);
+    expect(csv.split("\r\n")[1]).toBe(`"'=HYPERLINK(""evil"")"`);
+  });
+
+  it("prefixes + trigger with a single quote", () => {
+    const csv = toCsv(cols, [{ v: "+1" }]);
+    expect(csv.split("\r\n")[1]).toBe("'+1");
+  });
+
+  it("prefixes - trigger with a single quote", () => {
+    const csv = toCsv(cols, [{ v: "-1" }]);
+    expect(csv.split("\r\n")[1]).toBe("'-1");
+  });
+
+  it("prefixes @ trigger with a single quote", () => {
+    const csv = toCsv(cols, [{ v: "@x" }]);
+    expect(csv.split("\r\n")[1]).toBe("'@x");
+  });
+
+  it("prefixes leading-tab value with a single quote", () => {
+    const csv = toCsv(cols, [{ v: "\tcmd" }]);
+    expect(csv.split("\r\n")[1]).toBe("'\tcmd");
+  });
+
+  it("does not alter a normal value (no prefix added)", () => {
+    const csv = toCsv(cols, [{ v: "Foo Bar" }]);
+    expect(csv.split("\r\n")[1]).toBe("Foo Bar");
+  });
+
+  it("normal value with comma still gets RFC-4180 quoting but no injection prefix", () => {
+    const csv = toCsv(cols, [{ v: "Foo, Bar" }]);
+    expect(csv.split("\r\n")[1]).toBe('"Foo, Bar"');
+  });
+
+  it("formula-leading value that also contains a comma gets both prefix and RFC-4180 quoting", () => {
+    // e.g. contractName = "=SUM(A1,B1)" — starts with = AND contains a comma
+    const csv = toCsv(cols, [{ v: "=SUM(A1,B1)" }]);
+    // After neutralizeFormula: "'=SUM(A1,B1)" — contains comma → wrapped in quotes
+    expect(csv.split("\r\n")[1]).toBe(`"'=SUM(A1,B1)"`);
+  });
+
+  it("does not prefix number values (not formula vectors)", () => {
+    interface N { n: number }
+    const numCols: CsvColumn<N>[] = [{ key: "n", label: "N" }];
+    // Negative number: should remain -7 not '-7
+    const csv = toCsv(numCols, [{ n: -7 }]);
+    expect(csv.split("\r\n")[1]).toBe("-7");
+  });
+
+  it("does not prefix boolean values", () => {
+    interface B { b: boolean }
+    const boolCols: CsvColumn<B>[] = [{ key: "b", label: "B" }];
+    const csv = toCsv(boolCols, [{ b: false }]);
+    expect(csv.split("\r\n")[1]).toBe("false");
+  });
+
+  it("neutralized value round-trips as text (single-quote prefix is present in output)", () => {
+    const csv = toCsv(cols, [{ v: "=cmd" }]);
+    const field = csv.split("\r\n")[1];
+    expect(field.startsWith("'")).toBe(true);
+    expect(field).toContain("=cmd");
+  });
+});

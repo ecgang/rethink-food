@@ -12,6 +12,31 @@ import { mealEcon, rollupMargin, type CostType } from "@/lib/margin";
 import { isRealized } from "@/lib/definitions";
 
 // ---------------------------------------------------------------------------
+// BigInt → number conversion
+// ---------------------------------------------------------------------------
+
+/**
+ * Convert a Prisma Decimal/BigInt budget value to a JS number (cents).
+ *
+ * JS numbers are IEEE-754 doubles, so values above Number.MAX_SAFE_INTEGER
+ * (2^53 − 1, ≈ 9 × 10^15 cents ≈ $90 trillion) would lose integer precision.
+ * Budgets at that scale are not realistic, but we assert the bound in
+ * development so that any surprising value surfaces immediately rather than
+ * silently rounding.
+ */
+function centsToNumber(v: bigint): number {
+  if (
+    process.env.NODE_ENV !== "production" &&
+    v > BigInt(Number.MAX_SAFE_INTEGER)
+  ) {
+    throw new RangeError(
+      `centsToNumber: value ${v} exceeds Number.MAX_SAFE_INTEGER — precision loss would occur`,
+    );
+  }
+  return Number(v);
+}
+
+// ---------------------------------------------------------------------------
 // Roster
 // ---------------------------------------------------------------------------
 
@@ -143,7 +168,7 @@ export async function getFunderImpact(
   const allRealizedMealInputs: Parameters<typeof mealEcon>[0][] = [];
 
   const contracts: FunderContractLine[] = funder.contracts.map((c) => {
-    budgetCents += Number(c.budgetCents);
+    budgetCents += centsToNumber(c.budgetCents);
 
     const realizedMeals = c.meals.filter((m) => isRealized(m.status));
 
@@ -180,7 +205,7 @@ export async function getFunderImpact(
       programName: c.program.name,
       mealsServed: realizedMeals.length,
       dollarsDeliveredCents: contractDollars,
-      budgetCents: Number(c.budgetCents),
+      budgetCents: centsToNumber(c.budgetCents),
     };
   });
 

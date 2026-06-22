@@ -20,6 +20,12 @@ export interface CsvColumn<T> {
  * - Date             →  value.toISOString().
  * - number / boolean →  String(value).
  * - No trailing \r\n after the last line.
+ * - Formula injection guard: string fields whose first character is one of
+ *   = + - @ \t \r are prefixed with a single quote so spreadsheets (Excel,
+ *   Sheets) treat the value as text rather than executing a formula.
+ *   Numbers and booleans are not formula vectors and are left unchanged.
+ *   The prefix is applied BEFORE RFC-4180 quoting so the quote wrapping
+ *   still fires correctly when the (now-prefixed) value contains commas etc.
  */
 export function toCsv<T extends Record<string, unknown>>(
   columns: CsvColumn<T>[],
@@ -27,12 +33,20 @@ export function toCsv<T extends Record<string, unknown>>(
 ): string {
   const CRLF = "\r\n";
 
+  /** Prefix string values that start with a spreadsheet formula trigger. */
+  function neutralizeFormula(raw: string): string {
+    if (raw.length > 0 && /^[=+\-@\t\r]/.test(raw)) {
+      return `'${raw}`;
+    }
+    return raw;
+  }
+
   function serializeField(value: unknown): string {
     if (value === null || value === undefined) return "";
     if (value instanceof Date) return quoteIfNeeded(value.toISOString());
     if (typeof value === "number" || typeof value === "boolean")
       return String(value);
-    return quoteIfNeeded(String(value));
+    return quoteIfNeeded(neutralizeFormula(String(value)));
   }
 
   function quoteIfNeeded(raw: string): string {
