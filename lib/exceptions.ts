@@ -40,6 +40,9 @@ export interface ContractSnapshot {
   name: string;
   funderName: string;
   billingDeadline: Date | null;
+  // when an invoice was last generated; suppresses the billing exception for the
+  // current cycle so generating an invoice clears the "act on today" item.
+  lastInvoicedAt: Date | null;
 }
 
 export interface ExceptionInput {
@@ -55,6 +58,7 @@ const DELIVERED_NOT_VERIFIED_HOURS = 48;
 const FOOD_BUDGET_OVERAGE_PCT = 0.2; // 20% over budget
 const CAPACITY_UNDERUTILIZED_PCT = 0.6; // produced < 60% of capacity
 const BILLING_DUE_SOON_DAYS = 3;
+const INVOICE_CLEARS_BILLING_DAYS = 25; // an invoice this recent covers the cycle
 
 const HOUR_MS = 60 * 60 * 1000;
 const DAY_MS = 24 * HOUR_MS;
@@ -132,7 +136,11 @@ export function detectExceptions(input: ExceptionInput): ExceptionItem[] {
   }
 
   for (const c of input.contracts) {
-    if (c.billingDeadline) {
+    // Skip contracts already invoiced this cycle — the loop is closed.
+    const invoicedRecently =
+      c.lastInvoicedAt != null &&
+      (now.getTime() - c.lastInvoicedAt.getTime()) / DAY_MS < INVOICE_CLEARS_BILLING_DAYS;
+    if (c.billingDeadline && !invoicedRecently) {
       const days = (c.billingDeadline.getTime() - now.getTime()) / DAY_MS;
       if (days <= BILLING_DUE_SOON_DAYS) {
         const overdue = days < 0;

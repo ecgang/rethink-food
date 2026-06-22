@@ -53,6 +53,7 @@ describe("detectExceptions — quiet on healthy data", () => {
             name: "MTM 1115",
             funderName: "NY State Medicaid",
             billingDeadline: daysFromNow(20),
+            lastInvoicedAt: null,
           },
         ],
       }),
@@ -161,12 +162,14 @@ describe("detectExceptions — contract billing", () => {
         name: "MTM PHS",
         funderName: "Public Health Solutions",
         billingDeadline: daysFromNow(2),
+        lastInvoicedAt: null,
       },
       {
         id: "c-late",
         name: "MTM SOMOS",
         funderName: "SOMOS",
         billingDeadline: daysFromNow(-1),
+        lastInvoicedAt: null,
       },
     ];
     const out = detectExceptions(baseInput({ contracts }));
@@ -175,5 +178,19 @@ describe("detectExceptions — contract billing", () => {
     expect(out[0].reasonCode).toBe("CONTRACT_BILLING_OVERDUE");
     expect(out[0].severity).toBe("CRITICAL");
     expect(out[1].reasonCode).toBe("CONTRACT_BILLING_DUE");
+  });
+
+  it("suppresses the billing exception once invoiced this cycle", () => {
+    const contracts: ContractSnapshot[] = [
+      {
+        id: "c-billed",
+        name: "MTM PHS",
+        funderName: "Public Health Solutions",
+        billingDeadline: daysFromNow(-1), // overdue…
+        lastInvoicedAt: hoursAgo(2), // …but just invoiced → loop closed
+      },
+    ];
+    const out = detectExceptions(baseInput({ contracts }));
+    expect(out).toEqual([]);
   });
 });

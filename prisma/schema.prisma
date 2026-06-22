@@ -62,6 +62,12 @@ enum IntakeStatus {
   REJECTED
 }
 
+enum InvoiceStatus {
+  DRAFT
+  SUBMITTED
+  PAID
+}
+
 enum Severity {
   LOW
   MEDIUM
@@ -126,8 +132,30 @@ model Contract {
   endDate         DateTime
   // next billing/invoice deadline — drives an "act on today" exception
   billingDeadline DateTime?
+  // when an invoice was last generated for this contract; clears the billing
+  // exception for the current cycle (set by the generate-invoice action).
+  lastInvoicedAt  DateTime?
 
-  meals Meal[]
+  meals    Meal[]
+  invoices Invoice[]
+}
+
+// An invoice generated for a contract's verified meals over a period. Created by
+// the "Generate & submit invoice" action on the Command Center — the closing of
+// the reimbursement loop the JD calls out (contract performance / revenue).
+model Invoice {
+  id          String        @id @default(cuid())
+  contract    Contract      @relation(fields: [contractId], references: [id])
+  contractId  String
+  periodStart DateTime
+  periodEnd   DateTime
+  mealCount   Int
+  amountCents BigInt
+  status      InvoiceStatus @default(SUBMITTED)
+  createdBy   String // operator identity (audit)
+  createdAt   DateTime      @default(now())
+
+  @@index([contractId])
 }
 
 // ----------------------------------------------------------------------------

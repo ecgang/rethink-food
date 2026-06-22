@@ -7,7 +7,12 @@
 
 export type RoleKey = "EXEC" | "FINANCE" | "OPS";
 
-export type Capability = "view:financials" | "approve:intake" | "operate:field";
+export type Capability =
+  | "view:financials"
+  | "approve:intake"
+  | "operate:field"
+  | "invoice:contract"
+  | "match:supply";
 
 export interface Role {
   key: RoleKey;
@@ -23,21 +28,27 @@ export const ROLES: Record<RoleKey, Role> = {
     label: "Executive (COO)",
     person: "Eric Gang",
     blurb: "Full visibility across operations and financials.",
-    caps: ["view:financials", "approve:intake", "operate:field"],
+    caps: [
+      "view:financials",
+      "approve:intake",
+      "operate:field",
+      "invoice:contract",
+      "match:supply",
+    ],
   },
   FINANCE: {
     key: "FINANCE",
     label: "Finance",
     person: "Marcus Lee",
     blurb: "Unit economics and contract performance; cannot approve intake.",
-    caps: ["view:financials"],
+    caps: ["view:financials", "invoice:contract"],
   },
   OPS: {
     key: "OPS",
     label: "Operations",
     person: "Dana Ortiz",
     blurb: "Lifecycle, delivery, and intake; financials are restricted.",
-    caps: ["approve:intake", "operate:field"],
+    caps: ["approve:intake", "operate:field", "match:supply"],
   },
 };
 
