@@ -45,6 +45,10 @@
 | **Funding** | A **Funder** signs a **Contract** that funds a **Program**. MTM contracts also carry a Social Care Network (`scnPartner`). | `Funder`, `Contract` |
 | **Impact (MTM)** | Active members, retention, delivered-vs-prescribed fulfillment, attributed by Social Care Network. | `getMtmReporting()` |
 | **Exception** | A data condition an operator should act on, carrying a `reasonCode`, `severity`, and `recommendedAction`. | `lib/exceptions.ts` |
+| **Ask the Operating Layer** | Natural-language Q&A over partners/funders/contracts via bounded retrieval tools; every answer cites the records it used. | `lib/ai/retrieval/`, `AskLog` |
+| **Today's briefing** | The exception feed narrated into a prioritized morning summary — severities come from the engine; the model only explains. | `lib/ai/briefing.ts`, `lib/briefing-board.ts` |
+| **Missing info** | Pending intake requests whose required fields are absent or low-confidence — the trigger for a follow-up draft. | `lib/ai/missing-info.ts` |
+| **Draft comm** | An AI-drafted follow-up (clarification / nudge / reconciliation / board narrative) in a `DRAFT → APPROVED/DISCARDED` queue. Never auto-sent. | `lib/ai/comms.ts`, `DraftComm` |
 
 ### Money
 All monetary values are integer **cents** end to end. `lib/money.ts` is the single boundary
@@ -64,6 +68,8 @@ Market 1──* Meal *──1 Contract
    └──* Member ──* Meal       (MTM only)
 
 IntakeRequest *──0..1 Cbo     (AI intake audit trail)
+AskLog                         (Ask-the-Operating-Layer query log; no relations)
+DraftComm                      (draft-and-approve comms queue; no relations)
 Exception                      (computed live in lib/exceptions.ts; no DB table)
 ```
 
@@ -96,6 +102,26 @@ challenge beats a black box. Each rule is a tunable constant in `lib/exceptions.
 
 This is the JD's "structured outputs, tool use, evaluations, guardrails, and human review"
 in one screen.
+
+## AI operating layer (narrate · draft · retrieve)
+
+Intake above is one of the AI-operating-layer capabilities; the rest share one rule:
+**the deterministic engines own every number — AI only narrates, drafts, and retrieves, and a
+human approves anything that leaves the system.** It's enforced *structurally*: `lib/ai/*` cannot
+import `lib/db` (only the isolated retrieval tools query Prisma), so a generator is incapable of
+computing a figure. Each feature falls back to a deterministic path when `ANTHROPIC_API_KEY` is
+absent. See ADRs 14–16 in `DECISIONS.md`.
+
+- **Ask the Operating Layer** (`/ask`) — agentic tool-use over bounded Prisma queries (no
+  embeddings). Each tool projects to a `Citation` through an explicit `select:` whitelist (PII like
+  `Cbo.contactEmail` is never selected), so answers are exact, traceable, and link back to detail
+  pages. Questions + cited answers are logged to `AskLog`.
+- **Today's briefing** (home page) — narrates `detectExceptions()` into a prioritized summary;
+  `filterToKnown` drops any item the model invents and copies severity straight from the engine.
+  24h-cached (`lib/briefing-board.ts`), with manual regenerate via `updateTag`.
+- **Draft-and-approve comms** (`/drafts`) — clarification / delivery-nudge / reconciliation /
+  board-narrative drafts in a `DraftComm` queue. **No transport**: a human edits then approves or
+  discards, and reviews join the `getAuditLog()` trail.
 
 ## Deliberate non-goals (scope discipline)
 
