@@ -8,14 +8,20 @@ vi.mock("server-only", () => ({}));
 // Stub Next.js cache invalidation — no filesystem side-effects in tests.
 vi.mock("next/cache", () => ({ revalidatePath: vi.fn() }));
 
-// Prisma mock: fulfillIntake calls intakeRequest.findUnique, intakeRequest.update.
+// Prisma mock: fulfillIntake uses intakeRequest.findUnique (read) and
+// $transaction (atomic write). The tx client exposes intakeRequest.update.
 vi.mock("@/lib/db", () => ({
   prisma: {
     intakeRequest: {
       findUnique: vi.fn(),
-      update: vi.fn(),
     },
+    $transaction: vi.fn(),
   },
+}));
+
+// log mock — prevent real console output in tests.
+vi.mock("@/lib/log", () => ({
+  log: { info: vi.fn(), warn: vi.fn(), error: vi.fn() },
 }));
 
 // Current-role mock — mutated per-test.
@@ -33,13 +39,15 @@ vi.mock("@/lib/scheduling", () => ({
 
 import { fulfillIntake } from "@/app/actions/intake-fulfill";
 import { prisma } from "@/lib/db";
+import * as logModule from "@/lib/log";
 
 // Typed mock references.
 const mockFindUnique = prisma.intakeRequest.findUnique as ReturnType<typeof vi.fn>;
-const mockUpdate = prisma.intakeRequest.update as ReturnType<typeof vi.fn>;
+const mockTransaction = prisma.$transaction as ReturnType<typeof vi.fn>;
 const mockGetCurrentRole = currentRole.getCurrentRole as ReturnType<typeof vi.fn>;
 const mockGetOperatorIdentity = currentRole.getOperatorIdentity as ReturnType<typeof vi.fn>;
 const mockCreateScheduledMeals = scheduling.createScheduledMeals as ReturnType<typeof vi.fn>;
+const mockLogError = logModule.log.error as ReturnType<typeof vi.fn>;
 
 // ---------------------------------------------------------------------------
 // Shared test fixtures
@@ -74,13 +82,31 @@ function makeFormData(overrides: Record<string, string | null> = {}): FormData {
   return fd;
 }
 
+// ---------------------------------------------------------------------------
+// Transaction mock helpers
+// ---------------------------------------------------------------------------
+
+// A stable mock tx client re-created each test via beforeEach.
+// Tests that need the tx.intakeRequest.update spy should reference mockTxUpdate.
+let mockTxUpdate: ReturnType<typeof vi.fn>;
+
 beforeEach(() => {
   vi.clearAllMocks();
+
+  mockTxUpdate = vi.fn().mockResolvedValue({});
+
+  // Wire $transaction to execute the callback with a mock tx client.
+  mockTransaction.mockImplementation(
+    async (cb: (tx: unknown) => Promise<unknown>) => {
+      const mockTx = { intakeRequest: { update: mockTxUpdate } };
+      return cb(mockTx);
+    },
+  );
+
   // Default happy-path role.
   mockGetCurrentRole.mockResolvedValue("EXEC");
   mockGetOperatorIdentity.mockResolvedValue(OPERATOR_IDENTITY);
   mockFindUnique.mockResolvedValue(APPROVED_REQUEST);
-  mockUpdate.mockResolvedValue({});
   mockCreateScheduledMeals.mockResolvedValue({ ok: true, created: 10 });
 });
 
@@ -97,7 +123,7 @@ describe("RBAC gate", () => {
     expect(res.ok).toBe(false);
     if (!res.ok) expect(res.error).toMatch(/role/i);
     expect(mockCreateScheduledMeals).not.toHaveBeenCalled();
-    expect(mockUpdate).not.toHaveBeenCalled();
+    expect(mockTransaction).not.toHaveBeenCalled();
   });
 
   it("OPS role is permitted", async () => {
@@ -128,7 +154,7 @@ describe("request validation", () => {
     expect(res.ok).toBe(false);
     if (!res.ok) expect(res.error).toMatch(/PENDING/);
     expect(mockCreateScheduledMeals).not.toHaveBeenCalled();
-    expect(mockUpdate).not.toHaveBeenCalled();
+    expect(mockTransaction).not.toHaveBeenCalled();
   });
 
   it("already FULFILLED request → rejected, no meals created", async () => {
@@ -139,7 +165,7 @@ describe("request validation", () => {
     expect(res.ok).toBe(false);
     if (!res.ok) expect(res.error).toMatch(/FULFILLED/);
     expect(mockCreateScheduledMeals).not.toHaveBeenCalled();
-    expect(mockUpdate).not.toHaveBeenCalled();
+    expect(mockTransaction).not.toHaveBeenCalled();
   });
 
   it("request not found → rejected", async () => {
@@ -160,7 +186,7 @@ describe("request validation", () => {
     expect(res.ok).toBe(false);
     if (!res.ok) expect(res.error).toMatch(/CBO/i);
     expect(mockCreateScheduledMeals).not.toHaveBeenCalled();
-    expect(mockUpdate).not.toHaveBeenCalled();
+    expect(mockTransaction).not.toHaveBeenCalled();
   });
 });
 
@@ -173,6 +199,7 @@ describe("happy path", () => {
     const res = await fulfillIntake(makeFormData({ quantity: "5" }));
 
     expect(res.ok).toBe(true);
+    expect(mockTransaction).toHaveBeenCalledOnce();
     expect(mockCreateScheduledMeals).toHaveBeenCalledOnce();
     const callArg = mockCreateScheduledMeals.mock.calls[0][0] as Record<string, unknown>;
     expect(callArg.intakeRequestId).toBe(REQUEST_ID);
@@ -182,11 +209,21 @@ describe("happy path", () => {
     expect(callArg.contractId).toBe(CONTRACT_ID);
   });
 
-  it("updates request to FULFILLED with fulfilledAt and fulfilledBy", async () => {
+  it("passes the tx client as second arg to createScheduledMeals", async () => {
     await fulfillIntake(makeFormData({ quantity: "5" }));
 
-    expect(mockUpdate).toHaveBeenCalledOnce();
-    const updateArg = mockUpdate.mock.calls[0][0] as {
+    expect(mockCreateScheduledMeals).toHaveBeenCalledOnce();
+    // The second argument is the tx client (not undefined).
+    const txArg = mockCreateScheduledMeals.mock.calls[0][1] as unknown;
+    expect(txArg).toBeDefined();
+    expect(txArg).not.toBeNull();
+  });
+
+  it("updates request to FULFILLED with fulfilledAt and fulfilledBy inside the transaction", async () => {
+    await fulfillIntake(makeFormData({ quantity: "5" }));
+
+    expect(mockTxUpdate).toHaveBeenCalledOnce();
+    const updateArg = mockTxUpdate.mock.calls[0][0] as {
       where: { id: string };
       data: { status: string; fulfilledAt: Date; fulfilledBy: string };
     };
@@ -249,7 +286,7 @@ describe("quantity defaulting from extractedFields", () => {
 // ---------------------------------------------------------------------------
 
 describe("scheduling failure", () => {
-  it("when createScheduledMeals returns ok:false → status NOT changed", async () => {
+  it("when createScheduledMeals returns ok:false → status NOT changed (validation rejection)", async () => {
     mockCreateScheduledMeals.mockResolvedValue({
       ok: false,
       error: "Quantity exceeds spare capacity.",
@@ -259,6 +296,25 @@ describe("scheduling failure", () => {
 
     expect(res.ok).toBe(false);
     if (!res.ok) expect(res.error).toMatch(/capacity/i);
-    expect(mockUpdate).not.toHaveBeenCalled();
+    // Transaction ran but the update inside it must NOT have been called.
+    expect(mockTxUpdate).not.toHaveBeenCalled();
+  });
+
+  it("when createScheduledMeals throws a DB error → returns ok:false without re-throwing", async () => {
+    mockCreateScheduledMeals.mockRejectedValue(new Error("DB connection lost"));
+    // $transaction must propagate the throw so our catch can intercept it.
+    mockTransaction.mockImplementation(
+      async (cb: (tx: unknown) => Promise<unknown>) => {
+        const mockTx = { intakeRequest: { update: mockTxUpdate } };
+        return cb(mockTx); // cb will throw because createScheduledMeals throws
+      },
+    );
+
+    const res = await fulfillIntake(makeFormData({ quantity: "5" }));
+
+    expect(res.ok).toBe(false);
+    if (!res.ok) expect(res.error).toMatch(/retry/i);
+    expect(mockLogError).toHaveBeenCalledOnce();
+    expect(mockTxUpdate).not.toHaveBeenCalled();
   });
 });

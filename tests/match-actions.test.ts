@@ -12,6 +12,11 @@ vi.mock("@/lib/db", () => ({
   prisma: { meal: { createMany: vi.fn() } },
 }));
 
+// log mock — prevent real console output in tests.
+vi.mock("@/lib/log", () => ({
+  log: { info: vi.fn(), warn: vi.fn(), error: vi.fn() },
+}));
+
 // Current-role mock — mutated per-test.
 import * as currentRole from "@/lib/current-role";
 vi.mock("@/lib/current-role", () => ({
@@ -26,14 +31,23 @@ vi.mock("@/lib/partners", () => ({
   getMatchOptions: vi.fn(),
 }));
 
+// Scheduling mock — used only in the DB-error test below.
+import * as scheduling from "@/lib/scheduling";
+vi.mock("@/lib/scheduling", () => ({
+  createScheduledMeals: vi.fn(),
+}));
+
 import { matchSupply } from "@/app/actions/match";
 import { prisma } from "@/lib/db";
+import * as logModule from "@/lib/log";
 
 // Typed mock references.
 const createMany = prisma.meal.createMany as ReturnType<typeof vi.fn>;
 const mockGetCurrentRole = currentRole.getCurrentRole as ReturnType<typeof vi.fn>;
 const mockEligibleProducers = partners.eligibleProducers as ReturnType<typeof vi.fn>;
 const mockGetMatchOptions = partners.getMatchOptions as ReturnType<typeof vi.fn>;
+const mockCreateScheduledMeals = scheduling.createScheduledMeals as ReturnType<typeof vi.fn>;
+const mockLogError = logModule.log.error as ReturnType<typeof vi.fn>;
 
 // ---------------------------------------------------------------------------
 // Shared test fixtures
@@ -89,17 +103,27 @@ function makeFormData(
   return fd;
 }
 
-beforeEach(() => {
+beforeEach(async () => {
   createMany.mockReset();
   mockGetCurrentRole.mockReset();
   mockEligibleProducers.mockReset();
   mockGetMatchOptions.mockReset();
+  mockCreateScheduledMeals.mockReset();
+  mockLogError.mockReset();
 
   // Default: EXEC role, happy-path producers/options.
   mockGetCurrentRole.mockResolvedValue("EXEC");
   mockEligibleProducers.mockResolvedValue([KITCHEN_PRODUCER, RESTAURANT_PRODUCER]);
   mockGetMatchOptions.mockResolvedValue(MATCH_OPTIONS);
   createMany.mockResolvedValue({ count: 5 });
+
+  // Default: delegate createScheduledMeals to the real implementation.
+  // The real fn reads eligibleProducers/getMatchOptions (mocked above) and
+  // writes via prisma.meal.createMany (also mocked above).
+  const { createScheduledMeals: realFn } = await vi.importActual<
+    typeof import("@/lib/scheduling")
+  >("@/lib/scheduling");
+  mockCreateScheduledMeals.mockImplementation(realFn);
 });
 
 // ---------------------------------------------------------------------------
@@ -277,5 +301,21 @@ describe("happy path", () => {
     const res = await matchSupply(makeFormData({ quantity: "7" }));
     expect(res.ok).toBe(true);
     if (res.ok) expect(res.created).toBe(7);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// DB error handling
+// ---------------------------------------------------------------------------
+
+describe("DB error handling", () => {
+  it("when createScheduledMeals throws a DB error → returns ok:false without re-throwing", async () => {
+    mockCreateScheduledMeals.mockRejectedValue(new Error("DB connection lost"));
+
+    const res = await matchSupply(makeFormData());
+
+    expect(res.ok).toBe(false);
+    if (!res.ok) expect(res.error).toMatch(/retry/i);
+    expect(mockLogError).toHaveBeenCalledOnce();
   });
 });

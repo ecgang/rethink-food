@@ -6,6 +6,7 @@ import { getCurrentRole, getOperatorIdentity } from "@/lib/current-role";
 import { can } from "@/lib/roles";
 import { prisma } from "@/lib/db";
 import { createScheduledMeals } from "@/lib/scheduling";
+import { log } from "@/lib/log";
 
 // Discriminated result — never throws to the client.
 export type FulfillResult =
@@ -121,32 +122,50 @@ export async function fulfillIntake(formData: FormData): Promise<FulfillResult> 
     mealDate = efDeliveryDate ? new Date(efDeliveryDate) : defaultMealDate();
   }
 
-  // ── 5. Create meals via shared scheduling core ───────────────────────────
-  const result = await createScheduledMeals({
-    marketId,
-    producerType,
-    producerId,
-    contractId,
-    cboId,
-    quantity,
-    mealDate,
-    intakeRequestId: requestId,
-  });
+  // ── 5. Resolve operator identity before the transaction ─────────────────
+  const fulfilledBy = await getOperatorIdentity();
+
+  // ── 6. Atomically create meals + mark request FULFILLED ──────────────────
+  // Both writes share one transaction: if the process dies between them, neither
+  // commits — no orphan meals with the request stuck at APPROVED.
+  let result: Awaited<ReturnType<typeof createScheduledMeals>>;
+  try {
+    result = await prisma.$transaction(async (tx) => {
+      const r = await createScheduledMeals(
+        {
+          marketId,
+          producerType,
+          producerId,
+          contractId,
+          cboId,
+          quantity,
+          mealDate,
+          intakeRequestId: requestId,
+        },
+        tx,
+      );
+      // Validation failure → return the rejection; nothing was written.
+      if (!r.ok) return r;
+
+      await tx.intakeRequest.update({
+        where: { id: requestId },
+        data: {
+          status: "FULFILLED",
+          fulfilledAt: new Date(),
+          fulfilledBy,
+        },
+      });
+
+      return r;
+    });
+  } catch (err) {
+    log.error("fulfill_failed", err, { requestId });
+    return { ok: false, error: "Could not schedule meals — please retry." };
+  }
 
   if (!result.ok) {
     return result;
   }
-
-  // ── 6. Close the loop — mark request FULFILLED ───────────────────────────
-  const fulfilledBy = await getOperatorIdentity();
-  await prisma.intakeRequest.update({
-    where: { id: requestId },
-    data: {
-      status: "FULFILLED",
-      fulfilledAt: new Date(),
-      fulfilledBy,
-    },
-  });
 
   // ── 7. Revalidate affected pages ─────────────────────────────────────────
   revalidatePath("/intake");

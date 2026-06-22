@@ -218,6 +218,21 @@ describe("createScheduledMeals", () => {
     expect(res.ok).toBe(true);
     if (res.ok) expect(res.created).toBe(7);
   });
+
+  it("writes via provided tx instead of global prisma when tx is supplied", async () => {
+    // Arrange: a mock transaction client with its own createMany spy.
+    const txCreateMany = vi.fn().mockResolvedValue({ count: 5 });
+    const mockTx = { meal: { createMany: txCreateMany } } as unknown as Parameters<
+      typeof createScheduledMeals
+    >[1];
+
+    const res = await createScheduledMeals(BASE_INPUT, mockTx);
+
+    expect(res.ok).toBe(true);
+    // The write went through the tx, not the global prisma mock.
+    expect(txCreateMany).toHaveBeenCalledOnce();
+    expect(createMany).not.toHaveBeenCalled();
+  });
 });
 
 // ---------------------------------------------------------------------------

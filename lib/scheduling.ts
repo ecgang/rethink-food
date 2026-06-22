@@ -1,6 +1,7 @@
 import { prisma } from "@/lib/db";
 import { eligibleProducers, getMatchOptions } from "@/lib/partners";
 import type { EligibleProducer, MatchOptionsContract } from "@/lib/partners";
+import type { Prisma } from "@prisma/client";
 
 // ---------------------------------------------------------------------------
 // createScheduledMeals
@@ -27,9 +28,17 @@ export type ScheduleResult =
  *
  * Does NOT perform RBAC, zod validation, or cache revalidation — those belong
  * with the caller (`matchSupply`, `fulfillIntake`, etc.).
+ *
+ * Pass `tx` to run the write inside an existing `prisma.$transaction` callback.
+ * Validation reads always use the global `prisma` (committed state — fine before
+ * the write). Behavior with no `tx` is unchanged.
+ *
+ * TODO(toctou): concurrent callers can both pass the spare-capacity check before
+ * either write commits. Production fix: SELECT ... FOR UPDATE on the producer row.
  */
 export async function createScheduledMeals(
   input: ScheduleInput,
+  tx?: Prisma.TransactionClient,
 ): Promise<ScheduleResult> {
   const {
     marketId,
@@ -95,7 +104,7 @@ export async function createScheduledMeals(
     // cost line items added at production time
   }));
 
-  await prisma.meal.createMany({ data: meals });
+  await (tx ?? prisma).meal.createMany({ data: meals });
 
   return { ok: true, created: quantity };
 }

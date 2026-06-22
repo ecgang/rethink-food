@@ -5,6 +5,7 @@ import { revalidatePath } from "next/cache";
 import { getCurrentRole } from "@/lib/current-role";
 import { can } from "@/lib/roles";
 import { createScheduledMeals } from "@/lib/scheduling";
+import { log } from "@/lib/log";
 
 // Discriminated result — never throws to the client.
 export type MatchResult =
@@ -70,15 +71,21 @@ export async function matchSupply(formData: FormData): Promise<MatchResult> {
   } = parsed.data;
 
   // ── 3–5. Delegate validated meal creation to the shared scheduling core ──
-  const result = await createScheduledMeals({
-    marketId,
-    producerType,
-    producerId,
-    contractId,
-    cboId,
-    quantity,
-    mealDate,
-  });
+  let result: Awaited<ReturnType<typeof createScheduledMeals>>;
+  try {
+    result = await createScheduledMeals({
+      marketId,
+      producerType,
+      producerId,
+      contractId,
+      cboId,
+      quantity,
+      mealDate,
+    });
+  } catch (err) {
+    log.error("match_failed", err, { marketId });
+    return { ok: false, error: "Could not schedule meals — please retry." };
+  }
 
   if (!result.ok) {
     return result;
