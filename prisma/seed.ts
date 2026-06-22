@@ -110,7 +110,6 @@ async function main() {
       }),
     );
   }
-  const marketByHood = Object.fromEntries(markets.map((m) => [m.neighborhood, m]));
   const marketsInBorough = (b: string) => markets.filter((m) => m.borough === b);
   const nearestMarket = (lat: number, lng: number, borough?: string) => {
     const pool = borough ? marketsInBorough(borough) : markets;

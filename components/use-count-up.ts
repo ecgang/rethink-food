@@ -11,6 +11,9 @@ export function useCountUp(target: number, durationMs = 850): number {
       typeof window !== "undefined" &&
       window.matchMedia?.("(prefers-reduced-motion: reduce)").matches
     ) {
+      // Reduced motion: jump straight to the target (no animation). Intentional
+      // immediate set; the rule targets derived-state effects, not this.
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setValue(target);
       return;
     }
