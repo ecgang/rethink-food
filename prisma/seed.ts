@@ -87,6 +87,7 @@ async function main() {
   await prisma.meal.deleteMany();
   await prisma.intakeRequest.deleteMany();
   await prisma.member.deleteMany();
+  await prisma.invoice.deleteMany(); // FK-references Contract — must clear before it
   await prisma.contract.deleteMany();
   await prisma.program.deleteMany();
   await prisma.funder.deleteMany();
