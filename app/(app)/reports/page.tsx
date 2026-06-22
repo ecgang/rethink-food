@@ -4,6 +4,7 @@ import { can } from "@/lib/roles";
 import { getReportSnapshots } from "@/lib/reports";
 import { formatUsd, formatCount } from "@/lib/money";
 import { generateReportNow } from "@/app/actions/reports";
+import { DraftFollowUpButton } from "@/components/draft-follow-up";
 import type { WeeklyReportPayload } from "@/lib/reports";
 
 export const dynamic = "force-dynamic";
@@ -111,7 +112,15 @@ export default async function ReportsPage() {
         title="Reports"
         subtitle="Automated weekly funder &amp; board summaries"
       >
-        {canGenerate && <GenerateButton />}
+        <div className="flex items-center gap-3">
+          <DraftFollowUpButton
+            kind="REPORT_NARRATIVE"
+            entityId="weekly"
+            audience="board"
+            label="Draft board narrative"
+          />
+          {canGenerate && <GenerateButton />}
+        </div>
       </PageHeader>
 
       <div className="mt-6 space-y-4">

@@ -319,3 +319,58 @@ model ReportSnapshot {
 
   @@index([kind, createdAt])
 }
+
+// ----------------------------------------------------------------------------
+// "Ask the Operating Layer" — auditable log of natural-language queries (④).
+// Answers are grounded in retrieval tools over the models above; `citations`
+// holds the record ids/labels surfaced as sources. askedBy gives the audit
+// trail (getAuditLog unions this in, the same column pattern as IntakeRequest).
+// ----------------------------------------------------------------------------
+
+model AskLog {
+  id        String   @id @default(cuid())
+  question  String
+  answer    String
+  citations Json // [{ type, id, label }] surfaced as sources for the answer
+  modelUsed String
+  askedBy   String // operator identity (audit)
+  createdAt DateTime @default(now())
+
+  @@index([createdAt])
+}
+
+// ----------------------------------------------------------------------------
+// Draft-and-approve comms agent (⑤). AI drafts a follow-up; a human reviews and
+// approves or discards it. NOTHING is ever auto-sent — there is no transport.
+// The DRAFT → APPROVED/DISCARDED queue is the "human-reviewed agent" the JD asks
+// for; reviewedBy/reviewedAt feed the audit trail (getAuditLog unions this in).
+// ----------------------------------------------------------------------------
+
+enum DraftCommKind {
+  INTAKE_CLARIFICATION // ask a CBO for fields missing from a pending intake
+  DELIVERY_NUDGE // chase a produced-but-undelivered / unverified meal
+  RECONCILIATION_FLAG // billing-due / budget-overage note for a contract
+  REPORT_NARRATIVE // board/funder summary prose (the folded-in ② narrator)
+}
+
+enum DraftCommStatus {
+  DRAFT
+  APPROVED
+  DISCARDED
+}
+
+model DraftComm {
+  id                String          @id @default(cuid())
+  kind              DraftCommKind
+  relatedEntityType String // "intake" | "meal" | "contract" | "report"
+  relatedEntityId   String
+  subject           String
+  body              String
+  status            DraftCommStatus @default(DRAFT)
+  modelUsed         String
+  generatedAt       DateTime        @default(now())
+  reviewedBy        String? // operator identity once approved/discarded (audit)
+  reviewedAt        DateTime?
+
+  @@index([status, generatedAt])
+}

@@ -5,7 +5,7 @@ export interface AuditEvent {
   at: Date;
   actor: string;
   action: string;
-  entityType: "intake" | "field" | "invoice";
+  entityType: "intake" | "field" | "invoice" | "comms";
   entityLabel: string;
   href: string;
 }
@@ -18,7 +18,7 @@ export interface AuditEvent {
  * loading all ~6,900 meals into memory.
  */
 export async function getAuditLog(limit = 100): Promise<AuditEvent[]> {
-  const [intakeRows, deliveredRows, verifiedRows, invoiceRows] = await Promise.all([
+  const [intakeRows, deliveredRows, verifiedRows, invoiceRows, draftRows] = await Promise.all([
     prisma.intakeRequest.findMany({
       where: {
         OR: [{ approvedAt: { not: null } }, { fulfilledAt: { not: null } }],
@@ -70,9 +70,44 @@ export async function getAuditLog(limit = 100): Promise<AuditEvent[]> {
       orderBy: { createdAt: "desc" },
       take: limit,
     }),
+
+    // Reviewed comms drafts (⑤). Wrapped so a missing DraftComm model (pre-migration,
+    // or a mocked Prisma client in tests) can't break the whole audit log.
+    (async () => {
+      try {
+        return await prisma.draftComm.findMany({
+          where: { reviewedAt: { not: null }, reviewedBy: { not: null } },
+          select: { id: true, status: true, subject: true, reviewedAt: true, reviewedBy: true },
+          orderBy: { reviewedAt: "desc" },
+          take: limit,
+        });
+      } catch {
+        return [] as {
+          id: string;
+          status: string;
+          subject: string;
+          reviewedAt: Date | null;
+          reviewedBy: string | null;
+        }[];
+      }
+    })(),
   ]);
 
   const events: AuditEvent[] = [];
+
+  // Comms draft review events (approve/discard)
+  for (const row of draftRows) {
+    if (row.reviewedAt == null || row.reviewedBy == null) continue;
+    events.push({
+      id: `draft-${row.id}`,
+      at: row.reviewedAt,
+      actor: row.reviewedBy,
+      action: row.status === "APPROVED" ? "Approved follow-up draft" : "Discarded follow-up draft",
+      entityType: "comms",
+      entityLabel: row.subject,
+      href: "/drafts",
+    });
+  }
 
   // IntakeRequest events: up to 2 per row (approved/rejected + fulfilled)
   for (const row of intakeRows) {

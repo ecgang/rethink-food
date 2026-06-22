@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { LayoutDashboard, Inbox, Landmark, Map, Smartphone, Table2, PackageCheck, Users, FileBarChart2, ScrollText } from "lucide-react";
+import { LayoutDashboard, Inbox, Landmark, Map, Smartphone, Table2, PackageCheck, Users, FileBarChart2, ScrollText, Search, Mail } from "lucide-react";
 import { cn } from "@/lib/cn";
 import { RoleSwitcher } from "@/components/role-switcher";
 import type { RoleKey } from "@/lib/roles";
@@ -12,9 +12,11 @@ const NAV = [
   { href: "/meals", label: "Records", short: "Records", icon: Table2 },
   { href: "/deliveries", label: "Deliveries", short: "Proof", icon: PackageCheck },
   { href: "/intake", label: "AI Intake", short: "Intake", icon: Inbox },
+  { href: "/ask", label: "Ask AI", short: "Ask", icon: Search },
   { href: "/partners", label: "Partners", short: "Partners", icon: Users },
   { href: "/funders", label: "Funders", short: "Funders", icon: Landmark },
   { href: "/reports", label: "Reports", short: "Reports", icon: FileBarChart2 },
+  { href: "/drafts", label: "Draft Follow-ups", short: "Drafts", icon: Mail },
   { href: "/map", label: "Demand Map", short: "Map", icon: Map },
   { href: "/field", label: "Field App", short: "Field", icon: Smartphone },
   { href: "/audit", label: "Audit Trail", short: "Audit", icon: ScrollText },

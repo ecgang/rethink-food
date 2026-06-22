@@ -9,6 +9,7 @@ import { DefinitionsPanel } from "@/components/definitions-panel";
 import { CostDonut, MarginBars } from "@/components/charts";
 import { LifecyclePipeline } from "@/components/lifecycle-pipeline";
 import { ActOnToday } from "@/components/act-on-today";
+import { BriefingCard } from "@/components/briefing-card";
 import {
   HeroStatsSkeleton,
   KpiSkeleton,
@@ -30,6 +31,7 @@ import {
 import { formatUsd, formatUsdCompact, formatPct, formatCount } from "@/lib/money";
 import { getCurrentRole } from "@/lib/current-role";
 import { can } from "@/lib/roles";
+import { getBriefingBoard } from "@/lib/briefing-board";
 
 // Render dynamically; each heavy section streams in behind a skeleton.
 export const dynamic = "force-dynamic";
@@ -85,6 +87,13 @@ export default async function DashboardPage({
 
         <div className="mb-4">
           <DefinitionsPanel />
+        </div>
+
+        {/* AI morning briefing — narrates the deterministic exception engine below */}
+        <div className="mb-4">
+          <Suspense fallback={<ListSkeleton />}>
+            <BriefingSection />
+          </Suspense>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-4">
@@ -227,6 +236,11 @@ async function KpiSection({ dim, showFin }: { dim: DimensionKey; showFin: boolea
       ]}
     />
   );
+}
+
+async function BriefingSection() {
+  const board = await getBriefingBoard();
+  return <BriefingCard board={board} />;
 }
 
 async function ActSection() {
