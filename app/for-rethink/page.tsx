@@ -251,9 +251,8 @@ export default function ForRethinkPage() {
               <a className="hover:text-background hover:underline" href="mailto:eric@staqs.io">
                 eric@staqs.io
               </a>
-              {/* TODO: replace with your real LinkedIn URL */}
               {" · "}
-              <a className="hover:text-background hover:underline" href="https://www.linkedin.com/in/" target="_blank" rel="noopener noreferrer">
+              <a className="hover:text-background hover:underline" href="https://www.linkedin.com/in/ericgang" target="_blank" rel="noopener noreferrer">
                 LinkedIn
               </a>
             </p>
