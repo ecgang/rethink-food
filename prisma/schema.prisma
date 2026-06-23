@@ -467,4 +467,6 @@ model SafetyCheck {
   checkedAt    DateTime        @default(now())
 
   @@index([kind, checkedAt])
+  // getActOnTodayAgg filters recent failed checks: (passed, checkedAt)
+  @@index([passed, checkedAt])
 }
