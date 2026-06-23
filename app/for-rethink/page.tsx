@@ -5,7 +5,7 @@ import { TrackedLink } from "@/components/tracked-link";
 export const metadata: Metadata = {
   title: "Rethink Command Center — built for your Lead Full-Stack Engineer role",
   description:
-    "A working demo of the Rethink Command Center — a human-reviewed AI operating layer, an installable field app, AI intake, and a network marketplace — built by Eric Gang for Rethink Food's Lead Full-Stack Engineer search, grounded in real NYC data.",
+    "Eric Gang's interpretation of the Rethink Command Center — a working prototype with a human-reviewed AI operating layer, an installable field app, AI intake, and a network marketplace — built on real NYC data for Rethink Food's Lead Full-Stack Engineer search. A concept to show approach and execution, not a finished blueprint.",
 };
 
 const REPO = "https://github.com/ecgang/rethink-food";
@@ -69,18 +69,25 @@ export default function ForRethinkPage() {
       <section className="bg-foreground text-background">
         <div className="mx-auto max-w-[1100px] px-5 py-14 sm:px-8 sm:py-20">
           <p className="text-[0.7rem] font-semibold uppercase tracking-[0.22em] text-brand">
-            A working demo · built for this role
+            A working prototype · my take on the role
           </p>
           <h1 className="mt-4 max-w-3xl font-display font-black leading-[0.95] tracking-tight text-[clamp(2.5rem,6vw,4.5rem)]">
             The Rethink<br />Command Center
           </h1>
           <p className="mt-6 max-w-2xl text-base leading-relaxed text-background/80 sm:text-lg">
-            I’m <span className="text-background">Eric Gang</span>. I built a working version of
-            the operating system described in your <span className="text-background">Lead Full-Stack
-            Engineer</span> posting — the Command Center, a <span className="text-background">human-reviewed
-            AI operating layer</span>, an installable field app, and the network marketplace loop —
-            grounded in <span className="text-brand">real NYC data</span>. This page is a short
-            tour; everything it links to is live and clickable.
+            I’m <span className="text-background">Eric Gang</span>. This is my interpretation of the
+            operating system your <span className="text-background">Lead Full-Stack Engineer</span>{" "}
+            posting describes — built end-to-end as a working prototype on{" "}
+            <span className="text-brand">real NYC data</span>: the Command Center, a{" "}
+            <span className="text-background">human-reviewed AI operating layer</span>, an installable
+            field app, and the network marketplace loop. I haven’t worked inside Rethink, so treat it
+            as a concept, not a blueprint — if I joined, I’d expect the real thing to be rebuilt
+            alongside your team, with the realities I can’t see from the outside. I built it to show
+            how I’d approach the problem, that I can ship, and that I took the business seriously
+            enough to model it.
+          </p>
+          <p className="mt-4 max-w-2xl text-sm leading-relaxed text-background/60">
+            Everything below is live and clickable — this page is a short tour.
           </p>
 
           <div className="mt-8 flex flex-wrap items-center gap-3">
