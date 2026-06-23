@@ -5,7 +5,7 @@ import { TrackedLink } from "@/components/tracked-link";
 export const metadata: Metadata = {
   title: "Rethink Command Center — built for your Lead Full-Stack Engineer role",
   description:
-    "Eric Gang's interpretation of the Rethink Command Center — a working prototype with a human-reviewed AI operating layer, an installable field app, AI intake, and a network marketplace — built on real NYC data for Rethink Food's Lead Full-Stack Engineer search. A concept to show approach and execution, not a finished blueprint.",
+    " I'm Eric Gang. Food insecurity is an operations problem as much as a funding one — getting the right meals to the right people, and proving it, at scale. So I built what I think a Rethink Command Center could look like, end to end on real NYC data: the dashboard, a human-reviewed AI operating layer, an installable field app, and the network marketplace loop. A concept, not a blueprint — but it runs.",
 };
 
 const REPO = "https://github.com/ecgang/rethink-food";
