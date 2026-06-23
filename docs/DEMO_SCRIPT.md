@@ -43,11 +43,29 @@ Restaurant Response shows a negative bar.)*
 
 ---
 
-### 0:45 — The field app (15s)
+### 0:45 — The field app (30s)
 *(Click **Field App**.)*
 > "This is the frontline operator view — installable on a phone. Tap a delivery, snap a proof
 > photo, mark it delivered; verify the next one. Each action clears the matching 'Act on today'
 > exception live, and the hero's verified-rate ticks up."
+
+*(Tap **Produce** on a planned meal.)*
+> "This is the step that was invisible before: **marking a meal produced**. Previously the lifecycle
+> jumped straight from planned to delivered — now the kitchen closes the `PLANNED → PRODUCED`
+> transition explicitly, so in-production count is real."
+
+*(Navigate to **Safety** — `/field/safety`.)*
+> "Before a batch ships, the kitchen runs a **food-safety checklist**: cold-holding temp logged,
+> handwashing, date-marking, allergen separation. The engine checks every required item against
+> the FDA 41°F cold-holding limit. Pass or fail is recorded on `SafetyCheck` — a failed check
+> within 72 hours surfaces immediately on the 'Act on today' feed."
+
+*(Navigate to **Incidents** — `/field/incidents`. Log a CRITICAL food-safety incident.)*
+> "If something's wrong — equipment failure, contamination risk — the operator logs an incident
+> with kind and severity. A CRITICAL or HIGH incident lands in 'Act on today' the moment it's
+> saved, and it shows up in the morning AI briefing. From the incident record you can draft a
+> **partner notice** through the existing draft-and-approve queue — the comms loop from before,
+> reused, not duplicated."
 
 ---
 

@@ -20,6 +20,10 @@
                       └── Server Actions (field) ──> Prisma + Vercel Blob (delivery photos)
                               ↑
                         /field — mobile-first operator PWA (installable; sw.js service worker)
+                              ├── /field/safety    — food-safety / QA checklists (SafetyCheck)
+                              └── /field/incidents — incident log and resolution (Incident)
+                              markProduced() closes PLANNED→PRODUCED (the only in-app lifecycle step
+                              that was previously uncontrolled)
 ```
 
 - **One source of truth for economics.** `lib/margin.ts` and `lib/exceptions.ts` are pure,
@@ -45,6 +49,8 @@
 | **Funding** | A **Funder** signs a **Contract** that funds a **Program**. MTM contracts also carry a Social Care Network (`scnPartner`). | `Funder`, `Contract` |
 | **Impact (MTM)** | Active members, retention, delivered-vs-prescribed fulfillment, attributed by Social Care Network. | `getMtmReporting()` |
 | **Exception** | A data condition an operator should act on, carrying a `reasonCode`, `severity`, and `recommendedAction`. | `lib/exceptions.ts` |
+| **Incident** | A problem logged from the kitchen or field (food-safety, quality, delivery, equipment, or other). Carries `kind`, `severity` (LOW/MEDIUM/HIGH/CRITICAL), and `status` (OPEN/ACKNOWLEDGED/RESOLVED). Open HIGH/CRITICAL incidents surface as "act on today" exceptions and can spawn an `INCIDENT_NOTICE` draft. | `Incident` model, `lib/incidents.ts` |
+| **SafetyCheck** | A food-safety or QA checklist result recorded in the field. Evaluated against required items plus an optional cold-holding temperature (FDA limit: 41°F). A recent failed check within 72h becomes an exception. | `SafetyCheck` model, `lib/safety.ts` |
 | **Ask the Operating Layer** | Natural-language Q&A over partners/funders/contracts via bounded retrieval tools; every answer cites the records it used. | `lib/ai/retrieval/`, `AskLog` |
 | **Today's briefing** | The exception feed narrated into a prioritized morning summary — severities come from the engine; the model only explains. | `lib/ai/briefing.ts`, `lib/briefing-board.ts` |
 | **Missing info** | Pending intake requests whose required fields are absent or low-confidence — the trigger for a follow-up draft. | `lib/ai/missing-info.ts` |
@@ -71,6 +77,9 @@ IntakeRequest *──0..1 Cbo     (AI intake audit trail)
 AskLog                         (Ask-the-Operating-Layer query log; no relations)
 DraftComm                      (draft-and-approve comms queue; no relations)
 Exception                      (computed live in lib/exceptions.ts; no DB table)
+
+Kitchen 1──* Incident          (optional; incident may also link to Market or Meal)
+Kitchen 1──* SafetyCheck       (optional; ties a check to the kitchen where it ran)
 ```
 
 ## The exception engine (the "act on today" feed)
@@ -85,6 +94,8 @@ challenge beats a black box. Each rule is a tunable constant in `lib/exceptions.
 | `KITCHEN_OVER_FOOD_BUDGET` | food cost/meal ≥ 20% over target | MEDIUM → HIGH at 40% |
 | `KITCHEN_UNDER_CAPACITY` | producing < 60% of weekly capacity | LOW |
 | `CONTRACT_BILLING_DUE` / `_OVERDUE` | invoice window ≤ 3 days / passed | HIGH / CRITICAL |
+| `INCIDENT_OPEN` | incident is OPEN or ACKNOWLEDGED **and** severity is HIGH or CRITICAL | inherits the incident's own severity (HIGH or CRITICAL) |
+| `SAFETY_CHECK_FAILED` | a failed check within the last 72h (`SAFETY_CHECK_RECENT_HOURS`) | HIGH for `FOOD_SAFETY`, MEDIUM for `QUALITY` |
 
 `now` is injected, so the rules are fully unit-testable (`tests/exceptions.test.ts`).
 
