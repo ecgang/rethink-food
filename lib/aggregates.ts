@@ -10,6 +10,7 @@
 import { Prisma } from "@prisma/client";
 import { prisma } from "@/lib/db";
 import type { CostType } from "@/lib/margin";
+import { KIND_LABELS } from "@/lib/incidents";
 import {
   detectExceptions,
   type ExceptionItem,
@@ -377,7 +378,7 @@ export async function getActOnTodayAgg(now: Date = new Date()): Promise<Exceptio
   }));
 
   const incidentSnapshots: IncidentSnapshot[] = incidentsRaw.map((i) => ({
-    id: i.id, kind: i.kind.replace(/_/g, " "), severity: i.severity, status: i.status,
+    id: i.id, kind: KIND_LABELS[i.kind], severity: i.severity, status: i.status,
     title: i.title, kitchenName: i.kitchen?.name ?? null,
   }));
 

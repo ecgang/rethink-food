@@ -3,34 +3,12 @@
 import { useRef, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { reportIncident } from "@/app/actions/incidents";
+import { downscale } from "@/lib/photo";
 import { KIND_LABELS, SEVERITY_LABELS, type IncidentKind, type IncidentSeverity } from "@/lib/incidents";
 
 export interface IncidentFormProps {
   kitchens: { id: string; name: string }[];
   canOperate: boolean;
-}
-
-/**
- * Downscale a captured photo to a small JPEG before upload — field connections
- * are slow and a raw camera frame can be several MB. Keeps the longest edge at
- * 1280px and re-encodes at q0.7 (typically 150–300 KB).
- */
-async function downscale(file: File): Promise<Blob> {
-  const bitmap = await createImageBitmap(file);
-  const maxEdge = 1280;
-  const scale = Math.min(1, maxEdge / Math.max(bitmap.width, bitmap.height));
-  const w = Math.round(bitmap.width * scale);
-  const h = Math.round(bitmap.height * scale);
-  const canvas = document.createElement("canvas");
-  canvas.width = w;
-  canvas.height = h;
-  const ctx = canvas.getContext("2d");
-  if (!ctx) return file;
-  ctx.drawImage(bitmap, 0, 0, w, h);
-  const blob = await new Promise<Blob | null>((resolve) =>
-    canvas.toBlob((b) => resolve(b), "image/jpeg", 0.7),
-  );
-  return blob ?? file;
 }
 
 const KINDS = Object.keys(KIND_LABELS) as IncidentKind[];

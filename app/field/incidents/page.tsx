@@ -2,7 +2,7 @@ import Link from "next/link";
 import { prisma } from "@/lib/db";
 import { getCurrentRole } from "@/lib/current-role";
 import { can } from "@/lib/roles";
-import { sortIncidents, openCount, type IncidentItem } from "@/lib/incidents";
+import { sortIncidents, openCount } from "@/lib/incidents";
 import { IncidentForm } from "@/components/field/incident-form";
 import { IncidentRow } from "@/components/field/incident-row";
 
@@ -28,12 +28,10 @@ export default async function IncidentsPage() {
 
   const canOperate = can(role, "operate:field");
 
-  // sortIncidents needs IncidentItem shape; the DB rows are a superset.
-  const incidents = sortIncidents(incidentsRaw as unknown as IncidentItem[]).map(
-    (sorted) => incidentsRaw.find((r) => r.id === sorted.id)!,
-  );
-
-  const open = openCount(incidentsRaw as unknown as IncidentItem[]);
+  // The DB rows are a superset of IncidentItem, so sortIncidents (generic) keeps
+  // their full shape — no cast or re-lookup needed.
+  const incidents = sortIncidents(incidentsRaw);
+  const open = openCount(incidentsRaw);
 
   return (
     <div className="max-w-md mx-auto">

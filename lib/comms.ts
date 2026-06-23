@@ -6,6 +6,7 @@
 import { prisma } from "@/lib/db";
 import { buildWeeklyReportPayload } from "@/lib/reports";
 import { detectMissingIntakeInfo } from "@/lib/ai/missing-info";
+import { KIND_LABELS } from "@/lib/incidents";
 import {
   draftIntakeClarification,
   draftDeliveryNudge,
@@ -115,7 +116,7 @@ export async function generateDraftFor(
       if (!inc) throw new Error("Incident not found.");
       content = await draftIncidentNotice({
         title: inc.title,
-        kind: inc.kind.replace(/_/g, " "),
+        kind: KIND_LABELS[inc.kind],
         severity: inc.severity,
         kitchenName: inc.kitchen?.name ?? null,
         partnerName: inc.meal?.cbo?.name ?? null,
