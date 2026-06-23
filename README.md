@@ -4,7 +4,7 @@
   <a href="https://rethink-food.ericgang.com"><img src="https://img.shields.io/badge/live_demo-rethink--food.ericgang.com-54d17e?style=flat-square" alt="Live demo"></a>
   <a href="https://github.com/ecgang/rethink-food/actions"><img src="https://img.shields.io/github/actions/workflow/status/ecgang/rethink-food/ci.yml?style=flat-square&label=CI" alt="CI"></a>
   <img src="https://img.shields.io/badge/Next.js-16-000000?style=flat-square&logo=nextdotjs&logoColor=white" alt="Next.js 16">
-  <img src="https://img.shields.io/badge/tests-280_passing-1f7a52?style=flat-square" alt="Tests">
+  <img src="https://img.shields.io/badge/tests-350_passing-1f7a52?style=flat-square" alt="Tests">
 </p>
 
 <p align="center">
@@ -20,6 +20,12 @@
   &nbsp;·&nbsp; <a href="https://rethink-food.ericgang.com/map">Demand Map</a>
   &nbsp;·&nbsp; <a href="https://rethink-food.ericgang.com/field">Field app</a>
 </p>
+
+<p align="center"><em>
+  Food insecurity is an operations problem as much as a funding one. This is what I think a<br>
+  Rethink Command Center could look like — built unprompted, end to end, on real NYC data.<br>
+  A concept, not a blueprint — but it runs.
+</em></p>
 
 > **Demo build — a portfolio piece for Rethink Food's _Lead Full-Stack Engineer_ search; not affiliated with Rethink Food.**
 > **Geography, restaurants, community partners, food-insecurity rates, and Social Care Networks are real** (NYC Open Data,
@@ -102,7 +108,7 @@ npm run dev                 # http://localhost:3000
 
 ```bash
 npm run typecheck   # tsc --noEmit
-npm test            # Vitest — 280 tests (margin, exceptions, field, intake evals, ask, briefing, comms…)
+npm test            # Vitest — 350 tests (margin, exceptions, field, safety, incidents, intake evals, ask, briefing, comms…)
 npm run build       # prisma generate && next build
 ```
 
