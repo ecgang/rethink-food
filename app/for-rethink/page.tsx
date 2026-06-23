@@ -5,7 +5,7 @@ import { TrackedLink } from "@/components/tracked-link";
 export const metadata: Metadata = {
   title: "Rethink Command Center — built for your Lead Full-Stack Engineer role",
   description:
-    " I'm Eric Gang. Food insecurity is an operations problem as much as a funding one — getting the right meals to the right people, and proving it, at scale. So I built what I think a Rethink Command Center could look like, end to end on real NYC data: the dashboard, a human-reviewed AI operating layer, an installable field app, and the network marketplace loop. A concept, not a blueprint — but it runs.",
+    "Eric Gang's working prototype of a Rethink Command Center, built unprompted for the Lead Full-Stack Engineer role — a human-reviewed AI operating layer, an installable field app, AI intake, and a network marketplace, on real NYC data. A concept, not a blueprint, but it runs.",
 };
 
 const REPO = "https://github.com/ecgang/rethink-food";
@@ -75,13 +75,13 @@ export default function ForRethinkPage() {
             The Rethink<br />Command Center
           </h1>
           <p className="mt-6 max-w-2xl text-base leading-relaxed text-background/80 sm:text-lg">
-            I’m <span className="text-background">Eric Gang</span>. Rather than tell you I could build
-            the system your <span className="text-background">Lead Full-Stack Engineer</span> posting
-            describes, I built my interpretation of it — end to end, on{" "}
-            <span className="text-brand">real NYC data</span>: the Command Center, a{" "}
+            I’m <span className="text-background">Eric Gang</span>. Food insecurity is an operations
+            problem as much as a funding one — getting the right meals to the right people, and{" "}
+            <span className="text-background">proving it</span>, at scale. So I built what I think a
+            Rethink Command Center could look like, end to end on{" "}
+            <span className="text-brand">real NYC data</span>: the dashboard, a{" "}
             <span className="text-background">human-reviewed AI operating layer</span>, an installable
-            field app, and the network marketplace loop. It’s a concept, not a blueprint.{" "}
-            <span className="text-background">It’s also live.</span>
+            field app, and the network marketplace loop. A concept, not a blueprint — but it runs.
           </p>
           <p className="mt-4 max-w-2xl text-sm leading-relaxed text-background/60">
             This page is a short tour — every link is real and clickable.
@@ -110,9 +110,9 @@ export default function ForRethinkPage() {
           <div className="mt-12 flex flex-wrap gap-x-12 gap-y-6">
             <HeroStatsRow
               stats={[
-                { value: 279, label: "automated tests · CI-green" },
+                { value: 350, label: "automated tests · CI-green" },
                 { value: 87, label: "real NYC partners (restaurants + CBOs)" },
-                { value: 3, label: "end-to-end product clusters shipped" },
+                { value: 4, label: "end-to-end product clusters shipped" },
               ]}
             />
           </div>
