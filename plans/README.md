@@ -26,9 +26,21 @@ Repo verification commands (used across plans): `npm run typecheck`,
 | 011 | Remove dead `Exception` model + `Severity` enum | P2 | S | — | DONE (migration applied to Neon) |
 | 012 | Verify chart bundle cost, defer charts only if it helps | P3 | S | — | REJECTED — measured: Recharts already route-isolated (loaded only by `/`); see plan 012 verdict |
 | 013 | Refresh docs for field PWA, audit columns, live metrics | P2 | S | 011* | DONE |
+| 014 | Guard/validation tests for safety + incident server actions | P1 | M | — | DONE (tests/{safety,incidents}-actions.test.ts; +27 tests) |
+| 015 | Doc drift: Incident/SafetyCheck in ARCHITECTURE + DEMO_SCRIPT | P2 | S | — | DONE |
+| 016 | Consolidate IncidentKind→label via KIND_LABELS (3 ad-hoc transforms) | P2 | S | — | DONE |
+| 017 | Extract shared photo `downscale` helper to lib/photo.ts | P3 | S | — | DONE |
+| 018 | Simplify /field/incidents sort (drop cast + O(n²) re-lookup) | P3 | S | — | DONE |
+| 019 | Index SafetyCheck(passed, checkedAt) for the act-on-today filter | P3 | S | — | DONE (local; Neon pending operator deploy) |
 
 Status values: TODO | IN PROGRESS | DONE | BLOCKED (one-line reason) | REJECTED
 (one-line rationale).
+
+> **2026-06-22 round (audited against `9dfe87a`).** Plans 014–019 came from a
+> second `/improve` pass after the Kitchen & Field Ops feature shipped. All
+> implemented in-session (no separate plan files — small, high-confidence). 019's
+> index migration is applied locally; apply to Neon with `prisma migrate deploy`
+> (unpooled URL) on the next deploy.
 
 ## Recommended sequencing
 
@@ -74,6 +86,19 @@ These are independent unless noted. A sensible order:
   escapes); assorted type-hygiene nits (`as` casts, non-null assertions)** — low
   leverage; left as-is.
 - **Prisma v7 upgrade** — explicitly out of scope; v6 is pinned by ADR 8.
+- **Ask-page markdown XSS (2026-06-22)** — not exploitable: `react-markdown@9`
+  renders no raw HTML without `rehype-raw` (absent), and v9's default
+  `urlTransform` strips dangerous URI schemes. No action.
+- **"Missing index on Incident(status,severity)" (2026-06-22)** — false; the
+  `@@index([status, severity])` already exists.
+- **Unbounded kitchen/contract/meal loads in `getActOnTodayAgg` (2026-06-22)** —
+  dataset is bounded (13 markets, 2 kitchens, a handful of contracts); premature
+  at this scale. Revisit only if the producer/contract count grows large.
+- **Kitchen-deletion orphans incidents (2026-06-22)** — kitchens aren't deleted
+  in this app; the null is handled gracefully. Speculative.
+- **Field pages read-gate + cron fail-closed (2026-06-22)** — left as-is: with
+  open role selection (ADR 10) the field read-gate isn't a real boundary, and
+  prod always has `CRON_SECRET` set. Minor; not worth the churn now.
 
 ## Notes for the maintainer
 
