@@ -3,9 +3,9 @@ import { HeroStatsRow } from "@/components/hero-band";
 import { TrackedLink } from "@/components/tracked-link";
 
 export const metadata: Metadata = {
-  title: "Rethink Command Center — built for your Lead Full-Stack Engineer role",
+  title: "Rethink Command Center, built for the Lead Full-Stack Engineer role",
   description:
-    "Eric Gang's working prototype of a Rethink Command Center, built unprompted for the Lead Full-Stack Engineer role — a human-reviewed AI operating layer, an installable field app, AI intake, and a network marketplace, on real NYC data. A concept, not a blueprint, but it runs.",
+    "Eric Gang's working prototype of a Rethink Command Center, built unprompted for the Lead Full-Stack Engineer role: a human-reviewed AI operating layer, an installable field app, AI intake, and a network marketplace, on real NYC data. A concept, not a blueprint, but it runs.",
 };
 
 const REPO = "https://github.com/ecgang/rethink-food";
@@ -16,26 +16,26 @@ const TOUR: { href: string; title: string; note: string; cta: string; badge?: st
   {
     href: "/",
     title: "Command Center",
-    note: "Meals planned → produced → delivered → verified, line-itemed unit economics, and contribution margin sliced by program, kitchen, contract, or market — plus an “act on today” exception engine. Use the role switcher (top-left) and watch financials redact for Operations.",
+    note: "Meals planned → produced → delivered → verified, line-itemed unit economics, and contribution margin sliced by program, kitchen, contract, or market, plus an “act on today” exception engine. Use the role switcher (top-left) and watch financials redact for Operations.",
     cta: "Open the dashboard",
   },
   {
     href: "/ask",
     title: "AI operating layer",
-    note: "A human-reviewed layer on top of the deterministic engines — the model narrates, drafts, and retrieves, but never computes a number. Ask plain-English questions and get cited answers that link to the real record; scan an AI “today’s briefing” of what needs action; and draft partner follow-ups, reconciliation notes, and a board narrative into an approve-or-discard queue that never auto-sends.",
+    note: "A human-reviewed layer on top of the deterministic engines: the model narrates, drafts, and retrieves, but never computes a number. Ask plain-English questions and get cited answers that link to the real record; scan an AI “today’s briefing” of what needs action; and draft partner follow-ups, reconciliation notes, and a board narrative into an approve-or-discard queue that never auto-sends.",
     cta: "Ask the operating layer",
   },
   {
     href: "/intake",
     title: "AI Intake",
-    note: "Paste a partner’s free-text email; Claude extracts a structured request with per-field confidence. An operator approves before anything is written — human-in-the-loop, with an input-safety guardrail and an eval harness behind it.",
+    note: "Paste a partner’s free-text email; Claude extracts a structured request with per-field confidence. An operator approves before anything is written. Human-in-the-loop, with an input-safety guardrail and an eval harness behind it.",
     cta: "Try the intake",
   },
   {
     href: "/field",
     title: "Field operator app",
     badge: "Installable PWA",
-    note: "A mobile-first companion to the Command Center: a frontline operator installs it to their phone’s home screen, taps a delivery, snaps a proof photo, and marks it delivered or verified. Each action clears the matching “act on today” exception live and ticks the verified-rate up — closing the produced→delivered→verified loop from the field.",
+    note: "A mobile-first companion to the Command Center: a frontline operator installs it to their phone’s home screen, taps a delivery, snaps a proof photo, and marks it delivered or verified. Each action clears the matching “act on today” exception live and ticks the verified-rate up, closing the produced→delivered→verified loop from the field.",
     cta: "Open the field app",
   },
   {
@@ -47,13 +47,13 @@ const TOUR: { href: string; title: string; note: string; cta: string; badge?: st
   {
     href: "/funders",
     title: "Funder impact + automated reports",
-    note: "“What your support made possible” per funder — meals served, dollars delivered, neighborhoods reached — with CSV export and a weekly cron-generated snapshot under Reports.",
+    note: "“What your support made possible” per funder: meals served, dollars delivered, neighborhoods reached, with CSV export and a weekly cron-generated snapshot under Reports.",
     cta: "See funder impact",
   },
   {
     href: "/audit",
     title: "Audit trail",
-    note: "Every operator action — approvals, fulfillments, deliveries, invoices, and AI-draft reviews — attributed and timestamped. The “auditability” the posting asks for, made visible.",
+    note: "Every operator action (approvals, fulfillments, deliveries, invoices, and AI-draft reviews), attributed and timestamped. The “auditability” the posting asks for, made visible.",
     cta: "Open the audit log",
   },
 ];
@@ -75,16 +75,16 @@ export default function ForRethinkPage() {
             The Rethink<br />Command Center
           </h1>
           <p className="mt-6 max-w-2xl text-base leading-relaxed text-background/80 sm:text-lg">
-            I’m <span className="text-background">Eric Gang</span>. Food insecurity is an operations
-            problem as much as a funding one — getting the right meals to the right people, and{" "}
-            <span className="text-background">proving it</span>, at scale. So I built what I think a
-            Rethink Command Center could look like, end to end on{" "}
+            Hello, I’m <span className="text-background">Eric Gang</span>. Food insecurity is an
+            operations problem as much as a funding one. It comes down to getting the right meals to
+            the right people, and <span className="text-background">proving it</span>, at scale. So I
+            built what I think a Rethink Command Center could look like, end to end on{" "}
             <span className="text-brand">real NYC data</span>: the dashboard, a{" "}
             <span className="text-background">human-reviewed AI operating layer</span>, an installable
-            field app, and the network marketplace loop. A concept, not a blueprint — but it runs.
+            field app, and the network marketplace loop. A concept, not a blueprint. But it runs.
           </p>
           <p className="mt-4 max-w-2xl text-sm leading-relaxed text-background/60">
-            This page is a short tour — every link is real and clickable.
+            This page is a short tour. Every link is real and clickable.
           </p>
 
           <div className="mt-8 flex flex-wrap items-center gap-3">
@@ -174,7 +174,7 @@ export default function ForRethinkPage() {
                 <span className="font-semibold"> operate</span> (the Command Center) →
                 <span className="font-semibold"> network</span> (partners, the demand map, supply
                 matching) → <span className="font-semibold"> marketplace</span> (an approved intake
-                request becomes scheduled meals, then funder reporting) — with a{" "}
+                request becomes scheduled meals, then funder reporting), with a{" "}
                 <span className="font-semibold">human-reviewed AI operating layer</span> (ask,
                 briefing, drafting) woven across.
               </p>
@@ -183,11 +183,11 @@ export default function ForRethinkPage() {
                 Open Data (2020 Neighborhood Tabulation Areas), Rethink’s actual published partner
                 roster, Feeding America food-insecurity rates, and the real NY 1115-waiver Social
                 Care Networks. Canonical definitions live in one module so “meal,” “cost,”
-                “revenue,” and “funding” mean the same thing throughout — enforced by a contract
+                “revenue,” and “funding” mean the same thing throughout, enforced by a contract
                 test that fails if any two views disagree.
               </p>
               <p>
-                <span className="font-semibold">Production hygiene, not just a demo.</span> 279
+                <span className="font-semibold">Production hygiene, not just a demo.</span> 350
                 tests with CI (typecheck → lint → test → build), an HMAC-signed role cookie with
                 server-side capability gates on every write, atomic scheduling, a{" "}
                 <code className="rounded bg-foreground/[0.06] px-1 py-0.5 text-[0.8em]">/health</code>{" "}
@@ -197,7 +197,7 @@ export default function ForRethinkPage() {
               <p>
                 <span className="font-semibold">Build-vs-buy discipline.</span> Full SSO, four-system
                 integrations, and an offline write-queue for the field app are deliberately{" "}
-                <em>not</em> built — each a documented decision, because the role screens for
+                <em>not</em> built. Each is a documented decision, because the role screens for
                 shipping over overengineering.
               </p>
             </div>
@@ -210,7 +210,7 @@ export default function ForRethinkPage() {
                 <p className="mt-2 text-sm leading-relaxed">
                   TypeScript · Next.js 16 (App Router, RSC + Server Actions) · installable PWA ·
                   PostgreSQL · Prisma · Neon · Tailwind v4 · Anthropic SDK (tool-use / structured
-                  output / agentic retrieval — no vector DB) · Vitest · GitHub Actions · Vercel.
+                  output / agentic retrieval, no vector DB) · Vitest · GitHub Actions · Vercel.
                 </p>
               </div>
               <div className="rounded-xl border border-border bg-surface p-5">
@@ -230,7 +230,7 @@ export default function ForRethinkPage() {
                   </li>
                   <li>
                     <TrackedLink external event="view_docs" data={{ doc: "decisions" }} className="font-semibold text-brand-deep hover:underline" href={DECISIONS}>
-                      Decision log — every tradeoff, in plain language <Arrow />
+                      Decision log: every tradeoff, in plain language <Arrow />
                     </TrackedLink>
                   </li>
                 </ul>
@@ -251,15 +251,15 @@ export default function ForRethinkPage() {
             <p className="mt-2 text-sm leading-relaxed text-muted">
               Geography, restaurants, community partners, food-insecurity rates, and the Social Care
               Networks are real (NYC Open Data, Feeding America, NY 1115 waiver). Meal-level volumes
-              and costs are synthetic — generated <em>against</em> that real geography — and a few
+              and costs are synthetic (generated <em>against</em> that real geography), and a few
               partner↔Rethink associations are illustrative. All noted honestly in the app.
             </p>
           </div>
           <div className="rounded-xl border border-border bg-surface p-5">
             <h3 className="font-display text-base font-bold">Auth is intentional</h3>
             <p className="mt-2 text-sm leading-relaxed text-muted">
-              The role cookie is HMAC-signed (tamper-evident), but role <em>selection</em> is open —
-              no login wall — by demo choice, so you can switch between Operations / Finance /
+              The role cookie is HMAC-signed (tamper-evident), but role <em>selection</em> is open
+              (no login wall) by demo choice, so you can switch between Operations / Finance /
               Executive and watch the permission model work live. SSO swaps in behind the same
               capability checks; nothing else changes.
             </p>
