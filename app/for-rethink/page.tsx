@@ -75,19 +75,16 @@ export default function ForRethinkPage() {
             The Rethink<br />Command Center
           </h1>
           <p className="mt-6 max-w-2xl text-base leading-relaxed text-background/80 sm:text-lg">
-            I’m <span className="text-background">Eric Gang</span>. This is my interpretation of the
-            operating system your <span className="text-background">Lead Full-Stack Engineer</span>{" "}
-            posting describes — built end-to-end as a working prototype on{" "}
+            I’m <span className="text-background">Eric Gang</span>. Rather than tell you I could build
+            the system your <span className="text-background">Lead Full-Stack Engineer</span> posting
+            describes, I built my interpretation of it — end to end, on{" "}
             <span className="text-brand">real NYC data</span>: the Command Center, a{" "}
             <span className="text-background">human-reviewed AI operating layer</span>, an installable
-            field app, and the network marketplace loop. I haven’t worked inside Rethink, so treat it
-            as a concept, not a blueprint — if I joined, I’d expect the real thing to be rebuilt
-            alongside your team, with the realities I can’t see from the outside. I built it to show
-            how I’d approach the problem, that I can ship, and that I took the business seriously
-            enough to model it.
+            field app, and the network marketplace loop. It’s a concept, not a blueprint.{" "}
+            <span className="text-background">It’s also live.</span>
           </p>
           <p className="mt-4 max-w-2xl text-sm leading-relaxed text-background/60">
-            Everything below is live and clickable — this page is a short tour.
+            This page is a short tour — every link is real and clickable.
           </p>
 
           <div className="mt-8 flex flex-wrap items-center gap-3">
